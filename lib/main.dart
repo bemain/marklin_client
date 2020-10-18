@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:marklin_bluetooth/widgets.dart';
@@ -121,20 +119,25 @@ class _ControllerScreenState extends State<ControllerScreen> {
                     return Center(child: Text('Error: ${snapshot.error}'));
                   } else {
                     return Column(children: <Widget>[
-                      Transform.rotate(
-                          angle: -pi / 2,
-                          child: Slider(
-                            value: speed,
-                            onChanged: (value) {
-                              setState(() {
-                                speed = value;
-                                print("Speed: " + value.toString());
-                              });
-                            },
-                          )),
+                      Expanded(
+                          child: RotatedBox(
+                              quarterTurns: -1,
+                              child: Slider(
+                                value: speed,
+                                onChanged: (value) {
+                                  setState(() {
+                                    speed = value;
+                                    print("Speed: " + value.toString());
+                                  });
+                                },
+                              ))),
                       FlatButton(
                         child: Icon(Icons.bluetooth_disabled),
-                        onPressed: () => widget.device.disconnect(),
+                        onPressed: () {
+                          widget.device.disconnect();
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => FindDevicesScreen()));
+                        },
                       )
                     ]);
                   }
