@@ -58,6 +58,16 @@ class FindDevicesScreen extends StatelessWidget {
             color: Colors.black,
             height: 10,
           ),
+          StreamBuilder(
+              stream: flutterBlue.isScanning,
+              builder: (c, snapshot) => FlatButton(
+                  child: Icon(snapshot.data == false
+                      ? Icons.bluetooth
+                      : Icons.bluetooth_searching),
+                  onPressed: () {
+                    if (snapshot.data == false)
+                      flutterBlue.startScan(timeout: Duration(seconds: 4));
+                  })),
         ])),
       ),
     );
@@ -110,17 +120,23 @@ class _ControllerScreenState extends State<ControllerScreen> {
                   if (snapshot.hasError) {
                     return Center(child: Text('Error: ${snapshot.error}'));
                   } else {
-                    return Transform.rotate(
-                        angle: -pi / 2,
-                        child: Slider(
-                          value: speed,
-                          onChanged: (value) {
-                            setState(() {
-                              speed = value;
-                              print("Speed: " + value.toString());
-                            });
-                          },
-                        ));
+                    return Column(children: <Widget>[
+                      Transform.rotate(
+                          angle: -pi / 2,
+                          child: Slider(
+                            value: speed,
+                            onChanged: (value) {
+                              setState(() {
+                                speed = value;
+                                print("Speed: " + value.toString());
+                              });
+                            },
+                          )),
+                      FlatButton(
+                        child: Icon(Icons.bluetooth_disabled),
+                        onPressed: () => widget.device.disconnect(),
+                      )
+                    ]);
                   }
                 }
             }
