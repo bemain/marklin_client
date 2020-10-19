@@ -33,41 +33,32 @@ class FindDevicesScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text("Find Devices"),
       ),
-      body: RefreshIndicator(
-        onRefresh: () => flutterBlue.startScan(timeout: Duration(seconds: 4)),
-        child: SingleChildScrollView(
-            child: Column(children: [
-          StreamBuilder<List<ScanResult>>(
-              stream: flutterBlue.scanResults,
-              initialData: [],
-              builder: (c, snapshot) => Column(
-                    children: snapshot.data
-                        .map((r) => BluetoothDeviceTile(
-                              device: r.device,
-                              onTap: () {
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) =>
-                                        ControllerScreen(device: r.device)));
-                              },
-                            ))
-                        .toList(),
-                  )),
-          Container(
-            color: Colors.black,
-            height: 10,
-          ),
-          StreamBuilder(
-              stream: flutterBlue.isScanning,
-              builder: (c, snapshot) => FlatButton(
-                  child: Icon(snapshot.data == false
-                      ? Icons.bluetooth
-                      : Icons.bluetooth_searching),
-                  onPressed: () {
-                    if (snapshot.data == false)
-                      flutterBlue.startScan(timeout: Duration(seconds: 4));
-                  })),
-        ])),
+      body: SingleChildScrollView(
+        child: StreamBuilder<List<ScanResult>>(
+            stream: flutterBlue.scanResults,
+            initialData: [],
+            builder: (c, snapshot) => Column(
+                  children: snapshot.data
+                      .map((r) => BluetoothDeviceTile(
+                            device: r.device,
+                            onTap: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) =>
+                                      ControllerScreen(device: r.device)));
+                            },
+                          ))
+                      .toList(),
+                )),
       ),
+      floatingActionButton: StreamBuilder(
+          stream: flutterBlue.isScanning,
+          builder: (c, snapshot) => FloatingActionButton(
+              child: Icon(
+                  snapshot.data ? Icons.bluetooth_searching : Icons.search),
+              onPressed: () {
+                if (!snapshot.data)
+                  flutterBlue.startScan(timeout: Duration(seconds: 4));
+              })),
     );
   }
 }
