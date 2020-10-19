@@ -104,6 +104,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
               case ConnectionState.waiting:
                 return Column(
                     mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
                       CircularProgressIndicator(),
                       Text('Connecting to device...')
