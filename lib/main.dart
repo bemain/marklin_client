@@ -94,15 +94,20 @@ class _ControllerScreenState extends State<ControllerScreen> {
           builder: (c, snapshot) {
             switch (snapshot.connectionState) {
               case ConnectionState.none:
-                return Center(child: Text('Device not found...'));
+                return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      Icon(Icons.device_unknown),
+                      Text('Device not found...')
+                    ]);
               case ConnectionState.waiting:
-                return Center(
-                    child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
+                return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
                       CircularProgressIndicator(),
                       Text('Connecting to device...')
-                    ]));
+                    ]);
 
               default:
                 {
