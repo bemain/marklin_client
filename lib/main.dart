@@ -26,9 +26,6 @@ class FindDevicesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     FlutterBlue flutterBlue = FlutterBlue.instance;
 
-    // Start scan
-    flutterBlue.startScan(timeout: Duration(seconds: 4));
-
     return Scaffold(
       appBar: AppBar(
         title: Text("Find Devices"),
@@ -53,8 +50,9 @@ class FindDevicesScreen extends StatelessWidget {
       floatingActionButton: StreamBuilder(
           stream: flutterBlue.isScanning,
           builder: (c, snapshot) => FloatingActionButton(
-              child: Icon(
-                  snapshot.data ? Icons.bluetooth_searching : Icons.search),
+              child: Icon(snapshot.hasData
+                  ? (snapshot.data ? Icons.bluetooth_searching : Icons.search)
+                  : Icons.bluetooth_disabled),
               onPressed: () {
                 if (!snapshot.data)
                   flutterBlue.startScan(timeout: Duration(seconds: 4));
@@ -73,14 +71,14 @@ class ControllerScreen extends StatefulWidget {
 }
 
 class _ControllerScreenState extends State<ControllerScreen> {
-  Future<void> _connect;
-  double speed = 0;
+  Future<void> _futureConnect;
 
   @override
   void initState() {
     super.initState();
 
-    _connect = widget.device.connect();
+    print(widget.device.toString());
+    _futureConnect = widget.device.connect();
   }
 
   @override
@@ -90,55 +88,42 @@ class _ControllerScreenState extends State<ControllerScreen> {
         title: Text("Märklin BLE Controller"),
       ),
       body: FutureBuilder(
-          future: _connect,
+          future: _futureConnect,
           builder: (c, snapshot) {
             switch (snapshot.connectionState) {
               case ConnectionState.none:
-                return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
+                return Center(
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
                       Icon(Icons.device_unknown),
                       Text('Device not found...')
-                    ]);
+                    ]));
               case ConnectionState.waiting:
-                return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
+                return Center(
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
                       CircularProgressIndicator(),
                       Text('Connecting to device...')
-                    ]);
+                    ]));
 
               default:
-                {
-                  if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  } else {
-                    return Column(children: <Widget>[
-                      Expanded(
-                          child: RotatedBox(
-                              quarterTurns: -1,
-                              child: Slider(
-                                value: speed,
-                                onChanged: (value) {
-                                  setState(() {
-                                    speed = value;
-                                    print("Speed: " + value.toString());
-                                  });
-                                },
-                              ))),
-                      FlatButton(
-                        child: Icon(Icons.bluetooth_disabled),
-                        onPressed: () {
-                          widget.device.disconnect();
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => FindDevicesScreen()));
-                        },
-                      )
-                    ]);
-                  }
-                }
+                return snapshot.hasError
+                    ? Center(child: Text('Error: ${snapshot.error}'))
+                    : Column(children: <Widget>[
+                        SpeedSlider(
+                          device: widget.device,
+                        ),
+                        FlatButton(
+                          child: Icon(Icons.bluetooth_disabled),
+                          onPressed: () {
+                            widget.device.disconnect();
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => FindDevicesScreen()));
+                          },
+                        )
+                      ]);
             }
           }),
     );
