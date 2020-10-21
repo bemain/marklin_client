@@ -48,65 +48,83 @@ class SpeedSlider extends StatefulWidget {
 }
 
 class SpeedSliderState extends State<SpeedSlider> {
-  Future<void> _futureSpeed;
-  double speed = 0;
+  double speed = 50.0;
+  bool sendNeeded = true;
+
+  BluetoothCharacteristic _characteristic;
 
   @override
   void initState() {
     super.initState();
-    _futureSpeed = sendSpeed(widget.device, speed);
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: _futureSpeed,
+        future: getCharacteristic(),
         builder: (c, snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.none:
-              return Center(child: Text("Device not found..."));
-            case ConnectionState.waiting:
-              return Center(child: CircularProgressIndicator());
+          if (!snapshot.hasData)
+            return InfoScreen(
+                icon: CircularProgressIndicator(),
+                text: "Getting Characteristic");
+          else {
+            _characteristic = snapshot.data;
+            startSendLoop();
 
-            default:
-              return snapshot.hasError
-                  ? Center(child: Text('Error: ${snapshot.error}'))
-                  : Expanded(
-                      child: RotatedBox(
-                          quarterTurns: -1,
-                          child: Slider(
-                            value: speed,
-                            onChanged: (value) {
-                              setState(() {
-                                speed = value;
-                                _futureSpeed = sendSpeed(widget.device, speed);
-                                print("Speed: " + value.toString());
-                              });
-                            },
-                          )));
+            return RotatedBox(
+                quarterTurns: -1,
+                child: Slider(
+                  value: speed,
+                  min: 0,
+                  max: 255,
+                  onChanged: (value) {
+                    sendNeeded = true;
+                    setState(() {
+                      speed = value;
+                    });
+                  },
+                ));
           }
         });
   }
 
-  Future<void> sendSpeed(BluetoothDevice device, double speed) async {
-    List<BluetoothService> services = await device.discoverServices();
+  Future<BluetoothCharacteristic> getCharacteristic() async {
+    List<BluetoothService> services = await widget.device.discoverServices();
 
-    for (var s in services) {
-      print("Service: " + s.uuid.toString());
-    }
-
-    BluetoothService service = services.firstWhere(
+    var service = services.firstWhere(
         (s) => s.uuid == Guid("0000180c-0000-1000-8000-00805f9b34fb"));
-
-    for (var s in service.characteristics) {
-      print("Char: " + s.uuid.toString());
-    }
-
     var char = service.characteristics.firstWhere(
         (c) => c.uuid == Guid("0000180c-0000-1000-8000-00805f9b34fb"));
-    print(char);
 
-    await char.write([1]);
-    print("Write done.");
+    return char;
+  }
+
+  Future<void> startSendLoop() async {
+    while (true) {
+      await Future.delayed(Duration(milliseconds: 100));
+      if (sendNeeded) {
+        await sendSpeed();
+      }
+    }
+  }
+
+  Future<void> sendSpeed() async {
+    await _characteristic.write([speed.toInt()], withoutResponse: true);
+    sendNeeded = false;
+  }
+}
+
+class InfoScreen extends StatelessWidget {
+  const InfoScreen({Key key, this.icon, this.text}) : super(key: key);
+
+  final Widget icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[icon, Text(text)]));
   }
 }

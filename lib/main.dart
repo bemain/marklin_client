@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: "Märklin BLE Car Controller",
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -22,31 +22,43 @@ class MyApp extends StatelessWidget {
 }
 
 class FindDevicesScreen extends StatelessWidget {
+  final FlutterBlue flutterBlue = FlutterBlue.instance;
+
   @override
   Widget build(BuildContext context) {
-    FlutterBlue flutterBlue = FlutterBlue.instance;
-
     return Scaffold(
       appBar: AppBar(
-        title: Text("Find Devices"),
+        title: Text("Connect Bluetooth"),
       ),
       body: SingleChildScrollView(
-        child: StreamBuilder<List<ScanResult>>(
-            stream: flutterBlue.scanResults,
-            initialData: [],
-            builder: (c, snapshot) => Column(
-                  children: snapshot.data
-                      .map((r) => BluetoothDeviceTile(
-                            device: r.device,
-                            onTap: () {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) =>
-                                      ControllerScreen(device: r.device)));
-                            },
-                          ))
-                      .toList(),
-                )),
-      ),
+          child: FutureBuilder(
+        future: flutterBlue.isAvailable,
+        builder: (c, snapshot) => !snapshot.hasData
+            ? InfoScreen(
+                icon: CircularProgressIndicator(),
+                text: "Waiting for Bluetooth")
+            : (snapshot.data == false)
+                ? InfoScreen(
+                    icon: Icon(Icons.bluetooth_disabled),
+                    text: "Bluetooth unavailable")
+                : StreamBuilder<List<ScanResult>>(
+                    stream: flutterBlue.scanResults,
+                    initialData: [],
+                    builder: (c, snapshot) => Column(
+                          children: snapshot.data
+                              .map((r) => BluetoothDeviceTile(
+                                    device: r.device,
+                                    onTap: () {
+                                      Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ControllerScreen(
+                                                      device: r.device)));
+                                    },
+                                  ))
+                              .toList(),
+                        )),
+      )),
       floatingActionButton: StreamBuilder(
           stream: flutterBlue.isScanning,
           builder: (c, snapshot) => FloatingActionButton(
@@ -85,6 +97,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text("Märklin BLE Controller"),
       ),
       body: FutureBuilder(
@@ -92,40 +105,29 @@ class _ControllerScreenState extends State<ControllerScreen> {
           builder: (c, snapshot) {
             switch (snapshot.connectionState) {
               case ConnectionState.none:
-                return Center(
-                    child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                      Icon(Icons.device_unknown),
-                      Text('Device not found...')
-                    ]));
+                return InfoScreen(
+                    icon: Icon(Icons.bluetooth_disabled),
+                    text: "Device unavailable");
               case ConnectionState.waiting:
-                return Center(
-                    child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                      CircularProgressIndicator(),
-                      Text('Connecting to device...')
-                    ]));
+                return InfoScreen(
+                    icon: CircularProgressIndicator(),
+                    text: "Connecting to device...");
 
               default:
                 return snapshot.hasError
                     ? Center(child: Text('Error: ${snapshot.error}'))
-                    : Column(children: <Widget>[
-                        SpeedSlider(
-                          device: widget.device,
-                        ),
-                        FlatButton(
-                          child: Icon(Icons.bluetooth_disabled),
-                          onPressed: () {
-                            widget.device.disconnect();
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => FindDevicesScreen()));
-                          },
-                        )
-                      ]);
+                    : SpeedSlider(device: widget.device);
             }
           }),
+      bottomNavigationBar: FlatButton(
+        child: Icon(Icons.bluetooth_disabled),
+        onPressed: () {
+          widget.device.disconnect();
+          Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) => FindDevicesScreen()),
+              (Route<dynamic> route) => false);
+        },
+      ),
     );
   }
 }
