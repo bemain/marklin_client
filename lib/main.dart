@@ -7,7 +7,6 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -61,12 +60,13 @@ class FindDevicesScreen extends StatelessWidget {
       )),
       floatingActionButton: StreamBuilder(
           stream: flutterBlue.isScanning,
+          initialData: false,
           builder: (c, snapshot) => FloatingActionButton(
-              child: Icon(snapshot.hasData
-                  ? (snapshot.data ? Icons.bluetooth_searching : Icons.search)
-                  : Icons.bluetooth_disabled),
+              child: Icon(
+                  snapshot.data ? Icons.bluetooth_searching : Icons.search),
               onPressed: () {
                 if (!snapshot.data)
+                  // Not scanning
                   flutterBlue.startScan(timeout: Duration(seconds: 4));
               })),
     );
