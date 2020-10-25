@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 
@@ -49,13 +51,17 @@ class SpeedSlider extends StatefulWidget {
 
 class SpeedSliderState extends State<SpeedSlider> {
   double speed = 50.0;
-  bool sendNeeded = true;
+  bool sendNeeded = false;
 
   BluetoothCharacteristic _characteristic;
+
+  //TODO: Stop timer on disconnect
+  Timer _sendLoop;
 
   @override
   void initState() {
     super.initState();
+    _sendLoop = Timer.periodic(Duration(milliseconds: 100), sendSpeed);
   }
 
   @override
@@ -69,7 +75,6 @@ class SpeedSliderState extends State<SpeedSlider> {
                 text: "Getting Characteristic");
           else {
             _characteristic = snapshot.data;
-            startSendLoop();
 
             return RotatedBox(
                 quarterTurns: -1,
@@ -99,18 +104,12 @@ class SpeedSliderState extends State<SpeedSlider> {
     return char;
   }
 
-  Future<void> startSendLoop() async {
-    while (true) {
-      await Future.delayed(Duration(milliseconds: 100));
-      if (sendNeeded) {
-        await sendSpeed();
-      }
+  void sendSpeed(Timer timer) async {
+    print("(Maybe) sending speed");
+    if (sendNeeded) {
+      await _characteristic.write([speed.toInt()], withoutResponse: true);
+      sendNeeded = false;
     }
-  }
-
-  Future<void> sendSpeed() async {
-    await _characteristic.write([speed.toInt()], withoutResponse: true);
-    sendNeeded = false;
   }
 }
 
