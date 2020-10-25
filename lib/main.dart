@@ -97,7 +97,13 @@ class _ControllerScreenState extends State<ControllerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: Icon(Icons.bluetooth_disabled, color: Colors.white),
+          onPressed: () {
+            widget.device.disconnect();
+            Navigator.of(context).pop();
+          },
+        ),
         title: Text("Märklin BLE Controller"),
       ),
       body: FutureBuilder(
@@ -119,15 +125,6 @@ class _ControllerScreenState extends State<ControllerScreen> {
                     : SpeedSlider(device: widget.device);
             }
           }),
-      bottomNavigationBar: FlatButton(
-        child: Icon(Icons.bluetooth_disabled),
-        onPressed: () {
-          widget.device.disconnect();
-          Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (context) => FindDevicesScreen()),
-              (Route<dynamic> route) => false);
-        },
-      ),
     );
   }
 }
