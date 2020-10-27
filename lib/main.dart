@@ -89,7 +89,6 @@ class _ControllerScreenState extends State<ControllerScreen> {
   void initState() {
     super.initState();
 
-    print(widget.device.toString());
     _futureConnect = widget.device.connect();
   }
 

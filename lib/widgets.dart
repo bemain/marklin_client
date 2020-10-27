@@ -53,15 +53,14 @@ class SpeedSliderState extends State<SpeedSlider> {
   double speed = 50.0;
   bool sendNeeded = false;
 
-  BluetoothCharacteristic _characteristic;
+  BluetoothCharacteristic speedChar;
 
-  //TODO: Stop timer on disconnect
-  Timer _sendLoop;
+  Timer sendLoop;
 
   @override
   void initState() {
     super.initState();
-    _sendLoop = Timer.periodic(Duration(milliseconds: 100), sendSpeed);
+    sendLoop = Timer.periodic(Duration(milliseconds: 100), sendSpeed);
   }
 
   @override
@@ -74,7 +73,7 @@ class SpeedSliderState extends State<SpeedSlider> {
                 icon: CircularProgressIndicator(),
                 text: "Getting Characteristic");
           else {
-            _characteristic = snapshot.data;
+            speedChar = snapshot.data;
 
             return RotatedBox(
                 quarterTurns: -1,
@@ -93,6 +92,13 @@ class SpeedSliderState extends State<SpeedSlider> {
         });
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+
+    sendLoop.cancel();
+  }
+
   Future<BluetoothCharacteristic> getCharacteristic() async {
     List<BluetoothService> services = await widget.device.discoverServices();
 
@@ -107,7 +113,7 @@ class SpeedSliderState extends State<SpeedSlider> {
   void sendSpeed(Timer timer) async {
     print("(Maybe) sending speed");
     if (sendNeeded) {
-      await _characteristic.write([speed.toInt()], withoutResponse: true);
+      await speedChar.write([speed.toInt()], withoutResponse: true);
       sendNeeded = false;
     }
   }
