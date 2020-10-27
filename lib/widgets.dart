@@ -111,7 +111,6 @@ class SpeedSliderState extends State<SpeedSlider> {
   }
 
   void sendSpeed(Timer timer) async {
-    print("(Maybe) sending speed");
     if (sendNeeded) {
       await speedChar.write([speed.toInt()], withoutResponse: true);
       sendNeeded = false;
