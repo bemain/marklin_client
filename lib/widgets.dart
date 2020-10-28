@@ -132,3 +132,32 @@ class InfoScreen extends StatelessWidget {
             children: <Widget>[icon, Text(text)]));
   }
 }
+
+class QuitDialog extends StatelessWidget {
+  const QuitDialog({Key key, this.onBack, this.onQuit}) : super(key: key);
+
+  final VoidCallback onBack;
+  final VoidCallback onQuit;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text("Quit?"),
+      content: Text("Are you sure you want to quit?"),
+      actions: <Widget>[
+        FlatButton(
+          child: Text("Back"),
+          onPressed: () {
+            onBack();
+          },
+        ),
+        FlatButton(
+          child: Text("Quit"),
+          onPressed: () {
+            onQuit();
+          },
+        )
+      ],
+    );
+  }
+}

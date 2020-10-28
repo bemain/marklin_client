@@ -99,8 +99,19 @@ class _ControllerScreenState extends State<ControllerScreen> {
         leading: IconButton(
           icon: Icon(Icons.bluetooth_disabled, color: Colors.white),
           onPressed: () {
-            widget.device.disconnect();
-            Navigator.of(context).pop();
+            showDialog(
+                context: context,
+                barrierDismissible: true,
+                builder: (BuildContext c) => QuitDialog(
+                      onBack: () {
+                        Navigator.of(context).pop();
+                      },
+                      onQuit: () {
+                        widget.device.disconnect();
+                        Navigator.of(context).pop();
+                        Navigator.of(context).pop();
+                      },
+                    ));
           },
         ),
         title: Text("Märklin BLE Controller"),
