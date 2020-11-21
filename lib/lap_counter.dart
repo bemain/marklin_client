@@ -19,4 +19,11 @@ class LapCounterScreenState extends State<LapCounterScreen> {
         ),
         body: Text("Statistik"));
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    widget.device.disconnect();
+  }
 }

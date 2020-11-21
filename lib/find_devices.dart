@@ -49,8 +49,7 @@ class FindDevicesScreenState extends State<FindDevicesScreen> {
                               .map((r) => BluetoothDeviceTile(
                                     device: r.device,
                                     onTap: () {
-                                      Navigator.push(
-                                          context,
+                                      Navigator.of(context).push(
                                           MaterialPageRoute(
                                               builder: (context) =>
                                                   BTConnectScreen(
