@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:marklin_bluetooth/find_devices.dart';
+import 'package:marklin_bluetooth/lap_counter.dart';
 
 void main() {
   runApp(MyApp());

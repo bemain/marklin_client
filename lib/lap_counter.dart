@@ -11,13 +11,25 @@ class LapCounterScreen extends StatefulWidget {
 }
 
 class LapCounterScreenState extends State<LapCounterScreen> {
+  List<int> laps = [0, 0];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           title: Text("Lap Counter"),
         ),
-        body: Text("Statistik"));
+        body: Row(
+          //direction: Axis.horizontal,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _lapViewer(0),
+            VerticalDivider(
+              thickness: 1.0,
+            ),
+            _lapViewer(1),
+          ],
+        ));
   }
 
   @override
@@ -25,5 +37,12 @@ class LapCounterScreenState extends State<LapCounterScreen> {
     super.dispose();
 
     widget.device.disconnect();
+  }
+
+  Widget _lapViewer(int carIndex) {
+    return Text(
+      "${laps[carIndex]}",
+      textScaleFactor: 5.0,
+    );
   }
 }
