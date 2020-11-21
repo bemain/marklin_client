@@ -20,7 +20,7 @@ class BTConnectScreenState extends State<BTConnectScreen> {
   void initState() {
     super.initState();
 
-    _futureConnect = widget.device.connect();
+    _futureConnect = connectAndChangeScreen();
   }
 
   @override
@@ -43,15 +43,20 @@ class BTConnectScreenState extends State<BTConnectScreen> {
                     text: "Connecting to device...");
 
               default:
-                return snapshot.hasError
-                    ? Center(child: Text('Error: ${snapshot.error}'))
-                    : Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                widget.createConnectedScreen(widget.device)));
+                return Center(
+                    child: snapshot.hasError
+                        ? Text('Error: ${snapshot.error}')
+                        : Text("Connected to device"));
             }
           }),
     );
+  }
+
+  Future<void> connectAndChangeScreen() async {
+    await widget.device.connect();
+    await Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (context) => widget.createConnectedScreen(widget.device)));
   }
 }
