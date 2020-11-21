@@ -46,24 +46,7 @@ class FindDevicesScreenState extends State<FindDevicesScreen> {
                     initialData: [],
                     builder: (c, snapshot) => Column(
                           children: snapshot.data
-                              .map((r) => BluetoothDeviceTile(
-                                    device: r.device,
-                                    onTap: () {
-                                      Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  BTConnectScreen(
-                                                    device: r.device,
-                                                    createConnectedScreen:
-                                                        (device) => lapCounter
-                                                            ? LapCounterScreen(
-                                                                device: device,
-                                                              )
-                                                            : ControllerScreen(
-                                                                device: device),
-                                                  )));
-                                    },
-                                  ))
+                              .map((result) => _bluetoothDeviceTile(result))
                               .toList(),
                         )),
       )),
@@ -78,6 +61,23 @@ class FindDevicesScreenState extends State<FindDevicesScreen> {
                     flutterBlue.startScan(timeout: Duration(seconds: 4));
                 },
               )),
+    );
+  }
+
+  Widget _bluetoothDeviceTile(scanResult) {
+    return BluetoothDeviceTile(
+      device: scanResult.device,
+      onTap: () {
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => BTConnectScreen(
+                  device: scanResult.device,
+                  createConnectedScreen: (device) => lapCounter
+                      ? LapCounterScreen(
+                          device: device,
+                        )
+                      : ControllerScreen(device: device),
+                )));
+      },
     );
   }
 }
