@@ -3,11 +3,11 @@ import 'package:flutter_blue/flutter_blue.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
 class BTConnectScreen extends StatefulWidget {
-  BTConnectScreen({Key key, this.device, this.onConnectedRoute})
+  BTConnectScreen({Key key, this.device, this.createConnectedScreen})
       : super(key: key);
 
   final BluetoothDevice device;
-  final String onConnectedRoute;
+  final Widget Function(BluetoothDevice) createConnectedScreen;
 
   @override
   State<StatefulWidget> createState() => BTConnectScreenState();
@@ -45,9 +45,11 @@ class BTConnectScreenState extends State<BTConnectScreen> {
               default:
                 return snapshot.hasError
                     ? Center(child: Text('Error: ${snapshot.error}'))
-                    : Navigator.pushReplacementNamed(
-                        context, widget.onConnectedRoute,
-                        arguments: {"device": snapshot.data});
+                    : Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                widget.createConnectedScreen(widget.device)));
             }
           }),
     );

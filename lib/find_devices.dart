@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:marklin_bluetooth/btconnect.dart';
+import 'package:marklin_bluetooth/controller.dart';
+import 'package:marklin_bluetooth/lap_counter.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
 class FindDevicesScreen extends StatefulWidget {
@@ -53,9 +55,13 @@ class FindDevicesScreenState extends State<FindDevicesScreen> {
                                               builder: (context) =>
                                                   BTConnectScreen(
                                                     device: r.device,
-                                                    onConnectedRoute: lapCounter
-                                                        ? "lapCounter"
-                                                        : "controller",
+                                                    createConnectedScreen:
+                                                        (device) => lapCounter
+                                                            ? LapCounterScreen(
+                                                                device: device,
+                                                              )
+                                                            : ControllerScreen(
+                                                                device: device),
                                                   )));
                                     },
                                   ))
