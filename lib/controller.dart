@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
@@ -17,19 +18,20 @@ class _ControllerScreenState extends State<ControllerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            icon: Icon(Icons.bluetooth_disabled, color: Colors.white),
-            onPressed: () {
-              showDialog(
-                  context: context,
-                  barrierDismissible: true,
-                  builder: (BuildContext c) => QuitDialog());
-            },
-          ),
-          title: Text("Märklin BLE Controller"),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.bluetooth_disabled, color: Colors.white),
+          onPressed: () {
+            showDialog(
+                context: context,
+                barrierDismissible: true,
+                builder: (BuildContext c) => QuitDialog());
+          },
         ),
-        body: SpeedSlider(device: widget.device));
+        title: Text("Märklin BLE Controller"),
+      ),
+      body: SpeedSlider(device: widget.device),
+    );
   }
 
   @override
@@ -51,6 +53,8 @@ class SpeedSlider extends StatefulWidget {
 
 class SpeedSliderState extends State<SpeedSlider> {
   double speed = 50.0;
+  int carID = 0;
+
   bool sendNeeded = false;
 
   BluetoothCharacteristic speedChar;
@@ -75,19 +79,34 @@ class SpeedSliderState extends State<SpeedSlider> {
           else {
             speedChar = snapshot.data;
 
-            return RotatedBox(
-                quarterTurns: -1,
-                child: Slider(
-                  value: speed,
-                  min: 0,
-                  max: 255,
-                  onChanged: (value) {
-                    sendNeeded = true;
-                    setState(() {
-                      speed = value;
-                    });
-                  },
-                ));
+            return Column(children: [
+              Expanded(
+                  child: RotatedBox(
+                      quarterTurns: -1,
+                      child: Slider(
+                        value: speed,
+                        min: 0,
+                        max: 255,
+                        onChanged: (value) {
+                          sendNeeded = true;
+                          setState(() {
+                            speed = value;
+                          });
+                        },
+                      ))),
+              Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: List.generate(
+                      4,
+                      (index) => Radio(
+                          value: index,
+                          groupValue: carID,
+                          onChanged: (value) {
+                            setState(() {
+                              carID = value;
+                            });
+                          })))
+            ]);
           }
         });
   }
@@ -112,7 +131,7 @@ class SpeedSliderState extends State<SpeedSlider> {
 
   void sendSpeed(Timer timer) async {
     if (sendNeeded) {
-      await speedChar.write([speed.toInt()], withoutResponse: true);
+      await speedChar.write([carID, speed.toInt()], withoutResponse: true);
       sendNeeded = false;
     }
   }
