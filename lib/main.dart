@@ -19,7 +19,6 @@ class MyApp extends StatelessWidget {
       ),
       routes: {
         "/": (context) => FindDevicesScreen(),
-        "/btConnect": (context) => BTConnectScreen(),
         "/controller": (context) => ControllerScreen(),
         "/lapCounter": (context) => LapCounterScreen(),
       },

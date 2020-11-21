@@ -24,21 +24,19 @@ class _ControllerScreenState extends State<ControllerScreen> {
               showDialog(
                   context: context,
                   barrierDismissible: true,
-                  builder: (BuildContext c) => QuitDialog(
-                        onBack: () {
-                          Navigator.of(context).pop();
-                        },
-                        onQuit: () {
-                          widget.device.disconnect();
-                          Navigator.of(context).pop();
-                          Navigator.of(context).pop();
-                        },
-                      ));
+                  builder: (BuildContext c) => QuitDialog());
             },
           ),
           title: Text("Märklin BLE Controller"),
         ),
         body: SpeedSlider(device: widget.device));
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    widget.device.disconnect();
   }
 }
 

@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 
@@ -56,9 +54,8 @@ class InfoScreen extends StatelessWidget {
 }
 
 class QuitDialog extends StatelessWidget {
-  const QuitDialog({Key key, this.onBack, this.onQuit}) : super(key: key);
+  const QuitDialog({Key key, this.onQuit}) : super(key: key);
 
-  final VoidCallback onBack;
   final VoidCallback onQuit;
 
   @override
@@ -70,13 +67,15 @@ class QuitDialog extends StatelessWidget {
         FlatButton(
           child: Text("Back"),
           onPressed: () {
-            onBack();
+            Navigator.of(context).pop();
           },
         ),
         FlatButton(
           child: Text("Quit"),
           onPressed: () {
             onQuit();
+            Navigator.of(context).pop();
+            Navigator.of(context).pop();
           },
         )
       ],

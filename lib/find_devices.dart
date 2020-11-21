@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:marklin_bluetooth/btconnect.dart';
-import 'package:marklin_bluetooth/controller.dart';
-import 'package:marklin_bluetooth/lap_counter.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
 class FindDevicesScreen extends StatefulWidget {
