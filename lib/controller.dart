@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
@@ -48,25 +49,31 @@ class SpeedSlider extends StatefulWidget {
 }
 
 class SpeedSliderState extends State<SpeedSlider> {
-  double speed = 50.0;
+  final friction = 10;
+
+  double speed = 0.0;
   int carID = 0;
 
+  bool willSlowDown = false;
+
   bool sendNeeded = false;
-
+  Future<BluetoothCharacteristic> _futureChar;
   BluetoothCharacteristic speedChar;
-
   Timer sendLoop;
+  Timer slowDownLoop;
 
   @override
   void initState() {
     super.initState();
+    _futureChar = getCharacteristic();
     sendLoop = Timer.periodic(Duration(milliseconds: 100), sendSpeed);
+    slowDownLoop = Timer.periodic(Duration(milliseconds: 10), slowDown);
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: getCharacteristic(),
+        future: _futureChar,
         builder: (c, snapshot) {
           if (!snapshot.hasData)
             return InfoScreen(
@@ -77,31 +84,42 @@ class SpeedSliderState extends State<SpeedSlider> {
 
             return Column(children: [
               Expanded(
-                  child: RotatedBox(
-                      quarterTurns: -1,
-                      child: Slider(
-                        value: speed,
-                        min: 0,
-                        max: 255,
-                        onChanged: (value) {
-                          sendNeeded = true;
-                          setState(() {
-                            speed = value;
-                          });
-                        },
-                      ))),
+                  child: Listener(
+                      behavior: HitTestBehavior.translucent,
+                      onPointerDown: (event) => willSlowDown = false,
+                      onPointerUp: (event) => willSlowDown = true,
+                      child: RotatedBox(
+                          quarterTurns: -1,
+                          child: Slider(
+                            value: speed,
+                            onChanged: (value) {
+                              sendNeeded = true;
+                              setState(() {
+                                speed = value;
+                              });
+                            },
+                            min: 0,
+                            max: 255,
+                          )))),
               Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: List.generate(
                       4,
                       (index) => Radio(
-                          value: index,
-                          groupValue: carID,
-                          onChanged: (value) {
-                            setState(() {
-                              carID = value;
-                            });
-                          })))
+                            value: index,
+                            groupValue: carID,
+                            onChanged: (value) {
+                              setState(() {
+                                carID = value;
+                              });
+                            },
+                            activeColor: [
+                              Colors.blue,
+                              Colors.purple,
+                              Colors.green,
+                              Colors.black
+                            ][index],
+                          )))
             ]);
           }
         });
@@ -126,9 +144,20 @@ class SpeedSliderState extends State<SpeedSlider> {
   }
 
   void sendSpeed(Timer timer) async {
+    // Send speed to bluetooth device
     if (sendNeeded) {
       await speedChar.write([carID, speed.toInt()], withoutResponse: true);
       sendNeeded = false;
+    }
+  }
+
+  void slowDown(Timer timer) {
+    // Slow down car
+    if (willSlowDown && speed != 0) {
+      sendNeeded = true;
+      setState(() {
+        speed -= min(speed, friction);
+      });
     }
   }
 }

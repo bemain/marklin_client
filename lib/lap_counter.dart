@@ -76,6 +76,8 @@ class LapCounterScreenState extends State<LapCounterScreen> {
   Widget _restartDialog(context) {
     return AlertDialog(
       title: Text("Restart race?"),
+      content: Text(
+          "You are about to restart the race and clear all laps. \n\nDo you wish to continue?"),
       actions: [
         FlatButton(
             onPressed: () {
