@@ -21,13 +21,14 @@ class FindDevicesScreenState extends State<FindDevicesScreen> {
       appBar: AppBar(
         title: Text("Connect Bluetooth"),
         actions: [
-          FlatButton(
+          IconButton(
               onPressed: () {
                 setState(() {
                   lapCounter = !lapCounter;
                 });
               },
-              child: Icon(lapCounter ? Icons.dangerous : Icons.check))
+              icon: Icon(lapCounter ? Icons.dangerous : Icons.check,
+                  color: Colors.white))
         ],
       ),
       body: SingleChildScrollView(

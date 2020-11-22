@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
@@ -20,13 +19,10 @@ class _ControllerScreenState extends State<ControllerScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.bluetooth_disabled, color: Colors.white),
           onPressed: () {
-            showDialog(
-                context: context,
-                barrierDismissible: true,
-                builder: (BuildContext c) => QuitDialog());
+            showDialog(context: context, builder: (c) => QuitDialog());
           },
+          icon: Icon(Icons.bluetooth_disabled, color: Colors.white),
         ),
         title: Text("Märklin BLE Controller"),
       ),

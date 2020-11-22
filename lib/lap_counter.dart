@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 
+import 'widgets.dart';
+
 class LapCounterScreen extends StatefulWidget {
   const LapCounterScreen({Key key, this.device}) : super(key: key);
 
@@ -17,7 +19,18 @@ class LapCounterScreenState extends State<LapCounterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          leading: IconButton(
+              onPressed: () =>
+                  showDialog(context: context, builder: (c) => QuitDialog()),
+              icon: Icon(Icons.bluetooth_disabled, color: Colors.white)),
           title: Text("Lap Counter"),
+          actions: [
+            IconButton(
+                onPressed: () {
+                  laps = [0, 0];
+                },
+                icon: Icon(Icons.clear_all, color: Colors.white))
+          ],
         ),
         body: Row(
           //direction: Axis.horizontal,
