@@ -50,18 +50,21 @@ class SpeedSlider extends StatefulWidget {
 
 class SpeedSliderState extends State<SpeedSlider> {
   final friction = 10;
+  final carColors = [Colors.blue, Colors.purple, Colors.green, Colors.black];
 
   double speed = 0.0;
   int carID = 0;
 
-  bool willSlowDown = false;
-
-  bool sendNeeded = false;
-  Future<BluetoothCharacteristic> _futureChar;
-  BluetoothCharacteristic speedChar;
-  Timer sendLoop;
+  bool willSlowDown = true;
   Timer slowDownLoop;
 
+  bool sendNeeded = true;
+  Timer sendLoop;
+
+  Future<BluetoothCharacteristic> _futureChar;
+  BluetoothCharacteristic speedChar;
+
+  // Methods
   @override
   void initState() {
     super.initState();
@@ -113,12 +116,7 @@ class SpeedSliderState extends State<SpeedSlider> {
                                 carID = value;
                               });
                             },
-                            activeColor: [
-                              Colors.blue,
-                              Colors.purple,
-                              Colors.green,
-                              Colors.black
-                            ][index],
+                            activeColor: carColors[index],
                           )))
             ]);
           }
