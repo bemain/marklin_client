@@ -63,7 +63,7 @@ class QuitDialog extends StatelessWidget {
       content: Text("Are you sure you want to quit?"),
       actions: <Widget>[
         FlatButton(
-          child: Text("Back"),
+          child: Text("Cancel"),
           onPressed: () {
             Navigator.of(context).pop();
           },

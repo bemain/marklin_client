@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 
@@ -26,9 +28,8 @@ class LapCounterScreenState extends State<LapCounterScreen> {
           title: Text("Lap Counter"),
           actions: [
             IconButton(
-                onPressed: () {
-                  laps = [0, 0];
-                },
+                onPressed: () => showDialog(
+                    context: context, builder: (c) => _restartDialog(context)),
                 icon: Icon(Icons.clear_all, color: Colors.white))
           ],
         ),
@@ -53,9 +54,43 @@ class LapCounterScreenState extends State<LapCounterScreen> {
   }
 
   Widget _lapViewer(int carIndex) {
-    return Text(
-      "${laps[carIndex]}",
-      textScaleFactor: 5.0,
+    return Column(mainAxisAlignment: MainAxisAlignment.end, children: [
+      Expanded(
+          child: Center(
+              child: Text(
+        "${laps[carIndex]}",
+        textScaleFactor: 5.0,
+      ))),
+      RaisedButton(
+        onPressed: () {
+          setState(() {
+            laps[carIndex]++;
+          });
+        },
+        color: Theme.of(context).primaryColor,
+        child: Icon(Icons.plus_one),
+      )
+    ]);
+  }
+
+  Widget _restartDialog(context) {
+    return AlertDialog(
+      title: Text("Restart race?"),
+      actions: [
+        FlatButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text("Cancel")),
+        FlatButton(
+            onPressed: () {
+              setState(() {
+                laps = [0, 0];
+              });
+              Navigator.of(context).pop();
+            },
+            child: Text("Yes")),
+      ],
     );
   }
 }
