@@ -7,7 +7,7 @@ class BTConnectScreen extends StatefulWidget {
       : super(key: key);
 
   final BluetoothDevice device;
-  final Widget Function(BluetoothDevice) createConnectedScreen;
+  final Widget Function(BluetoothDevice device) createConnectedScreen;
 
   @override
   State<StatefulWidget> createState() => BTConnectScreenState();
