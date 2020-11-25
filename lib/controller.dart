@@ -73,7 +73,7 @@ class SpeedSliderState extends State<SpeedSlider> {
   double speed = 0.0;
   int carID = 0;
 
-  bool ignoreSlowDown = false;
+  bool enableSlowDown = false;
   bool willSlowDown = false;
   Timer slowDownLoop;
 
@@ -133,6 +133,7 @@ class SpeedSliderState extends State<SpeedSlider> {
                             onChanged: (value) {
                               setState(() {
                                 carID = value;
+                                sendNeeded = true;
                                 widget.onCarIDChange(carID);
                               });
                             },
@@ -140,11 +141,11 @@ class SpeedSliderState extends State<SpeedSlider> {
               RaisedButton(
                 onPressed: () {
                   setState(() {
-                    ignoreSlowDown = !ignoreSlowDown;
+                    enableSlowDown = !enableSlowDown;
                   });
                 },
                 color: Theme.of(context).primaryColor,
-                child: Text("$ignoreSlowDown"),
+                child: Text("Slow down? ${enableSlowDown ? "YES" : "NO"}"),
               )
             ]);
           }
@@ -172,15 +173,14 @@ class SpeedSliderState extends State<SpeedSlider> {
   void sendSpeed(Timer timer) async {
     // Send speed to bluetooth device
     if (sendNeeded) {
-      await speedChar
-          .write([carID, 100 - speed.toInt()], withoutResponse: true);
+      await speedChar.write([carID, speed.toInt()], withoutResponse: true);
       sendNeeded = false;
     }
   }
 
   void slowDown(Timer timer) {
     // Slow down car
-    if (!ignoreSlowDown && willSlowDown && speed != 0) {
+    if (enableSlowDown && willSlowDown && speed != 0) {
       sendNeeded = true;
       setState(() {
         speed -= min(speed, friction);
