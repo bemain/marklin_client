@@ -73,9 +73,7 @@ class FindDevicesScreenState extends State<FindDevicesScreen> {
             builder: (context) => BTConnectScreen(
                   device: scanResult.device,
                   createConnectedScreen: (device) => lapCounter
-                      ? LapCounterScreen(
-                          device: device,
-                        )
+                      ? LapCounterScreen(device: device)
                       : ControllerScreen(device: device),
                 )));
       },

@@ -15,20 +15,38 @@ class ControllerScreen extends StatefulWidget {
 }
 
 class _ControllerScreenState extends State<ControllerScreen> {
+  int carID = 0;
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          onPressed: () {
-            showDialog(context: context, builder: (c) => QuitDialog());
-          },
-          icon: Icon(Icons.bluetooth_disabled, color: Colors.white),
+    return Theme(
+        data: ThemeData(
+          primarySwatch: [
+            Colors.green,
+            Colors.purple,
+            Colors.orange,
+            Colors.grey,
+          ][carID],
         ),
-        title: Text("Märklin BLE Controller"),
-      ),
-      body: SpeedSlider(device: widget.device),
-    );
+        child: Scaffold(
+          appBar: AppBar(
+            leading: IconButton(
+              onPressed: () {
+                showDialog(context: context, builder: (c) => QuitDialog());
+              },
+              icon: Icon(Icons.bluetooth_disabled, color: Colors.white),
+            ),
+            title: Text("Märklin BLE Controller"),
+          ),
+          body: SpeedSlider(
+            device: widget.device,
+            onCarIDChange: (id) {
+              setState(() {
+                carID = id;
+              });
+            },
+          ),
+        ));
   }
 
   @override
@@ -40,9 +58,10 @@ class _ControllerScreenState extends State<ControllerScreen> {
 }
 
 class SpeedSlider extends StatefulWidget {
-  SpeedSlider({Key key, this.device}) : super(key: key);
+  SpeedSlider({Key key, this.device, this.onCarIDChange}) : super(key: key);
 
   final BluetoothDevice device;
+  final Function(int newID) onCarIDChange;
 
   @override
   State<StatefulWidget> createState() => SpeedSliderState();
@@ -50,16 +69,15 @@ class SpeedSlider extends StatefulWidget {
 
 class SpeedSliderState extends State<SpeedSlider> {
   final friction = 10;
-  final carColors = [Colors.blue, Colors.purple, Colors.green, Colors.black];
 
   double speed = 0.0;
   int carID = 0;
 
   bool ignoreSlowDown = false;
-  bool willSlowDown = true;
+  bool willSlowDown = false;
   Timer slowDownLoop;
 
-  bool sendNeeded = true;
+  bool sendNeeded = false;
   Timer sendLoop;
 
   Future<BluetoothCharacteristic> _futureChar;
@@ -115,9 +133,9 @@ class SpeedSliderState extends State<SpeedSlider> {
                             onChanged: (value) {
                               setState(() {
                                 carID = value;
+                                widget.onCarIDChange(carID);
                               });
                             },
-                            activeColor: carColors[index],
                           ))),
               RaisedButton(
                 onPressed: () {
