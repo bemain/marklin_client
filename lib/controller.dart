@@ -72,7 +72,6 @@ class SpeedSliderState extends State<SpeedSlider> {
 
   double speed = 0.0;
   int carID = 0;
-  double pwmInterval = 50;
 
   bool enableSlowDown = false;
   bool willSlowDown = false;
@@ -89,6 +88,7 @@ class SpeedSliderState extends State<SpeedSlider> {
   void initState() {
     super.initState();
     _futureChar = getCharacteristic();
+
     sendLoop = Timer.periodic(Duration(milliseconds: 100), sendSpeed);
     slowDownLoop = Timer.periodic(Duration(milliseconds: 10), slowDown);
   }
@@ -148,16 +148,6 @@ class SpeedSliderState extends State<SpeedSlider> {
                 color: Theme.of(context).primaryColor,
                 child: Text("Slow down? ${enableSlowDown ? "YES" : "NO"}"),
               ),
-              Slider(
-                value: pwmInterval,
-                onChanged: (value) {
-                  setState(() {
-                    pwmInterval = value;
-                  });
-                },
-                min: 0,
-                max: 100,
-              ),
             ]);
           }
         });
@@ -184,8 +174,8 @@ class SpeedSliderState extends State<SpeedSlider> {
   void sendSpeed(Timer timer) async {
     // Send speed to bluetooth device
     if (sendNeeded) {
-      await speedChar.write([carID, 100 - speed.toInt(), pwmInterval.toInt()],
-          withoutResponse: true);
+      await speedChar
+          .write([carID, 100 - speed.toInt()], withoutResponse: true);
       sendNeeded = false;
     }
   }
