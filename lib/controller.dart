@@ -72,6 +72,7 @@ class SpeedSliderState extends State<SpeedSlider> {
 
   double speed = 0.0;
   int carID = 0;
+  int pwmInterval = 50;
 
   bool enableSlowDown = false;
   bool willSlowDown = false;
@@ -173,7 +174,8 @@ class SpeedSliderState extends State<SpeedSlider> {
   void sendSpeed(Timer timer) async {
     // Send speed to bluetooth device
     if (sendNeeded) {
-      await speedChar.write([carID, speed.toInt()], withoutResponse: true);
+      await speedChar.write([carID, 100 - speed.toInt(), pwmInterval.toInt()],
+          withoutResponse: true);
       sendNeeded = false;
     }
   }
