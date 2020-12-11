@@ -72,7 +72,7 @@ class SpeedSliderState extends State<SpeedSlider> {
 
   double speed = 0.0;
   int carID = 0;
-  int pwmInterval = 50;
+  double pwmInterval = 50;
 
   bool enableSlowDown = false;
   bool willSlowDown = false;
@@ -147,7 +147,17 @@ class SpeedSliderState extends State<SpeedSlider> {
                 },
                 color: Theme.of(context).primaryColor,
                 child: Text("Slow down? ${enableSlowDown ? "YES" : "NO"}"),
-              )
+              ),
+              Slider(
+                value: pwmInterval,
+                onChanged: (value) {
+                  setState(() {
+                    pwmInterval = value;
+                  });
+                },
+                min: 0,
+                max: 100,
+              ),
             ]);
           }
         });
