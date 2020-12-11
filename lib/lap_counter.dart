@@ -13,7 +13,9 @@ class LapCounterScreen extends StatefulWidget {
 }
 
 class LapCounterScreenState extends State<LapCounterScreen> {
-  List<int> laps = [0, 0];
+  List<int> laps = List.filled(4, 0);
+  List<List<double>> lapTimes = List.filled(4, []);
+  List<Stopwatch> lapTimers = List.filled(4, Stopwatch()..start());
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +65,11 @@ class LapCounterScreenState extends State<LapCounterScreen> {
         onPressed: () {
           setState(() {
             laps[carIndex]++;
+            lapTimes[carIndex]
+                .add(lapTimers[carIndex].elapsedMilliseconds / 1000);
+            lapTimers[carIndex].reset();
+
+            print(lapTimes[carIndex]);
           });
         },
         color: Theme.of(context).primaryColor,
