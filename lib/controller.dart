@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
+import 'package:marklin_bluetooth/lap_counter.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
 class ControllerScreen extends StatefulWidget {
@@ -28,32 +29,32 @@ class _ControllerScreenState extends State<ControllerScreen> {
             Colors.grey,
           ][carID],
         ),
-        child: Scaffold(
-          appBar: AppBar(
-            leading: IconButton(
-              onPressed: () {
-                showDialog(context: context, builder: (c) => QuitDialog());
-              },
-              icon: Icon(Icons.bluetooth_disabled, color: Colors.white),
+        child: PageView(controller: PageController(initialPage: 2), children: [
+          LapCounterScreen(),
+          Scaffold(
+            appBar: AppBar(
+              leading: IconButton(
+                onPressed: () {
+                  showDialog(
+                      context: context,
+                      builder: (c) => QuitDialog(
+                            onQuit: () => widget.device.disconnect(),
+                          ));
+                },
+                icon: Icon(Icons.bluetooth_disabled, color: Colors.white),
+              ),
+              title: Text("Märklin BLE Controller"),
             ),
-            title: Text("Märklin BLE Controller"),
-          ),
-          body: SpeedSlider(
-            device: widget.device,
-            onCarIDChange: (id) {
-              setState(() {
-                carID = id;
-              });
-            },
-          ),
-        ));
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-
-    widget.device.disconnect();
+            body: SpeedSlider(
+              device: widget.device,
+              onCarIDChange: (id) {
+                setState(() {
+                  carID = id;
+                });
+              },
+            ),
+          )
+        ]));
   }
 }
 

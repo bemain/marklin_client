@@ -54,7 +54,9 @@ class InfoScreen extends StatelessWidget {
 }
 
 class QuitDialog extends StatelessWidget {
-  const QuitDialog({Key key}) : super(key: key);
+  const QuitDialog({Key key, this.onQuit}) : super(key: key);
+
+  final Function onQuit;
 
   @override
   Widget build(BuildContext context) {
@@ -71,6 +73,7 @@ class QuitDialog extends StatelessWidget {
         FlatButton(
           child: Text("Quit"),
           onPressed: () {
+            onQuit();
             Navigator.of(context).pop();
             Navigator.of(context).pop();
           },

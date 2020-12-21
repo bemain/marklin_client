@@ -22,8 +22,11 @@ class LapCounterScreenState extends State<LapCounterScreen> {
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(
-              onPressed: () =>
-                  showDialog(context: context, builder: (c) => QuitDialog()),
+              onPressed: () => showDialog(
+                  context: context,
+                  builder: (c) => QuitDialog(
+                        onQuit: () => widget.device.disconnect(),
+                      )),
               icon: Icon(Icons.bluetooth_disabled, color: Colors.white)),
           title: Text("Lap Counter"),
           actions: [
@@ -44,13 +47,6 @@ class LapCounterScreenState extends State<LapCounterScreen> {
             _lapViewer(1),
           ],
         ));
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-
-    widget.device.disconnect();
   }
 
   Widget _lapViewer(int carIndex) {
