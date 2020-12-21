@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "686308175049",
+    "project_id": "marklin-bluetooth",
+    "storage_bucket": "marklin-bluetooth.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:686308175049:android:84e398383de5c27ac5b118",
+        "android_client_info": {
+          "package_name": "com.agardh.marklin_bluetooth"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "686308175049-ke1cvbuggqkmn7003hcghpojp8vifv98.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCi0a0wfSRJph76mWOU4WW8YnU4AYcnYz8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "686308175049-ke1cvbuggqkmn7003hcghpojp8vifv98.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
