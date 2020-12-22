@@ -1,6 +1,7 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
-import 'package:marklin_bluetooth/btconnect.dart';
+import 'package:marklin_bluetooth/init_screen.dart';
 import 'package:marklin_bluetooth/controller.dart';
 import 'package:marklin_bluetooth/lap_counter.dart';
 import 'package:marklin_bluetooth/widgets.dart';
@@ -14,6 +15,13 @@ class FindDevicesScreenState extends State<FindDevicesScreen> {
   final FlutterBlue flutterBlue = FlutterBlue.instance;
 
   bool lapCounter = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    Firebase.initializeApp();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +78,7 @@ class FindDevicesScreenState extends State<FindDevicesScreen> {
       device: scanResult.device,
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => BTConnectScreen(
+            builder: (context) => InitScreen(
                   device: scanResult.device,
                   createConnectedScreen: (device) => lapCounter
                       ? LapCounterScreen(device: device)

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 
@@ -14,11 +15,13 @@ class LapCounterScreen extends StatefulWidget {
 }
 
 class LapCounterScreenState extends State<LapCounterScreen> {
-  final firestore = Firestore.instance;
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   List<int> laps = List.filled(4, 0);
   List<List<double>> lapTimes = List.filled(4, []);
   List<Stopwatch> lapTimers = List.filled(4, Stopwatch()..start());
+
+  final Future<FirebaseApp> _initialization = Firebase.initializeApp();
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +47,7 @@ class LapCounterScreenState extends State<LapCounterScreen> {
             builder: (context, snapshot) {
               if (!snapshot.hasData) return LinearProgressIndicator();
 
-              return _buildListView(snapshot.data.documents);
+              return _buildListView(snapshot.data.docs);
             }));
   }
 
@@ -138,7 +141,7 @@ class Record {
   //lapTimes = Map<String, dynamic>.from(map["lapTimes"]);
 
   Record.fromSnapshot(DocumentSnapshot snapshot)
-      : this.fromMap(snapshot.data, reference: snapshot.reference);
+      : this.fromMap(snapshot.data(), reference: snapshot.reference);
 
   @override
   String toString() => "Record<$time:$someInt>";

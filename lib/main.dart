@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:marklin_bluetooth/init_screen.dart';
 import 'package:marklin_bluetooth/find_devices.dart';
 import 'package:marklin_bluetooth/lap_counter.dart';
 
@@ -15,7 +16,9 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: LapCounterScreen(device: null),
+      home: InitScreen(
+          device: null,
+          createConnectedScreen: (device) => LapCounterScreen(device: device)),
     );
   }
 }
