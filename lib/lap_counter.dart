@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
+import 'package:marklin_bluetooth/race_browser.dart';
 
 import 'widgets.dart';
 
@@ -20,8 +20,6 @@ class LapCounterScreenState extends State<LapCounterScreen> {
   List<int> laps = List.filled(4, 0);
   List<List<double>> lapTimes = List.filled(4, []);
   List<Stopwatch> lapTimers = List.filled(4, Stopwatch()..start());
-
-  final Future<FirebaseApp> _initialization = Firebase.initializeApp();
 
   @override
   Widget build(BuildContext context) {
@@ -42,39 +40,7 @@ class LapCounterScreenState extends State<LapCounterScreen> {
                 icon: Icon(Icons.clear, color: Colors.white))
           ],
         ),
-        body: StreamBuilder<QuerySnapshot>(
-            stream: firestore.collection('races').snapshots(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) return LinearProgressIndicator();
-
-              return _buildListView(snapshot.data.docs);
-            }));
-  }
-
-  Widget _buildListView(List<DocumentSnapshot> snapshots) {
-    return ListView(
-      children: snapshots.map((snapshot) => _buildListItem(snapshot)).toList(),
-    );
-  }
-
-  Widget _buildListItem(DocumentSnapshot snapshot) {
-    Record record = Record.fromSnapshot(snapshot);
-
-    return Padding(
-      key: ValueKey(record.time),
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
-          borderRadius: BorderRadius.circular(5.0),
-        ),
-        child: ListTile(
-          title: Text(record.time.toString()),
-          trailing: Text(record.someInt.toString()),
-          onTap: () => print(record),
-        ),
-      ),
-    );
+        body: RaceBrowser());
   }
 
   Widget _lapViewer(int carIndex) {
@@ -124,25 +90,4 @@ class LapCounterScreenState extends State<LapCounterScreen> {
       ],
     );
   }
-}
-
-class Record {
-  final int someInt;
-  //final Map<String, List<int>> lapTimes;
-  final DateTime time;
-  final DocumentReference reference;
-
-  Record.fromMap(Map<String, dynamic> map, {this.reference})
-      : assert(map['someInt'] != null),
-        assert(map['time'] != null),
-        assert(map['lapTimes'] != null),
-        time = map['time'].toDate(),
-        someInt = map['someInt'];
-  //lapTimes = Map<String, dynamic>.from(map["lapTimes"]);
-
-  Record.fromSnapshot(DocumentSnapshot snapshot)
-      : this.fromMap(snapshot.data(), reference: snapshot.reference);
-
-  @override
-  String toString() => "Record<$time:$someInt>";
 }
