@@ -3,7 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
-import 'package:marklin_bluetooth/btconnect.dart';
+
 import 'package:marklin_bluetooth/lap_counter.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
@@ -33,30 +33,28 @@ class _ControllerScreenState extends State<ControllerScreen> {
         child: PageView(controller: PageController(initialPage: 2), children: [
           LapCounterScreen(device: widget.device),
           Scaffold(
-              appBar: AppBar(
-                leading: IconButton(
-                  onPressed: () {
-                    showDialog(
-                        context: context,
-                        builder: (c) => QuitDialog(
-                              onQuit: () => widget.device.disconnect(),
-                            ));
-                  },
-                  icon: Icon(Icons.bluetooth_disabled, color: Colors.white),
-                ),
-                title: Text("Märklin BLE Controller"),
+            appBar: AppBar(
+              leading: IconButton(
+                onPressed: () {
+                  showDialog(
+                      context: context,
+                      builder: (c) => QuitDialog(
+                            onQuit: () => widget.device.disconnect(),
+                          ));
+                },
+                icon: Icon(Icons.bluetooth_disabled, color: Colors.white),
               ),
-              body: BTConnect(
-                device: widget.device,
-                child: SpeedSlider(
-                  device: widget.device,
-                  onCarIDChange: (id) {
-                    setState(() {
-                      carID = id;
-                    });
-                  },
-                ),
-              ))
+              title: Text("Märklin BLE Controller"),
+            ),
+            body: SpeedSlider(
+              device: widget.device,
+              onCarIDChange: (id) {
+                setState(() {
+                  carID = id;
+                });
+              },
+            ),
+          )
         ]));
   }
 }

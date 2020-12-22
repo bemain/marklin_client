@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
+import 'package:marklin_bluetooth/btconnect.dart';
 
 import 'package:marklin_bluetooth/controller.dart';
 import 'package:marklin_bluetooth/lap_counter.dart';
@@ -15,6 +16,7 @@ class FindDevicesScreenState extends State<FindDevicesScreen> {
   final FlutterBlue flutterBlue = FlutterBlue.instance;
 
   bool lapCounter = false;
+  BluetoothDevice foundDevice;
 
   @override
   void initState() {
@@ -39,26 +41,37 @@ class FindDevicesScreenState extends State<FindDevicesScreen> {
                   color: Colors.white))
         ],
       ),
-      body: SingleChildScrollView(
-          child: FutureBuilder(
-        future: flutterBlue.isAvailable,
-        builder: (c, snapshot) => !snapshot.hasData
-            ? InfoScreen(
-                icon: CircularProgressIndicator(),
-                text: "Waiting for Bluetooth")
-            : (snapshot.data == false)
-                ? InfoScreen(
-                    icon: Icon(Icons.bluetooth_disabled),
-                    text: "Bluetooth unavailable")
-                : StreamBuilder<List<ScanResult>>(
-                    stream: flutterBlue.scanResults,
-                    initialData: [],
-                    builder: (c, snapshot) => Column(
-                          children: snapshot.data
-                              .map((result) => _bluetoothDeviceTile(result))
-                              .toList(),
-                        )),
-      )),
+      body: (foundDevice != null)
+          ? BTConnect(
+              device: foundDevice,
+              onConnected: (device) => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => (lapCounter)
+                          ? LapCounterScreen(device: device)
+                          : ControllerScreen(device: device),
+                    ),
+                  ))
+          : SingleChildScrollView(
+              child: FutureBuilder(
+              future: flutterBlue.isAvailable,
+              builder: (c, snapshot) => !snapshot.hasData
+                  ? InfoScreen(
+                      icon: CircularProgressIndicator(),
+                      text: "Waiting for Bluetooth")
+                  : (snapshot.data == false)
+                      ? InfoScreen(
+                          icon: Icon(Icons.bluetooth_disabled),
+                          text: "Bluetooth unavailable")
+                      : StreamBuilder<List<ScanResult>>(
+                          stream: flutterBlue.scanResults,
+                          initialData: [],
+                          builder: (c, snapshot) => Column(
+                                children: snapshot.data
+                                    .map((result) =>
+                                        _bluetoothDeviceTile(result))
+                                    .toList(),
+                              )),
+            )),
       floatingActionButton: StreamBuilder(
           stream: flutterBlue.isScanning,
           initialData: false,
@@ -76,13 +89,9 @@ class FindDevicesScreenState extends State<FindDevicesScreen> {
   Widget _bluetoothDeviceTile(scanResult) {
     return BluetoothDeviceTile(
       device: scanResult.device,
-      onTap: () {
-        Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => (lapCounter)
-              ? LapCounterScreen(device: scanResult.device)
-              : ControllerScreen(device: scanResult.device),
-        ));
-      },
+      onTap: () => setState(() {
+        foundDevice = scanResult.device;
+      }),
     );
   }
 }

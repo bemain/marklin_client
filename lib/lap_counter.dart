@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 
-import 'package:marklin_bluetooth/btconnect.dart';
 import 'package:marklin_bluetooth/race_browser.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
@@ -41,7 +40,7 @@ class LapCounterScreenState extends State<LapCounterScreen> {
                 icon: Icon(Icons.clear, color: Colors.white))
           ],
         ),
-        body: BTConnect(device: widget.device, child: RaceBrowser()));
+        body: RaceBrowser());
   }
 
   Widget _lapViewer(int carIndex) {
