@@ -1,25 +1,30 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class RaceBrowser extends StatefulWidget {
-  RaceBrowser({Key key}) : super(key: key);
+class RaceBrowserScreen extends StatefulWidget {
+  RaceBrowserScreen({Key key}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => RaceBrowserState();
+  State<StatefulWidget> createState() => RaceBrowserScreenState();
 }
 
-class RaceBrowserState extends State<RaceBrowser> {
+class RaceBrowserScreenState extends State<RaceBrowserScreen> {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-        stream: firestore.collection('races').snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) return LinearProgressIndicator();
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Race Browser"),
+      ),
+      body: StreamBuilder<QuerySnapshot>(
+          stream: firestore.collection('races').snapshots(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) return LinearProgressIndicator();
 
-          return _buildListView(snapshot.data.docs);
-        });
+            return _buildListView(snapshot.data.docs);
+          }),
+    );
   }
 
   Widget _buildListView(List<DocumentSnapshot> snapshots) {

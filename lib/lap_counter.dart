@@ -26,17 +26,12 @@ class LapCounterScreenState extends State<LapCounterScreen> {
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(
-              onPressed: () => showDialog(
-                  context: context,
-                  builder: (c) => QuitDialog(
-                        onQuit: () => widget.device.disconnect(),
-                      )),
+              onPressed: () => _showQuitDialog(context),
               icon: Icon(Icons.bluetooth_disabled, color: Colors.white)),
           title: Text("Lap Counter"),
           actions: [
             IconButton(
-                onPressed: () => showDialog(
-                    context: context, builder: (c) => _restartDialog(context)),
+                onPressed: () => _showRestartDialog(context),
                 icon: Icon(Icons.clear, color: Colors.white))
           ],
         ),
@@ -77,26 +72,37 @@ class LapCounterScreenState extends State<LapCounterScreen> {
     ]);
   }
 
-  Widget _restartDialog(context) {
-    return AlertDialog(
-      title: Text("Restart race?"),
-      content: Text(
-          "You are about to restart the race and clear all laps. \n\nDo you wish to continue?"),
-      actions: [
-        FlatButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text("Cancel")),
-        FlatButton(
-            onPressed: () {
-              setState(() {
-                laps = [0, 0];
-              });
-              Navigator.of(context).pop();
-            },
-            child: Text("Yes")),
-      ],
+  void _showQuitDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (c) => QuitDialog(
+        onQuit: () => widget.device.disconnect(),
+      ),
     );
+  }
+
+  void _showRestartDialog(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (c) => AlertDialog(
+              title: Text("Restart race?"),
+              content: Text(
+                  "You are about to restart the race and clear all laps. \n\nDo you wish to continue?"),
+              actions: [
+                FlatButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text("Cancel")),
+                FlatButton(
+                    onPressed: () {
+                      setState(() {
+                        laps = [0, 0];
+                      });
+                      Navigator.of(context).pop();
+                    },
+                    child: Text("Yes")),
+              ],
+            ));
   }
 }

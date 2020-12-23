@@ -33,13 +33,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
         child: Scaffold(
           appBar: AppBar(
             leading: IconButton(
-              onPressed: () {
-                showDialog(
-                    context: context,
-                    builder: (c) => QuitDialog(
-                          onQuit: () => widget.device.disconnect(),
-                        ));
-              },
+              onPressed: () => _showQuitDialog(context),
               icon: Icon(Icons.bluetooth_disabled, color: Colors.white),
             ),
             title: Text("Märklin BLE Controller"),
@@ -53,6 +47,15 @@ class _ControllerScreenState extends State<ControllerScreen> {
             },
           ),
         ));
+  }
+
+  void _showQuitDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (c) => QuitDialog(
+        onQuit: () => widget.device.disconnect(),
+      ),
+    );
   }
 }
 

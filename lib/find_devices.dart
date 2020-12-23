@@ -56,7 +56,8 @@ class FindDevicesScreenState extends State<FindDevicesScreen> {
                     initialData: [],
                     builder: (c, snapshot) => Column(
                           children: snapshot.data
-                              .map((result) => _bluetoothDeviceTile(result))
+                              .map((result) =>
+                                  _bluetoothDeviceTile(result.device))
                               .toList(),
                         )),
       )),
@@ -74,15 +75,15 @@ class FindDevicesScreenState extends State<FindDevicesScreen> {
     );
   }
 
-  Widget _bluetoothDeviceTile(scanResult) {
+  Widget _bluetoothDeviceTile(BluetoothDevice device) {
     return BluetoothDeviceTile(
-      device: scanResult.device,
+      device: device,
       onTap: () => Navigator.of(context).push(MaterialPageRoute(
         builder: (context) => BTConnect(
-          device: scanResult.device,
+          device: device,
           connectedScreen: (lapCounter)
-              ? LapCounterScreen(device: scanResult.device)
-              : ControllerScreen(device: scanResult.device),
+              ? LapCounterScreen(device: device)
+              : ControllerScreen(device: device),
         ),
       )),
     );
