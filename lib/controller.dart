@@ -75,14 +75,14 @@ class SpeedSliderState extends State<SpeedSlider> {
   double speed = 0.0;
   int carID = 0;
 
-  bool enableSlowDown = false;
+  bool enableSlowDown = true;
   bool willSlowDown = false;
   Timer slowDownLoop;
 
   bool sendNeeded = false;
   Timer sendLoop;
 
-  Future<BluetoothCharacteristic> _futureChar;
+  Future<bool> _futureChar;
   BluetoothCharacteristic speedChar;
 
   // Methods
@@ -104,9 +104,7 @@ class SpeedSliderState extends State<SpeedSlider> {
             return InfoScreen(
                 icon: CircularProgressIndicator(),
                 text: "Getting Characteristic");
-          else {
-            speedChar = snapshot.data;
-
+          else
             return Column(children: [
               Expanded(
                   child: Listener(
@@ -151,7 +149,6 @@ class SpeedSliderState extends State<SpeedSlider> {
                 child: Text("Slow down? ${enableSlowDown ? "YES" : "NO"}"),
               ),
             ]);
-          }
         });
   }
 
@@ -162,7 +159,7 @@ class SpeedSliderState extends State<SpeedSlider> {
     sendLoop.cancel();
   }
 
-  Future<BluetoothCharacteristic> getCharacteristic() async {
+  Future<bool> getCharacteristic() async {
     List<BluetoothService> services = await widget.device.discoverServices();
 
     var service = services.firstWhere(
@@ -170,7 +167,8 @@ class SpeedSliderState extends State<SpeedSlider> {
     var char = service.characteristics.firstWhere(
         (c) => c.uuid == Guid("0000180c-0000-1000-8000-00805f9b34fb"));
 
-    return char;
+    speedChar = char;
+    return true;
   }
 
   void sendSpeed(Timer timer) async {
