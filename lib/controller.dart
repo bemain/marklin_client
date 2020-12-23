@@ -30,32 +30,29 @@ class _ControllerScreenState extends State<ControllerScreen> {
             Colors.grey,
           ][carID],
         ),
-        child: PageView(controller: PageController(initialPage: 2), children: [
-          LapCounterScreen(device: widget.device),
-          Scaffold(
-            appBar: AppBar(
-              leading: IconButton(
-                onPressed: () {
-                  showDialog(
-                      context: context,
-                      builder: (c) => QuitDialog(
-                            onQuit: () => widget.device.disconnect(),
-                          ));
-                },
-                icon: Icon(Icons.bluetooth_disabled, color: Colors.white),
-              ),
-              title: Text("Märklin BLE Controller"),
-            ),
-            body: SpeedSlider(
-              device: widget.device,
-              onCarIDChange: (id) {
-                setState(() {
-                  carID = id;
-                });
+        child: Scaffold(
+          appBar: AppBar(
+            leading: IconButton(
+              onPressed: () {
+                showDialog(
+                    context: context,
+                    builder: (c) => QuitDialog(
+                          onQuit: () => widget.device.disconnect(),
+                        ));
               },
+              icon: Icon(Icons.bluetooth_disabled, color: Colors.white),
             ),
-          )
-        ]));
+            title: Text("Märklin BLE Controller"),
+          ),
+          body: SpeedSlider(
+            device: widget.device,
+            onCarIDChange: (id) {
+              setState(() {
+                carID = id;
+              });
+            },
+          ),
+        ));
   }
 }
 

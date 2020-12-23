@@ -40,7 +40,16 @@ class LapCounterScreenState extends State<LapCounterScreen> {
                 icon: Icon(Icons.clear, color: Colors.white))
           ],
         ),
-        body: RaceBrowser());
+        body: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _lapViewer(0),
+            VerticalDivider(
+              thickness: 1.0,
+            ),
+            _lapViewer(1),
+          ],
+        ));
   }
 
   Widget _lapViewer(int carIndex) {
