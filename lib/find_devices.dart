@@ -5,6 +5,7 @@ import 'package:marklin_bluetooth/btconnect.dart';
 
 import 'package:marklin_bluetooth/controller.dart';
 import 'package:marklin_bluetooth/lap_counter.dart';
+import 'package:marklin_bluetooth/race_browser.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
 class FindDevicesScreen extends StatefulWidget {
@@ -78,14 +79,16 @@ class FindDevicesScreenState extends State<FindDevicesScreen> {
   Widget _bluetoothDeviceTile(BluetoothDevice device) {
     return BluetoothDeviceTile(
       device: device,
-      onTap: () => Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => BTConnect(
-          device: device,
-          connectedScreen: (lapCounter)
-              ? LapCounterScreen(device: device)
-              : ControllerScreen(device: device),
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => (lapCounter)
+              ? RaceBrowserScreen()
+              : BTConnect(
+                  device: device,
+                  connectedScreen: ControllerScreen(device: device),
+                ),
         ),
-      )),
+      ),
     );
   }
 }

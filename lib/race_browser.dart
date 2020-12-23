@@ -48,8 +48,8 @@ class RaceBrowserScreenState extends State<RaceBrowserScreen> {
         ),
         child: ListTile(
           title: Text(race.dateTime.toString()),
-          trailing: Text(
-              "${race.lapTimes["0"].length} / ${race.lapTimes["1"].length}"),
+          trailing:
+              Text("${race.lapTimes[0].length} / ${race.lapTimes[1].length}"),
           onTap: () => Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => RaceViewer(race),
           )),
@@ -67,10 +67,11 @@ class RaceViewer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text("${race.dateTime}"),
-        ),
-        body: _buildGridView(race));
+      appBar: AppBar(
+        title: Text("${race.dateTime}"),
+      ),
+      body: _buildGridView(race),
+    );
   }
 
   Widget _buildGridView(Race race) {
@@ -79,10 +80,10 @@ class RaceViewer extends StatelessWidget {
     return GridView.builder(
       gridDelegate:
           SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: nCars),
-      itemCount: List.generate(nCars, (i) => race.lapTimes["$i"].length)
+      itemCount: List.generate(nCars, (i) => race.lapTimes[i].length)
           .fold(0, (p, c) => p + c),
       itemBuilder: (c, i) =>
-          _buildListItem(race.lapTimes["${i % nCars}"][i ~/ nCars]),
+          _buildListItem(race.lapTimes[i % nCars][i ~/ nCars].toDouble()),
     );
   }
 
@@ -103,22 +104,20 @@ class RaceViewer extends StatelessWidget {
 }
 
 class Race {
-  final int someInt;
-  final Map<String, dynamic> lapTimes;
-  final DateTime dateTime;
-  final DocumentReference reference;
+  List<List<dynamic>> lapTimes = [];
+  DateTime dateTime;
+  DocumentReference reference;
 
-  Race.fromMap(Map<String, dynamic> map, {this.reference})
-      : assert(map['someInt'] != null),
-        assert(map['dateTime'] != null),
-        assert(map['lapTimes'] != null),
-        dateTime = map['dateTime'].toDate(),
-        someInt = map['someInt'],
-        lapTimes = map["lapTimes"] as Map<String, dynamic>;
+  Race.fromMap(Map<String, dynamic> map, {this.reference}) {
+    assert(map["dateTime"] != null);
+    this.dateTime = map["dateTime"].toDate();
+
+    for (int i = 0; i < 4; i++) if (map["$i"] != null) lapTimes.add(map["$i"]);
+  }
 
   Race.fromSnapshot(DocumentSnapshot snapshot)
       : this.fromMap(snapshot.data(), reference: snapshot.reference);
 
   @override
-  String toString() => "Race<$dateTime:$someInt>";
+  String toString() => "Race<$dateTime:$lapTimes>";
 }
