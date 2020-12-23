@@ -82,7 +82,7 @@ class FindDevicesScreenState extends State<FindDevicesScreen> {
       onTap: () => Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => (lapCounter)
-              ? RaceBrowserScreen()
+              ? LapCounterScreen(device: null)
               : BTConnect(
                   device: device,
                   connectedScreen: ControllerScreen(device: device),

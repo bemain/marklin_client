@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 
-import 'package:marklin_bluetooth/race_browser.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
 class LapCounterScreen extends StatefulWidget {
@@ -15,11 +14,19 @@ class LapCounterScreen extends StatefulWidget {
 }
 
 class LapCounterScreenState extends State<LapCounterScreen> {
-  FirebaseFirestore firestore = FirebaseFirestore.instance;
+  CollectionReference races = FirebaseFirestore.instance.collection("races");
+  DocumentReference race;
+  Stream<DocumentSnapshot> raceStream;
 
-  List<int> laps = List.filled(4, 0);
-  List<List<double>> lapTimes = List.filled(4, []);
-  List<Stopwatch> lapTimers = List.filled(4, Stopwatch()..start());
+  List<Stopwatch> lapTimers = List.generate(4, (index) => Stopwatch()..start());
+
+  @override
+  void initState() {
+    super.initState();
+
+    race = races.doc("test");
+    raceStream = races.doc("test").snapshots();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,40 +42,59 @@ class LapCounterScreenState extends State<LapCounterScreen> {
                 icon: Icon(Icons.clear, color: Colors.white))
           ],
         ),
-        body: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _lapViewer(0),
-            VerticalDivider(
-              thickness: 1.0,
-            ),
-            _lapViewer(1),
-          ],
-        ));
+        body: StreamBuilder<DocumentSnapshot>(
+            stream: raceStream,
+            builder: (c, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting)
+                return InfoScreen(
+                  icon: CircularProgressIndicator(),
+                  text: "Connecting to device...",
+                );
+
+              if (snapshot.hasError)
+                return InfoScreen(
+                  icon: Icon(Icons.error),
+                  text: "Error: ${snapshot.error}",
+                );
+
+              var doc = snapshot.data.data();
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _lapViewer(0, doc["0"].length),
+                  VerticalDivider(
+                    thickness: 1.0,
+                  ),
+                  _lapViewer(1, doc["1"].length),
+                ],
+              );
+            }));
   }
 
-  Widget _lapViewer(int carIndex) {
+  Widget _lapViewer(int carID, int laps) {
     return Column(mainAxisAlignment: MainAxisAlignment.end, children: [
       Expanded(
           child: Center(
               child: Text(
-        "${laps[carIndex]}",
+        "$laps",
         textScaleFactor: 5.0,
       ))),
       RaisedButton(
-        onPressed: () {
-          setState(() {
-            laps[carIndex]++;
-            lapTimes[carIndex]
-                .add(lapTimers[carIndex].elapsedMilliseconds / 1000);
-            lapTimers[carIndex].reset();
+          onPressed: () {
+            setState(() {
+              var time = lapTimers[carID].elapsedMilliseconds / 1000;
+              lapTimers[carID].reset();
 
-            print(lapTimes[carIndex]);
-          });
-        },
-        color: Theme.of(context).primaryColor,
-        child: Icon(Icons.plus_one),
-      )
+              // Write to database
+              race.get().then((snapshot) {
+                var newTimes = snapshot.data()["$carID"] + [time];
+                race.update({"$carID": newTimes});
+              });
+            });
+          },
+          color: Theme.of(context).primaryColor,
+          child: Text("$carID") //(Icons.plus_one),
+          )
     ]);
   }
 
@@ -97,7 +123,7 @@ class LapCounterScreenState extends State<LapCounterScreen> {
                 FlatButton(
                     onPressed: () {
                       setState(() {
-                        laps = [0, 0];
+                        // TODO: Reset race
                       });
                       Navigator.of(context).pop();
                     },
