@@ -44,13 +44,19 @@ class FindDevicesScreenState extends State<FindDevicesScreen> {
       body: (foundDevice != null)
           ? BTConnect(
               device: foundDevice,
-              onConnected: (device) => Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => (lapCounter)
-                          ? LapCounterScreen(device: device)
-                          : ControllerScreen(device: device),
-                    ),
-                  ))
+              onConnected: (device) {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => (lapCounter)
+                        ? LapCounterScreen(device: device)
+                        : ControllerScreen(device: device),
+                  ),
+                );
+                // Remove BTConnect widget when returning to FindDevicesScreen
+                setState(() {
+                  foundDevice = null;
+                });
+              })
           : SingleChildScrollView(
               child: FutureBuilder(
               future: flutterBlue.isAvailable,
