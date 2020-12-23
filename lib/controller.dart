@@ -75,7 +75,7 @@ class SpeedSliderState extends State<SpeedSlider> {
   double speed = 0.0;
   int carID = 0;
 
-  bool enableSlowDown = false;
+  bool enableSlowDown = true;
   bool willSlowDown = false;
   Timer slowDownLoop;
 
