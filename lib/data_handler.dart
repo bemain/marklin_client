@@ -34,7 +34,7 @@ class RaceHandler {
   }
 
   /// Creates new race on the database and switches to it
-  Future<void> createRace() async {
+  Future<void> startRace() async {
     race = await races.add({"dateTime": Timestamp.now(), "0": [], "1": []});
   }
 }

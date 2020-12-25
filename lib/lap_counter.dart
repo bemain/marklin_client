@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
+import 'package:marklin_bluetooth/data_handler.dart';
 
 import 'package:marklin_bluetooth/widgets.dart';
 
@@ -14,25 +15,9 @@ class LapCounterScreen extends StatefulWidget {
 }
 
 class LapCounterScreenState extends State<LapCounterScreen> {
-  CollectionReference races = FirebaseFirestore.instance.collection("races");
-  DocumentReference _race;
-  Stream<DocumentSnapshot> raceStream;
-
-  // Getters + Setters
-  DocumentReference get race => _race;
-  set race(DocumentReference newRace) {
-    _race = newRace;
-    raceStream = newRace.snapshots();
-  }
+  RaceHandler raceHandler = RaceHandler("test");
 
   List<Stopwatch> lapTimers = List.generate(4, (index) => Stopwatch()..start());
-
-  @override
-  void initState() {
-    super.initState();
-
-    race = races.doc("test");
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +37,7 @@ class LapCounterScreenState extends State<LapCounterScreen> {
           ],
         ),
         body: StreamBuilder<DocumentSnapshot>(
-            stream: raceStream,
+            stream: raceHandler.stream,
             builder: (c, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting)
                 return InfoScreen(
@@ -95,14 +80,11 @@ class LapCounterScreenState extends State<LapCounterScreen> {
         RaisedButton(
           onPressed: () {
             setState(() {
-              var time = lapTimers[carID].elapsedMilliseconds / 1000;
+              var lapTime = lapTimers[carID].elapsedMilliseconds / 1000;
               lapTimers[carID].reset();
 
               // Write to database
-              race.get().then((doc) {
-                var newTimes = doc.data()["$carID"] + [time];
-                race.update({"$carID": newTimes});
-              });
+              raceHandler.addLap(carID, lapTime);
             });
           },
           color: Theme.of(context).primaryColor,
@@ -137,11 +119,7 @@ class LapCounterScreenState extends State<LapCounterScreen> {
           ),
           FlatButton(
               onPressed: () {
-                races.add({"dateTime": Timestamp.now(), "0": [], "1": []}).then(
-                  (newRace) => setState(() {
-                    race = newRace;
-                  }),
-                );
+                raceHandler.startRace();
 
                 Navigator.of(context).pop();
               },
@@ -169,7 +147,7 @@ class LapCounterScreenState extends State<LapCounterScreen> {
               onPressed: () {
                 setState(() {
                   // Clear lap times on database
-                  race.update({"0": [], "1": []});
+                  raceHandler.clearLaps();
 
                   // Restart timers
                   for (final timer in lapTimers) {
