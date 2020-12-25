@@ -129,7 +129,13 @@ class LapCounterScreenState extends State<LapCounterScreen> {
           FlatButton(
               onPressed: () {
                 setState(() {
-                  // TODO: Reset race
+                  // Clear lap times on database
+                  race.update({"0": [], "1": []});
+
+                  // Restart timers
+                  for (final timer in lapTimers) {
+                    timer.reset();
+                  }
                 });
                 Navigator.of(context).pop();
               },
