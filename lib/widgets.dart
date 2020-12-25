@@ -62,8 +62,17 @@ class RaceSelector extends StatelessWidget {
         builder: (context, snapshot) {
           if (!snapshot.hasData) return LinearProgressIndicator();
 
+          // Sort races after date
+          var docs = snapshot.data.docs;
+          docs.sort((a, b) {
+            var aDate = a.data()["dateTime"].toDate();
+            var bDate = b.data()["dateTime"].toDate();
+            return -aDate.compareTo(bDate);
+          });
+
+          // Build ListView
           return ListView(
-            children: snapshot.data.docs
+            children: docs
                 .map((snapshot) => _buildListItem(context, snapshot))
                 .toList(),
           );
@@ -72,9 +81,15 @@ class RaceSelector extends StatelessWidget {
 
   Widget _buildListItem(BuildContext context, DocumentSnapshot snapshot) {
     var race = snapshot.data();
+    DateTime date = race["dateTime"].toDate();
+
+    String dateString = "${date.day}/${date.month} - " +
+        ((date.hour < 10) ? "0" : "") +
+        "${date.hour}:" +
+        ((date.minute < 10) ? "0" : "") +
+        "${date.minute}";
 
     return Padding(
-      key: ValueKey(race["dateTime"]),
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Container(
         decoration: BoxDecoration(
@@ -82,7 +97,7 @@ class RaceSelector extends StatelessWidget {
           borderRadius: BorderRadius.circular(5.0),
         ),
         child: ListTile(
-          title: Text(race["dateTime"].toDate().toString()),
+          title: Text(dateString),
           trailing: Text("${race["0"].length} / ${race["1"].length}"),
           onTap: () => onSelect(snapshot),
         ),
