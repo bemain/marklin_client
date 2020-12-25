@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class InfoScreen extends StatelessWidget {
@@ -41,6 +42,51 @@ class QuitDialog extends StatelessWidget {
           },
         )
       ],
+    );
+  }
+}
+
+/// Widget for selecting a race from the database.
+/// Runs [onSelect] when user has selected a race.
+class RaceSelector extends StatelessWidget {
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+  final Function(String docID) onSelect;
+
+  RaceSelector({Key key, this.onSelect}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<QuerySnapshot>(
+        stream: firestore.collection('races').snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return LinearProgressIndicator();
+
+          return ListView(
+            children: snapshot.data.docs
+                .map((snapshot) => _buildListItem(context, snapshot))
+                .toList(),
+          );
+        });
+  }
+
+  Widget _buildListItem(BuildContext context, DocumentSnapshot snapshot) {
+    var race = snapshot.data();
+
+    return Padding(
+      key: ValueKey(race["dateTime"]),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey),
+          borderRadius: BorderRadius.circular(5.0),
+        ),
+        child: ListTile(
+          title: Text(race["dateTime"].toString()),
+          trailing: Text("${race["0"].length} / ${race["1"].length}"),
+          onTap: () => onSelect(snapshot.id),
+        ),
+      ),
     );
   }
 }
