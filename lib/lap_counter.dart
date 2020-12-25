@@ -23,10 +23,10 @@ class LapCounterScreenState extends State<LapCounterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          title: Text("Lap Counter"),
           leading: IconButton(
               onPressed: () => _showQuitDialog(context),
               icon: Icon(Icons.bluetooth_disabled, color: Colors.white)),
-          title: Text("Lap Counter"),
           actions: [
             IconButton(
                 onPressed: () => _showStartDialog(context),
@@ -81,10 +81,12 @@ class LapCounterScreenState extends State<LapCounterScreen> {
           onPressed: () {
             setState(() {
               var lapTime = lapTimers[carID].elapsedMilliseconds / 1000;
-              lapTimers[carID].reset();
 
-              // Write to database
+              // Add lap to database
               raceHandler.addLap(carID, lapTime);
+
+              // Restart timer
+              lapTimers[carID].reset();
             });
           },
           color: Theme.of(context).primaryColor,
@@ -119,7 +121,8 @@ class LapCounterScreenState extends State<LapCounterScreen> {
           ),
           FlatButton(
               onPressed: () {
-                raceHandler.startRace();
+                // Start new race on database
+                raceHandler.startRace().then((value) => setState(() {}));
 
                 Navigator.of(context).pop();
               },
@@ -146,7 +149,7 @@ class LapCounterScreenState extends State<LapCounterScreen> {
           FlatButton(
               onPressed: () {
                 setState(() {
-                  // Clear lap times on database
+                  // Clear laps on database
                   raceHandler.clearLaps();
 
                   // Restart timers

@@ -21,7 +21,7 @@ class RaceHandler {
     raceByName = raceName;
   }
 
-  // Laps
+  // Methods
   Future<void> addLap(int carID, double lapTime) async {
     var doc = await race.get();
     var newTimes = doc.data()["$carID"] + [lapTime];
@@ -33,7 +33,7 @@ class RaceHandler {
     await race.update({"0": [], "1": []});
   }
 
-  /// Creates new race on the database and switches to it
+  /// Creates a new race on the database and switches to it
   Future<void> startRace() async {
     race = await races.add({"dateTime": Timestamp.now(), "0": [], "1": []});
   }
