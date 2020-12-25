@@ -84,7 +84,7 @@ class FindDevicesScreenState extends State<FindDevicesScreen> {
       onTap: () => Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => (lapCounter)
-              ? PageView(controller: PageController(initialPage: 1), children: [
+              ? PageView(children: [
                   LapCounterScreen(device: null),
                   RaceBrowserScreen()
                 ])

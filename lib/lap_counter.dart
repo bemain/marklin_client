@@ -15,8 +15,15 @@ class LapCounterScreen extends StatefulWidget {
 
 class LapCounterScreenState extends State<LapCounterScreen> {
   CollectionReference races = FirebaseFirestore.instance.collection("races");
-  DocumentReference race;
+  DocumentReference _race;
   Stream<DocumentSnapshot> raceStream;
+
+  // Getters + Setters
+  DocumentReference get race => _race;
+  set race(DocumentReference newRace) {
+    _race = newRace;
+    raceStream = newRace.snapshots();
+  }
 
   List<Stopwatch> lapTimers = List.generate(4, (index) => Stopwatch()..start());
 
@@ -25,7 +32,6 @@ class LapCounterScreenState extends State<LapCounterScreen> {
     super.initState();
 
     race = races.doc("test");
-    raceStream = races.doc("test").snapshots();
   }
 
   @override
@@ -38,6 +44,9 @@ class LapCounterScreenState extends State<LapCounterScreen> {
           title: Text("Lap Counter"),
           actions: [
             IconButton(
+                onPressed: () => _showStartDialog(context),
+                icon: Icon(Icons.add, color: Colors.white)),
+            IconButton(
                 onPressed: () => _showRestartDialog(context),
                 icon: Icon(Icons.clear, color: Colors.white))
           ],
@@ -48,7 +57,7 @@ class LapCounterScreenState extends State<LapCounterScreen> {
               if (snapshot.connectionState == ConnectionState.waiting)
                 return InfoScreen(
                   icon: CircularProgressIndicator(),
-                  text: "Connecting to device...",
+                  text: "Getting lap times...",
                 );
 
               if (snapshot.hasError)
@@ -108,6 +117,36 @@ class LapCounterScreenState extends State<LapCounterScreen> {
       context: context,
       builder: (c) => QuitDialog(
         onQuit: () => widget.device.disconnect(),
+      ),
+    );
+  }
+
+  void _showStartDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (c) => AlertDialog(
+        title: Text("Start new race"),
+        content: Text(
+            "You are about to start a new race.\nOld races can be viewed using the Race Browser screen."),
+        actions: [
+          FlatButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text("Cancel"),
+          ),
+          FlatButton(
+              onPressed: () {
+                races.add({"dateTime": Timestamp.now(), "0": [], "1": []}).then(
+                  (newRace) => setState(() {
+                    race = newRace;
+                  }),
+                );
+
+                Navigator.of(context).pop();
+              },
+              child: Text("Start race")),
+        ],
       ),
     );
   }
