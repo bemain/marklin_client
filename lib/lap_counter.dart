@@ -33,7 +33,10 @@ class LapCounterScreenState extends State<LapCounterScreen> {
                 icon: Icon(Icons.add, color: Colors.white)),
             IconButton(
                 onPressed: () => _showRestartDialog(context),
-                icon: Icon(Icons.clear, color: Colors.white))
+                icon: Icon(Icons.clear, color: Colors.white)),
+            IconButton(
+                onPressed: () => _showSelectDialog(context),
+                icon: Icon(Icons.menu, color: Colors.white)),
           ],
         ),
         body: StreamBuilder<DocumentSnapshot>(
@@ -161,6 +164,27 @@ class LapCounterScreenState extends State<LapCounterScreen> {
               },
               child: Text("Yes")),
         ],
+      ),
+    );
+  }
+
+  void _showSelectDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (c) => AlertDialog(
+        title: Text("Switch race"),
+        content: RaceSelector(
+          onSelect: (doc) {
+            setState(() {
+              raceHandler.race = doc.reference;
+              // Restart timers
+              for (final timer in lapTimers) {
+                timer.reset();
+              }
+            });
+            Navigator.of(context).pop();
+          },
+        ),
       ),
     );
   }
