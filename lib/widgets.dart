@@ -51,7 +51,7 @@ class QuitDialog extends StatelessWidget {
 class RaceSelector extends StatelessWidget {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  final Function(String docID) onSelect;
+  final Function(DocumentSnapshot race) onSelect;
 
   RaceSelector({Key key, this.onSelect}) : super(key: key);
 
@@ -82,9 +82,9 @@ class RaceSelector extends StatelessWidget {
           borderRadius: BorderRadius.circular(5.0),
         ),
         child: ListTile(
-          title: Text(race["dateTime"].toString()),
+          title: Text(race["dateTime"].toDate().toString()),
           trailing: Text("${race["0"].length} / ${race["1"].length}"),
-          onTap: () => onSelect(snapshot.id),
+          onTap: () => onSelect(snapshot),
         ),
       ),
     );
