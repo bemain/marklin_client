@@ -107,38 +107,43 @@ class SpeedSliderState extends State<SpeedSlider> {
           else
             return Column(children: [
               Expanded(
-                  child: Listener(
-                      behavior: HitTestBehavior.translucent,
-                      onPointerDown: (event) => willSlowDown = false,
-                      onPointerUp: (event) => willSlowDown = true,
-                      child: RotatedBox(
-                          quarterTurns: -1,
-                          child: Slider(
-                            value: speed,
-                            onChanged: (value) {
-                              sendNeeded = true;
-                              setState(() {
-                                speed = value;
-                              });
-                            },
-                            min: 0,
-                            max: 100,
-                          )))),
+                child: Listener(
+                  behavior: HitTestBehavior.translucent,
+                  onPointerDown: (event) => willSlowDown = false,
+                  onPointerUp: (event) => willSlowDown = true,
+                  child: RotatedBox(
+                    quarterTurns: -1,
+                    child: Slider(
+                      value: speed,
+                      onChanged: (value) {
+                        sendNeeded = true;
+                        setState(() {
+                          speed = value;
+                        });
+                      },
+                      min: 0,
+                      max: 100,
+                    ),
+                  ),
+                ),
+              ),
               Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: List.generate(
-                      4,
-                      (index) => Radio(
-                            value: index,
-                            groupValue: carID,
-                            onChanged: (value) {
-                              setState(() {
-                                carID = value;
-                                sendNeeded = true;
-                                widget.onCarIDChange(carID);
-                              });
-                            },
-                          ))),
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: List.generate(
+                  4,
+                  (index) => Radio(
+                    value: index,
+                    groupValue: carID,
+                    onChanged: (value) {
+                      setState(() {
+                        carID = value;
+                        sendNeeded = true;
+                        widget.onCarIDChange(carID);
+                      });
+                    },
+                  ),
+                ),
+              ),
               RaisedButton(
                 onPressed: () {
                   setState(() {

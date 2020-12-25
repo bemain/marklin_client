@@ -72,30 +72,35 @@ class LapCounterScreenState extends State<LapCounterScreen> {
   }
 
   Widget _lapViewer(int carID, int laps) {
-    return Column(mainAxisAlignment: MainAxisAlignment.end, children: [
-      Expanded(
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Expanded(
           child: Center(
-              child: Text(
-        "$laps",
-        textScaleFactor: 5.0,
-      ))),
-      RaisedButton(
+            child: Text(
+              "$laps",
+              textScaleFactor: 5.0,
+            ),
+          ),
+        ),
+        RaisedButton(
           onPressed: () {
             setState(() {
               var time = lapTimers[carID].elapsedMilliseconds / 1000;
               lapTimers[carID].reset();
 
               // Write to database
-              race.get().then((snapshot) {
-                var newTimes = snapshot.data()["$carID"] + [time];
+              race.get().then((doc) {
+                var newTimes = doc.data()["$carID"] + [time];
                 race.update({"$carID": newTimes});
               });
             });
           },
           color: Theme.of(context).primaryColor,
-          child: Text("$carID") //(Icons.plus_one),
-          )
-    ]);
+          child: Icon(Icons.plus_one),
+        )
+      ],
+    );
   }
 
   void _showQuitDialog(BuildContext context) {
@@ -109,26 +114,28 @@ class LapCounterScreenState extends State<LapCounterScreen> {
 
   void _showRestartDialog(BuildContext context) {
     showDialog(
-        context: context,
-        builder: (c) => AlertDialog(
-              title: Text("Restart race?"),
-              content: Text(
-                  "You are about to restart the race and clear all laps. \n\nDo you wish to continue?"),
-              actions: [
-                FlatButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text("Cancel")),
-                FlatButton(
-                    onPressed: () {
-                      setState(() {
-                        // TODO: Reset race
-                      });
-                      Navigator.of(context).pop();
-                    },
-                    child: Text("Yes")),
-              ],
-            ));
+      context: context,
+      builder: (c) => AlertDialog(
+        title: Text("Restart race?"),
+        content: Text(
+            "You are about to restart the race and clear all laps. This action can't be undone. \nContinue?"),
+        actions: [
+          FlatButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text("Cancel"),
+          ),
+          FlatButton(
+              onPressed: () {
+                setState(() {
+                  // TODO: Reset race
+                });
+                Navigator.of(context).pop();
+              },
+              child: Text("Yes")),
+        ],
+      ),
+    );
   }
 }

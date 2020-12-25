@@ -32,37 +32,38 @@ class BTConnectState extends State<BTConnect> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: FutureBuilder(
-      future: _futureConnect,
-      builder: (c, snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.none:
-            return InfoScreen(
-              icon: Icon(Icons.bluetooth_disabled),
-              text: "Bluetooth unavailable",
-            );
-          case ConnectionState.waiting:
-            return InfoScreen(
-              icon: CircularProgressIndicator(),
-              text: "Connecting to device...",
-            );
+      body: FutureBuilder(
+        future: _futureConnect,
+        builder: (c, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.none:
+              return InfoScreen(
+                icon: Icon(Icons.bluetooth_disabled),
+                text: "Bluetooth unavailable",
+              );
+            case ConnectionState.waiting:
+              return InfoScreen(
+                icon: CircularProgressIndicator(),
+                text: "Connecting to device...",
+              );
 
-          default:
-            if (snapshot.hasError)
-              return InfoScreen(
-                icon: Icon(Icons.error),
-                text: "Error: ${snapshot.error}",
-              );
-            else {
-              connected = true;
-              return InfoScreen(
-                icon: Icon(Icons.bluetooth_connected),
-                text: "Connected to device",
-              );
-            }
-        }
-      },
-    ));
+            default:
+              if (snapshot.hasError)
+                return InfoScreen(
+                  icon: Icon(Icons.error),
+                  text: "Error: ${snapshot.error}",
+                );
+              else {
+                connected = true;
+                return InfoScreen(
+                  icon: Icon(Icons.bluetooth_connected),
+                  text: "Connected to device",
+                );
+              }
+          }
+        },
+      ),
+    );
   }
 
   Future<void> _connectBT(BluetoothDevice device) async {
