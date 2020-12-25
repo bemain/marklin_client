@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
-import 'package:marklin_bluetooth/data_handler.dart';
+import 'package:marklin_bluetooth/race_handler.dart';
 
 import 'package:marklin_bluetooth/widgets.dart';
 
