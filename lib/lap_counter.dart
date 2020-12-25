@@ -173,7 +173,7 @@ class LapCounterScreenState extends State<LapCounterScreen> {
       context: context,
       builder: (c) => AlertDialog(
         title: Text("Switch race"),
-        content: RaceSelector(
+        content: RacePicker(
           onSelect: (doc) {
             setState(() {
               raceHandler.race = doc.reference;

@@ -48,12 +48,12 @@ class QuitDialog extends StatelessWidget {
 
 /// Widget for selecting a race from the database.
 /// Runs [onSelect] when user has selected a race.
-class RaceSelector extends StatelessWidget {
+class RacePicker extends StatelessWidget {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   final Function(DocumentSnapshot race) onSelect;
 
-  RaceSelector({Key key, this.onSelect}) : super(key: key);
+  RacePicker({Key key, this.onSelect}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
