@@ -169,6 +169,7 @@ class LapCounterScreenState extends State<LapCounterScreen> {
   }
 
   void _showSelectDialog(BuildContext context) {
+    // TODO: Add "cancel" and "sandbox mode" buttons
     showDialog(
       context: context,
       builder: (c) => AlertDialog(

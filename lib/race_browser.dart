@@ -43,6 +43,7 @@ class RaceViewer extends StatelessWidget {
   }
 
   Widget _buildGridView(Map race) {
+    // TODO: Rewrite this to work with lapTimes of different lengths for different cars
     int nCars = 2;
 
     return GridView.builder(
