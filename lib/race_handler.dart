@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 /// Helper class for creating, deleting and updating races
 /// on the Firestore database.
 class RaceHandler {
-  // TODO: Add sandbox mode that doesn't read / write to the database. For testing and offline mode
   CollectionReference races = FirebaseFirestore.instance.collection("races");
   DocumentReference _race;
   Stream<DocumentSnapshot> stream;

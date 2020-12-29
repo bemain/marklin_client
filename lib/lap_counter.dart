@@ -175,6 +175,7 @@ class LapCounterScreenState extends State<LapCounterScreen> {
       builder: (c) => AlertDialog(
         title: Text("Switch race"),
         content: RacePicker(
+          separateTestRace: true,
           onSelect: (doc) {
             setState(() {
               raceHandler.race = doc.reference;

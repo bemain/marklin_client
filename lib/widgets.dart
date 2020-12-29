@@ -51,9 +51,11 @@ class QuitDialog extends StatelessWidget {
 class RacePicker extends StatelessWidget {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  final Function(DocumentSnapshot race) onSelect;
+  final Function(DocumentSnapshot doc) onSelect;
+  final bool separateTestRace;
 
-  RacePicker({Key key, this.onSelect}) : super(key: key);
+  RacePicker({Key key, this.onSelect, this.separateTestRace = false})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -62,32 +64,66 @@ class RacePicker extends StatelessWidget {
         builder: (context, snapshot) {
           if (!snapshot.hasData) return LinearProgressIndicator();
 
-          // Sort races after date
           var docs = snapshot.data.docs;
+
+          // Sort races after date
           docs.sort((a, b) {
             var aDate = a.data()["dateTime"].toDate();
             var bDate = b.data()["dateTime"].toDate();
             return -aDate.compareTo(bDate);
           });
 
-          // Build ListView
-          return ListView(
-            children: docs
-                .map((snapshot) => _buildListItem(context, snapshot))
-                .toList(),
-          );
+          // Build body
+          if (separateTestRace) {
+            // Extract test doc
+            var testDoc = docs.firstWhere((e) => e.id == "test");
+            docs.remove(testDoc);
+
+            return Column(children: [
+              Expanded(child: _buildListView(docs)),
+              FlatButton.icon(
+                onPressed: () => onSelect(testDoc),
+                icon: Icon(Icons.exit_to_app),
+                label: Text("Test mode"),
+              ),
+            ]);
+          } else
+            return _buildListView(docs);
         });
   }
 
-  Widget _buildListItem(BuildContext context, DocumentSnapshot snapshot) {
-    var race = snapshot.data();
-    DateTime date = race["dateTime"].toDate();
+  Widget _buildListView(List<DocumentSnapshot> docs) {
+    return ListView(
+      children: docs
+          .map((snapshot) => RaceCard(
+                raceDoc: snapshot,
+                onTap: () => onSelect(snapshot),
+              ))
+          .toList(),
+    );
+  }
+}
 
-    String dateString = "${date.day}/${date.month} - " +
-        ((date.hour < 10) ? "0" : "") +
-        "${date.hour}:" +
-        ((date.minute < 10) ? "0" : "") +
-        "${date.minute}";
+class RaceCard extends StatelessWidget {
+  final DocumentSnapshot raceDoc;
+  final Function onTap;
+
+  const RaceCard({@required this.raceDoc, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    Map<String, dynamic> race = raceDoc.data();
+    DateTime date = race["dateTime"].toDate();
+    String titleString = "";
+
+    if (raceDoc.id == "test")
+      titleString = "Test mode";
+    else
+      titleString = "${date.day}/${date.month} - " +
+          ((date.hour < 10) ? "0" : "") +
+          "${date.hour}:" +
+          ((date.minute < 10) ? "0" : "") +
+          "${date.minute}";
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -97,9 +133,11 @@ class RacePicker extends StatelessWidget {
           borderRadius: BorderRadius.circular(5.0),
         ),
         child: ListTile(
-          title: Text(dateString),
+          title: Text(titleString),
           trailing: Text("${race["0"].length} / ${race["1"].length}"),
-          onTap: () => onSelect(snapshot),
+          onTap: () {
+            if (onTap != null) onTap();
+          },
         ),
       ),
     );

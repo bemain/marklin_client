@@ -19,8 +19,9 @@ class RaceBrowserScreenState extends State<RaceBrowserScreen> {
         title: Text("Race Browser"),
       ),
       body: RacePicker(
-        onSelect: (raceSnapshot) => Navigator.of(context)
-            .push(MaterialPageRoute(builder: (c) => RaceViewer(raceSnapshot))),
+        onSelect: (doc) => Navigator.of(context).push(
+          MaterialPageRoute(builder: (c) => (RaceViewer(doc))),
+        ),
       ),
     );
   }
