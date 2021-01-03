@@ -15,7 +15,7 @@ class RaceHandler {
     var doc = await race.get();
     var newTimes = doc.data()["$carID"] + [lapTime];
 
-    await race.update({"$carID": newTimes});
+    await race.update({"$carID": newTimes, "dateTime": Timestamp.now()});
   }
 
   Future<void> clearLaps() async {

@@ -52,9 +52,9 @@ class RacePicker extends StatelessWidget {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   final Function(DocumentSnapshot doc) onSelect;
-  final bool separateTestRace;
+  final bool includeCurrentRace;
 
-  RacePicker({Key key, this.onSelect, this.separateTestRace = true})
+  RacePicker({Key key, this.onSelect, this.includeCurrentRace = false})
       : super(key: key);
 
   @override
@@ -66,9 +66,9 @@ class RacePicker extends StatelessWidget {
 
           var docs = snapshot.data.docs;
 
-          // Remove current race
-          var testDoc = docs.firstWhere((e) => e.id == "current");
-          docs.remove(testDoc);
+          if (!includeCurrentRace)
+            // Remove current race
+            docs.remove(docs.firstWhere((e) => e.id == "current"));
 
           // Sort races after date
           docs.sort((a, b) {

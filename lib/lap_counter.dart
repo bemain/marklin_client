@@ -171,7 +171,7 @@ class LapCounterScreenState extends State<LapCounterScreen> {
       builder: (c) => AlertDialog(
         title: Text("Switch race"),
         content: RacePicker(
-          separateTestRace: true,
+          includeCurrentRace: true,
           onSelect: (doc) {
             setState(() {
               // Restart timers
