@@ -111,7 +111,7 @@ class LapCounterScreenState extends State<LapCounterScreen> {
       builder: (c) => AlertDialog(
         title: Text("Start new race"),
         content: Text(
-            "You are about to start a new race.\nOld races can be viewed using the Race Browser screen."),
+            "You are about to start a new race.\nThe current race will be saved to the database, and can be viewed through the RaceViewer screen."),
         actions: [
           FlatButton(
             onPressed: () {
@@ -126,7 +126,7 @@ class LapCounterScreenState extends State<LapCounterScreen> {
 
                 Navigator.of(context).pop();
               },
-              child: Text("Start race")),
+              child: Text("Continue")),
         ],
       ),
     );
@@ -138,7 +138,7 @@ class LapCounterScreenState extends State<LapCounterScreen> {
       builder: (c) => AlertDialog(
         title: Text("Restart race?"),
         content: Text(
-            "You are about to restart the race and clear all laps. This action can't be undone. \nContinue?"),
+            "You are about to restart the race and clear all laps. This action can't be undone."),
         actions: [
           FlatButton(
             onPressed: () {
@@ -159,7 +159,7 @@ class LapCounterScreenState extends State<LapCounterScreen> {
                 });
                 Navigator.of(context).pop();
               },
-              child: Text("Yes")),
+              child: Text("Continue")),
         ],
       ),
     );
