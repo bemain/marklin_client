@@ -15,7 +15,7 @@ class LapCounterScreen extends StatefulWidget {
 }
 
 class LapCounterScreenState extends State<LapCounterScreen> {
-  RaceHandler raceHandler = RaceHandler("test");
+  RaceHandler raceHandler = RaceHandler();
 
   List<Stopwatch> lapTimers = List.generate(4, (index) => Stopwatch()..start());
 
@@ -34,9 +34,6 @@ class LapCounterScreenState extends State<LapCounterScreen> {
             IconButton(
                 onPressed: () => _showRestartDialog(context),
                 icon: Icon(Icons.clear, color: Colors.white)),
-            IconButton(
-                onPressed: () => _showSelectDialog(context),
-                icon: Icon(Icons.menu, color: Colors.white)),
           ],
         ),
         body: StreamBuilder<DocumentSnapshot>(
@@ -124,8 +121,8 @@ class LapCounterScreenState extends State<LapCounterScreen> {
           ),
           FlatButton(
               onPressed: () {
-                // Start new race on database
-                raceHandler.startRace().then((value) => setState(() {}));
+                // Save current race to database database
+                raceHandler.saveRace().then((_) => setState(() {}));
 
                 Navigator.of(context).pop();
               },
@@ -169,7 +166,6 @@ class LapCounterScreenState extends State<LapCounterScreen> {
   }
 
   void _showSelectDialog(BuildContext context) {
-    // TODO: Add "cancel" and "sandbox mode" buttons
     showDialog(
       context: context,
       builder: (c) => AlertDialog(
@@ -178,7 +174,6 @@ class LapCounterScreenState extends State<LapCounterScreen> {
           separateTestRace: true,
           onSelect: (doc) {
             setState(() {
-              raceHandler.race = doc.reference;
               // Restart timers
               for (final timer in lapTimers) {
                 timer.reset();

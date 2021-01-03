@@ -3,23 +3,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 /// Helper class for creating, deleting and updating races
 /// on the Firestore database.
 class RaceHandler {
-  CollectionReference races = FirebaseFirestore.instance.collection("races");
-  DocumentReference _race;
-  Stream<DocumentSnapshot> stream;
-
-  // Getters + Setters
-  DocumentReference get race => _race;
-  set race(DocumentReference newRace) {
-    _race = newRace;
-    stream = newRace.snapshots();
-  }
-
-  set raceByName(String name) => race = races.doc(name);
+  static final races = FirebaseFirestore.instance.collection("races");
+  final DocumentReference race = races.doc("current");
+  final Stream<DocumentSnapshot> stream = races.doc("current").snapshots();
 
   // Constructors
-  RaceHandler(raceName) {
-    raceByName = raceName;
-  }
+  RaceHandler();
 
   // Methods
   Future<void> addLap(int carID, double lapTime) async {
@@ -33,8 +22,11 @@ class RaceHandler {
     await race.update({"0": [], "1": []});
   }
 
-  /// Creates a new race on the database and switches to it
-  Future<void> startRace() async {
-    race = await races.add({"dateTime": Timestamp.now(), "0": [], "1": []});
+  /// Copy current race to a separate race, then clear laps
+  Future<void> saveRace() async {
+    var doc = await race.get();
+    await races.add(doc.data());
+
+    clearLaps();
   }
 }
