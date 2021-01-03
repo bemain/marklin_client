@@ -54,7 +54,7 @@ class RacePicker extends StatelessWidget {
   final Function(DocumentSnapshot doc) onSelect;
   final bool separateTestRace;
 
-  RacePicker({Key key, this.onSelect, this.separateTestRace = false})
+  RacePicker({Key key, this.onSelect, this.separateTestRace = true})
       : super(key: key);
 
   @override
@@ -66,6 +66,10 @@ class RacePicker extends StatelessWidget {
 
           var docs = snapshot.data.docs;
 
+          // Remove current race
+          var testDoc = docs.firstWhere((e) => e.id == "current");
+          docs.remove(testDoc);
+
           // Sort races after date
           docs.sort((a, b) {
             var aDate = a.data()["dateTime"].toDate();
@@ -74,33 +78,15 @@ class RacePicker extends StatelessWidget {
           });
 
           // Build body
-          if (separateTestRace) {
-            // Extract test doc
-            var testDoc = docs.firstWhere((e) => e.id == "test");
-            docs.remove(testDoc);
-
-            return Column(children: [
-              Expanded(child: _buildListView(docs)),
-              FlatButton.icon(
-                onPressed: () => onSelect(testDoc),
-                icon: Icon(Icons.exit_to_app),
-                label: Text("Test mode"),
-              ),
-            ]);
-          } else
-            return _buildListView(docs);
+          return ListView(
+            children: docs
+                .map((snapshot) => RaceCard(
+                      raceDoc: snapshot,
+                      onTap: () => onSelect(snapshot),
+                    ))
+                .toList(),
+          );
         });
-  }
-
-  Widget _buildListView(List<DocumentSnapshot> docs) {
-    return ListView(
-      children: docs
-          .map((snapshot) => RaceCard(
-                raceDoc: snapshot,
-                onTap: () => onSelect(snapshot),
-              ))
-          .toList(),
-    );
   }
 }
 
@@ -116,8 +102,8 @@ class RaceCard extends StatelessWidget {
     DateTime date = race["dateTime"].toDate();
     String titleString = "";
 
-    if (raceDoc.id == "test")
-      titleString = "Test mode";
+    if (raceDoc.id == "current")
+      titleString = "Current";
     else
       titleString = "${date.day}/${date.month} - " +
           ((date.hour < 10) ? "0" : "") +
