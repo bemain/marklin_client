@@ -5,6 +5,13 @@ import 'package:marklin_bluetooth/race_handler.dart';
 
 import 'package:marklin_bluetooth/widgets.dart';
 
+/// Widget for handling laps and lap times.
+///
+/// Connects to and receives lap times from [device].
+/// Also features buttons for adding laps manually (temporary debug).
+///
+/// Stores the laps on a Cloud Firestore database,
+/// using [RaceHandler] to read and write data.
 class LapCounterScreen extends StatefulWidget {
   const LapCounterScreen({Key key, this.device}) : super(key: key);
 
@@ -80,9 +87,8 @@ class LapCounterScreenState extends State<LapCounterScreen> {
         RaisedButton(
           onPressed: () {
             setState(() {
-              var lapTime = lapTimers[carID].elapsedMilliseconds / 1000;
-
               // Add lap to database
+              var lapTime = lapTimers[carID].elapsedMilliseconds / 1000;
               raceHandler.addLap(carID, lapTime);
 
               // Restart timer
@@ -96,6 +102,7 @@ class LapCounterScreenState extends State<LapCounterScreen> {
     );
   }
 
+  /// Popup Dialog for exiting this widget
   void _showQuitDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -105,6 +112,7 @@ class LapCounterScreenState extends State<LapCounterScreen> {
     );
   }
 
+  /// Popup Dialog for starting a new race
   void _showStartDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -132,6 +140,7 @@ class LapCounterScreenState extends State<LapCounterScreen> {
     );
   }
 
+  /// Popup Dialog for restarting the current race
   void _showRestartDialog(BuildContext context) {
     showDialog(
       context: context,

@@ -28,16 +28,16 @@ class RaceBrowserScreenState extends State<RaceBrowserScreen> {
   }
 }
 
-/// Widget for displaying lap times and other information about a specific race.
+/// Widget for displaying lap times and other information about [raceDoc].
 class RaceViewer extends StatelessWidget {
   // TODO: Add button for deleting race
-  RaceViewer(this.raceSnapshot, {Key key}) : super(key: key);
+  RaceViewer(this.raceDoc, {Key key}) : super(key: key);
 
-  final DocumentSnapshot raceSnapshot;
+  final DocumentSnapshot raceDoc;
 
   @override
   Widget build(BuildContext context) {
-    var race = raceSnapshot.data();
+    var race = raceDoc.data();
     return Scaffold(
       appBar: AppBar(
         title: Text("${race["dateTime"].toDate().toString()}"),

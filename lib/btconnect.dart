@@ -5,6 +5,7 @@ import 'package:flutter_blue/flutter_blue.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
 /// Helper widget for connecting to Bluetooth device.
+///
 /// Replaces itself with [connectedScreen] when connected to [device],
 /// and shows loading / error or connected screen while connecting.
 class BTConnect extends StatefulWidget {
@@ -67,18 +68,21 @@ class BTConnectState extends State<BTConnect> {
   }
 
   Future<void> _connectBT(BluetoothDevice device) async {
-    // Check if already connected
+    // Don't connect if already connected
     if ((await FlutterBlue.instance.connectedDevices).isEmpty)
       widget.device.connect();
 
     // Start timer for switching screen
     Timer.periodic(
-        Duration(seconds: 1), (timer) => _replaceScreen(timer, context));
+      Duration(seconds: 1),
+      (timer) => _replaceScreen(timer, context),
+    );
   }
 
   Future<void> _replaceScreen(Timer timer, BuildContext context) async {
     if (connected) {
       timer.cancel();
+      // Replace with new screen
       await Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (c) => widget.connectedScreen));
     }
