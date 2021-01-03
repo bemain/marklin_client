@@ -164,25 +164,4 @@ class LapCounterScreenState extends State<LapCounterScreen> {
       ),
     );
   }
-
-  void _showSelectDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (c) => AlertDialog(
-        title: Text("Switch race"),
-        content: RacePicker(
-          includeCurrentRace: true,
-          onSelect: (doc) {
-            setState(() {
-              // Restart timers
-              for (final timer in lapTimers) {
-                timer.reset();
-              }
-            });
-            Navigator.of(context).pop();
-          },
-        ),
-      ),
-    );
-  }
 }

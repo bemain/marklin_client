@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
+/// Widget for viewing the races currently on the database
 class RaceBrowserScreen extends StatefulWidget {
   RaceBrowserScreen({Key key}) : super(key: key);
 
@@ -27,7 +28,9 @@ class RaceBrowserScreenState extends State<RaceBrowserScreen> {
   }
 }
 
+/// Widget for displaying lap times and other information about a specific race.
 class RaceViewer extends StatelessWidget {
+  // TODO: Add button for deleting race
   RaceViewer(this.raceSnapshot, {Key key}) : super(key: key);
 
   final DocumentSnapshot raceSnapshot;

@@ -47,7 +47,11 @@ class QuitDialog extends StatelessWidget {
 }
 
 /// Widget for selecting a race from the database.
-/// Runs [onSelect] when user has selected a race.
+/// Runs [onSelect] with the document snapshot related to the selected race,
+/// whenever user selects a race.
+///
+/// Excludes the 'current' race by default.
+/// This can be changed by setting the [ignoreCurrentRace] option.
 class RacePicker extends StatelessWidget {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
