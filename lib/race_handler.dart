@@ -24,8 +24,9 @@ class RaceHandler {
 
   /// Copy current race to a separate race, then clear laps
   Future<void> saveRace() async {
-    var doc = await race.get();
-    await races.add(doc.data());
+    var data = (await race.get()).data();
+    data["dateTime"] = Timestamp.now();
+    await races.add(data);
 
     clearLaps();
   }
