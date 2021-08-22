@@ -4,7 +4,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 
-import 'package:marklin_bluetooth/lap_counter.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
 class ControllerScreen extends StatefulWidget {
@@ -144,13 +143,15 @@ class SpeedSliderState extends State<SpeedSlider> {
                   ),
                 ),
               ),
-              RaisedButton(
+              ElevatedButton(
                 onPressed: () {
                   setState(() {
                     enableSlowDown = !enableSlowDown;
                   });
                 },
-                color: Theme.of(context).primaryColor,
+                style: ButtonStyle(
+                    foregroundColor: MaterialStateProperty.all<Color>(
+                        Theme.of(context).primaryColor)),
                 child: Text("Slow down? ${enableSlowDown ? "YES" : "NO"}"),
               ),
             ]);

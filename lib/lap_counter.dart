@@ -80,7 +80,7 @@ class LapCounterScreenState extends State<LapCounterScreen> {
             ),
           ),
         ),
-        RaisedButton(
+        ElevatedButton(
           onPressed: () {
             setState(() {
               var lapTime = lapTimers[carID].elapsedMilliseconds / 1000;
@@ -92,7 +92,9 @@ class LapCounterScreenState extends State<LapCounterScreen> {
               lapTimers[carID].reset();
             });
           },
-          color: Theme.of(context).primaryColor,
+          style: ButtonStyle(
+              foregroundColor: MaterialStateProperty.all<Color>(
+                  Theme.of(context).primaryColor)),
           child: Icon(Icons.plus_one),
         )
       ],
@@ -116,13 +118,13 @@ class LapCounterScreenState extends State<LapCounterScreen> {
         content: Text(
             "You are about to start a new race.\nOld races can be viewed using the Race Browser screen."),
         actions: [
-          FlatButton(
+          TextButton(
             onPressed: () {
               Navigator.of(context).pop();
             },
             child: Text("Cancel"),
           ),
-          FlatButton(
+          TextButton(
               onPressed: () {
                 // Start new race on database
                 raceHandler.startRace().then((value) => setState(() {}));
@@ -143,13 +145,13 @@ class LapCounterScreenState extends State<LapCounterScreen> {
         content: Text(
             "You are about to restart the race and clear all laps. This action can't be undone. \nContinue?"),
         actions: [
-          FlatButton(
+          TextButton(
             onPressed: () {
               Navigator.of(context).pop();
             },
             child: Text("Cancel"),
           ),
-          FlatButton(
+          TextButton(
               onPressed: () {
                 setState(() {
                   // Clear laps on database
