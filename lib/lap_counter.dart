@@ -84,7 +84,7 @@ class LapCounterScreenState extends State<LapCounterScreen> {
             ),
           ),
         ),
-        RaisedButton(
+        ElevatedButton(
           onPressed: () {
             setState(() {
               // Add lap to database
@@ -95,7 +95,9 @@ class LapCounterScreenState extends State<LapCounterScreen> {
               lapTimers[carID].reset();
             });
           },
-          color: Theme.of(context).primaryColor,
+          style: ButtonStyle(
+              foregroundColor: MaterialStateProperty.all<Color>(
+                  Theme.of(context).primaryColor)),
           child: Icon(Icons.plus_one),
         )
       ],
@@ -121,13 +123,13 @@ class LapCounterScreenState extends State<LapCounterScreen> {
         content: Text(
             "You are about to start a new race.\nThe current race will be saved to the database, and can be viewed through the RaceViewer screen."),
         actions: [
-          FlatButton(
+          TextButton(
             onPressed: () {
               Navigator.of(context).pop();
             },
             child: Text("Cancel"),
           ),
-          FlatButton(
+          TextButton(
               onPressed: () {
                 // Save current race to database database
                 raceHandler.saveRace().then((_) => setState(() {}));
@@ -149,13 +151,13 @@ class LapCounterScreenState extends State<LapCounterScreen> {
         content: Text(
             "You are about to restart the race and clear all laps. This action can't be undone."),
         actions: [
-          FlatButton(
+          TextButton(
             onPressed: () {
               Navigator.of(context).pop();
             },
             child: Text("Cancel"),
           ),
-          FlatButton(
+          TextButton(
               onPressed: () {
                 setState(() {
                   // Clear laps on database

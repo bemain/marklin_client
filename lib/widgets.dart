@@ -27,13 +27,13 @@ class QuitDialog extends StatelessWidget {
       title: Text("Quit?"),
       content: Text("Are you sure you want to quit?"),
       actions: <Widget>[
-        FlatButton(
+        TextButton(
           child: Text("Cancel"),
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
-        FlatButton(
+        TextButton(
           child: Text("Quit"),
           onPressed: () {
             onQuit();

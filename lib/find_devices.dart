@@ -128,7 +128,7 @@ class BluetoothDeviceTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FlatButton(
+    return TextButton(
       child: _buildTitle(context),
       onPressed: onTap,
     );
