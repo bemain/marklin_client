@@ -2,7 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class InfoScreen extends StatelessWidget {
-  const InfoScreen({Key key, this.icon, this.text}) : super(key: key);
+  const InfoScreen({Key? key, required this.icon, required this.text})
+      : super(key: key);
 
   final Widget icon;
   final String text;
@@ -16,10 +17,38 @@ class InfoScreen extends StatelessWidget {
   }
 }
 
-class QuitDialog extends StatelessWidget {
-  const QuitDialog({Key key, this.onQuit}) : super(key: key);
+class ErrorScreen extends StatelessWidget {
+  const ErrorScreen({Key? key, required this.text}) : super(key: key);
 
-  final Function onQuit;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return InfoScreen(
+      icon: Icon(Icons.error),
+      text: text,
+    );
+  }
+}
+
+class LoadingScreen extends StatelessWidget {
+  const LoadingScreen({Key? key, required this.text}) : super(key: key);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return InfoScreen(
+      icon: CircularProgressIndicator(),
+      text: text,
+    );
+  }
+}
+
+class QuitDialog extends StatelessWidget {
+  const QuitDialog({Key? key, this.onQuit}) : super(key: key);
+
+  final Function? onQuit;
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +65,7 @@ class QuitDialog extends StatelessWidget {
         TextButton(
           child: Text("Quit"),
           onPressed: () {
-            onQuit();
+            onQuit?.call();
             Navigator.of(context).pop();
             Navigator.of(context).pop();
           },
@@ -48,18 +77,18 @@ class QuitDialog extends StatelessWidget {
 
 /// Widget for selecting a race from the database.
 ///
-/// Runs [onSelect] whenever user selects a race.
+/// Executes [onSelect] whenever user selects a race.
 ///
 /// Excludes the 'current' race by default.
 /// This can be changed by setting the [ignoreCurrentRace] option.
 class RacePicker extends StatelessWidget {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  final Function(DocumentSnapshot raceDoc) onSelect;
-  final bool includeCurrentRace;
-
-  RacePicker({Key key, this.onSelect, this.includeCurrentRace = false})
+  RacePicker({Key? key, this.onSelect, this.includeCurrentRace = false})
       : super(key: key);
+
+  final Function(DocumentSnapshot raceDoc)? onSelect;
+  final bool includeCurrentRace;
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +97,7 @@ class RacePicker extends StatelessWidget {
         builder: (context, snapshot) {
           if (!snapshot.hasData) return LinearProgressIndicator();
 
-          var docs = snapshot.data.docs;
+          var docs = snapshot.data!.docs;
 
           if (!includeCurrentRace)
             // Remove current race
@@ -76,8 +105,10 @@ class RacePicker extends StatelessWidget {
 
           // Sort races after date
           docs.sort((a, b) {
-            var aDate = a.data()["dateTime"].toDate();
-            var bDate = b.data()["dateTime"].toDate();
+            var aData = a.data() as Map<String, dynamic>;
+            var bData = b.data() as Map<String, dynamic>;
+            var aDate = aData["date"].toDate();
+            var bDate = bData["date"].toDate();
             return -aDate.compareTo(bDate);
           });
 
@@ -86,7 +117,7 @@ class RacePicker extends StatelessWidget {
             children: docs
                 .map((snapshot) => RaceCard(
                       raceDoc: snapshot,
-                      onTap: () => onSelect(snapshot),
+                      onTap: () => onSelect?.call(snapshot),
                     ))
                 .toList(),
           );
@@ -95,15 +126,15 @@ class RacePicker extends StatelessWidget {
 }
 
 class RaceCard extends StatelessWidget {
-  final DocumentSnapshot raceDoc;
-  final Function onTap;
+  const RaceCard({required this.raceDoc, this.onTap});
 
-  const RaceCard({@required this.raceDoc, this.onTap});
+  final DocumentSnapshot raceDoc;
+  final Function? onTap;
 
   @override
   Widget build(BuildContext context) {
-    Map<String, dynamic> race = raceDoc.data();
-    DateTime date = race["dateTime"].toDate();
+    Map<String, dynamic> race = raceDoc.data() as Map<String, dynamic>;
+    DateTime date = race["date"].toDate();
     String titleString = "";
 
     if (raceDoc.id == "current")
@@ -126,7 +157,7 @@ class RaceCard extends StatelessWidget {
           title: Text(titleString),
           trailing: Text("${race["0"].length} / ${race["1"].length}"),
           onTap: () {
-            if (onTap != null) onTap();
+            onTap?.call();
           },
         ),
       ),
