@@ -1,33 +1,42 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+final int nCars = 2;
+
 /// Helper class for creating, deleting and updating races
 /// on the Firestore database.
 class RaceHandler {
   static final races = FirebaseFirestore.instance.collection("races");
-  final DocumentReference race = races.doc("current");
-  final Stream<DocumentSnapshot> stream = races.doc("current").snapshots();
+  final DocumentReference currentRace = races.doc("current");
 
-  // <-- Methods -->
+  /// Realtime changes to the current race
+  /// Subscribe with listen()
+  Stream<DocumentSnapshot> get currentRaceStream => currentRace.snapshots();
 
-  /// Add [lapTime] to lapTimes of [carID] on current race
-  Future<void> addLap(int carID, double lapTime) async {
-    var doc = await race.get();
-    var newTimes = doc.data()["$carID"] + [lapTime];
+  /// Get the collection that contains all laps for the car with id [carID]
+  /// on the current race.
+  CollectionReference carCollection(carID) => currentRace.collection("$carID");
 
-    await race.update({"$carID": newTimes, "dateTime": Timestamp.now()});
+  /// Add [lapTime] to lap times of [carID] on current race
+  Future addLap(int carID, double lapTime) async {
+    await carCollection(carID).add({
+      "lapTime": lapTime,
+      "date": Timestamp.now(),
+    });
   }
 
-  /// Clear laps on current race
-  Future<void> clearLaps() async {
-    await race.update({"0": [], "1": []});
+  /// Delete all laps on current race
+  Future clearCurrentRace() async {
+    for (var i = 0; i < nCars; i++)
+      for (var doc in (await carCollection(i).get()).docs)
+        await doc.reference.delete();
   }
 
   /// Copy current race to a separate race, then clear current laps
-  Future<void> saveRace() async {
-    var data = (await race.get()).data();
-    data["dateTime"] = Timestamp.now();
+  Future saveCurrentRace() async {
+    var data = (await currentRace.get()).data() as Map<String, dynamic>;
+    data["date"] = Timestamp.now();
     await races.add(data);
 
-    clearLaps();
+    clearCurrentRace();
   }
 }
