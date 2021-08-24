@@ -7,7 +7,7 @@ import 'package:flutter_blue/flutter_blue.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
 class ControllerScreen extends StatefulWidget {
-  const ControllerScreen({Key key, this.device}) : super(key: key);
+  const ControllerScreen({Key? key, required this.device}) : super(key: key);
 
   final BluetoothDevice device;
 
@@ -59,10 +59,11 @@ class _ControllerScreenState extends State<ControllerScreen> {
 }
 
 class SpeedSlider extends StatefulWidget {
-  SpeedSlider({Key key, this.device, this.onCarIDChange}) : super(key: key);
+  SpeedSlider({Key? key, required this.device, this.onCarIDChange})
+      : super(key: key);
 
   final BluetoothDevice device;
-  final Function(int newID) onCarIDChange;
+  final Function(int newID)? onCarIDChange;
 
   @override
   State<StatefulWidget> createState() => SpeedSliderState();
@@ -76,13 +77,13 @@ class SpeedSliderState extends State<SpeedSlider> {
 
   bool enableSlowDown = true;
   bool willSlowDown = false;
-  Timer slowDownLoop;
+  Timer? slowDownLoop;
 
   bool sendNeeded = false;
-  Timer sendLoop;
+  Timer? sendLoop;
 
-  Future<bool> _futureChar;
-  BluetoothCharacteristic speedChar;
+  Future<bool>? _futureChar;
+  BluetoothCharacteristic? speedChar;
 
   // Methods
   @override
@@ -133,11 +134,11 @@ class SpeedSliderState extends State<SpeedSlider> {
                   (index) => Radio(
                     value: index,
                     groupValue: carID,
-                    onChanged: (value) {
+                    onChanged: (int? value) {
                       setState(() {
-                        carID = value;
+                        carID = value ?? 0;
                         sendNeeded = true;
-                        widget.onCarIDChange(carID);
+                        widget.onCarIDChange?.call(carID);
                       });
                     },
                   ),
@@ -162,7 +163,7 @@ class SpeedSliderState extends State<SpeedSlider> {
   void dispose() {
     super.dispose();
 
-    sendLoop.cancel();
+    sendLoop?.cancel();
   }
 
   Future<bool> getCharacteristic() async {
@@ -181,7 +182,7 @@ class SpeedSliderState extends State<SpeedSlider> {
     // Send speed to bluetooth device
     if (sendNeeded) {
       await speedChar
-          .write([carID, 100 - speed.toInt()], withoutResponse: true);
+          ?.write([carID, 100 - speed.toInt()], withoutResponse: true);
       sendNeeded = false;
     }
   }
