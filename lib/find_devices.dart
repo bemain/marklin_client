@@ -56,7 +56,7 @@ class FindDevicesScreenState extends State<FindDevicesScreen> {
                       stream: flutterBlue.scanResults,
                       initialData: [],
                       builder: (c, snapshot) => Column(
-                        children: snapshot.data
+                        children: snapshot.data!
                             .map(
                                 (result) => _bluetoothDeviceTile(result.device))
                             .toList(),
@@ -67,10 +67,11 @@ class FindDevicesScreenState extends State<FindDevicesScreen> {
       floatingActionButton: StreamBuilder(
         stream: flutterBlue.isScanning,
         initialData: false,
-        builder: (c, snapshot) => FloatingActionButton(
-          child: Icon(snapshot.data ? Icons.bluetooth_searching : Icons.search),
+        builder: (c, AsyncSnapshot<bool> snapshot) => FloatingActionButton(
+          child:
+              Icon(snapshot.data! ? Icons.bluetooth_searching : Icons.search),
           onPressed: () {
-            if (!snapshot.data) // Not scanning
+            if (!snapshot.data!) // Not scanning
               flutterBlue.startScan(timeout: Duration(seconds: 4));
           },
         ),
@@ -99,11 +100,11 @@ class FindDevicesScreenState extends State<FindDevicesScreen> {
 }
 
 class BluetoothDeviceTile extends StatelessWidget {
-  const BluetoothDeviceTile({Key key, this.device, this.onTap})
+  const BluetoothDeviceTile({Key? key, required this.device, this.onTap})
       : super(key: key);
 
   final BluetoothDevice device;
-  final VoidCallback onTap;
+  final Function()? onTap;
 
   Widget _buildTitle(BuildContext context) {
     if (device.name.length > 0) {
