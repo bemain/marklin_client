@@ -13,7 +13,7 @@ import 'package:marklin_bluetooth/widgets.dart';
 /// Stores the laps on a Cloud Firestore database,
 /// using [RaceHandler] to read and write data.
 class LapCounterScreen extends StatefulWidget {
-  const LapCounterScreen({Key key, this.device}) : super(key: key);
+  const LapCounterScreen({Key? key, required this.device}) : super(key: key);
 
   final BluetoothDevice device;
 
@@ -44,7 +44,7 @@ class LapCounterScreenState extends State<LapCounterScreen> {
           ],
         ),
         body: StreamBuilder<DocumentSnapshot>(
-            stream: raceHandler.stream,
+            stream: raceHandler.currentRaceStream,
             builder: (c, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting)
                 return InfoScreen(
@@ -58,7 +58,7 @@ class LapCounterScreenState extends State<LapCounterScreen> {
                   text: "Error: ${snapshot.error}",
                 );
 
-              var doc = snapshot.data.data();
+              var doc = snapshot.data!.data()! as Map<String, dynamic>;
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -131,8 +131,8 @@ class LapCounterScreenState extends State<LapCounterScreen> {
           ),
           TextButton(
               onPressed: () {
-                // Save current race to database database
-                raceHandler.saveRace().then((_) => setState(() {}));
+                // Save current race to database
+                raceHandler.saveCurrentRace().then((_) => setState(() {}));
 
                 Navigator.of(context).pop();
               },
@@ -161,7 +161,7 @@ class LapCounterScreenState extends State<LapCounterScreen> {
               onPressed: () {
                 setState(() {
                   // Clear laps on database
-                  raceHandler.clearLaps();
+                  raceHandler.clearCurrentRace();
 
                   // Restart timers
                   for (final timer in lapTimers) {
