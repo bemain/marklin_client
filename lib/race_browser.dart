@@ -4,7 +4,7 @@ import 'package:marklin_bluetooth/widgets.dart';
 
 /// Widget for viewing the races currently on the database
 class RaceBrowserScreen extends StatefulWidget {
-  RaceBrowserScreen({Key key}) : super(key: key);
+  RaceBrowserScreen({Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => RaceBrowserScreenState();
@@ -21,7 +21,7 @@ class RaceBrowserScreenState extends State<RaceBrowserScreen> {
       ),
       body: RacePicker(
         onSelect: (doc) => Navigator.of(context).push(
-          MaterialPageRoute(builder: (c) => (RaceViewer(doc))),
+          MaterialPageRoute(builder: (c) => (RaceViewer(raceDoc: doc))),
         ),
       ),
     );
@@ -31,13 +31,13 @@ class RaceBrowserScreenState extends State<RaceBrowserScreen> {
 /// Widget for displaying lap times and other information about [raceDoc].
 class RaceViewer extends StatelessWidget {
   // TODO: Add button for deleting race
-  RaceViewer(this.raceDoc, {Key key}) : super(key: key);
+  RaceViewer({Key? key, required this.raceDoc}) : super(key: key);
 
   final DocumentSnapshot raceDoc;
 
   @override
   Widget build(BuildContext context) {
-    var race = raceDoc.data();
+    var race = raceDoc.data() as Map<String, dynamic>;
     return Scaffold(
       appBar: AppBar(
         title: Text("${race["dateTime"].toDate().toString()}"),
@@ -46,7 +46,7 @@ class RaceViewer extends StatelessWidget {
     );
   }
 
-  Widget _buildGridView(Map race) {
+  Widget _buildGridView(Map<String, dynamic> race) {
     // TODO: Rewrite this to work with lapTimes of different lengths for different cars
     int nCars = 2;
 
@@ -54,7 +54,7 @@ class RaceViewer extends StatelessWidget {
       gridDelegate:
           SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: nCars),
       itemCount: List.generate(nCars, (i) => race["$i"].length)
-          .fold(0, (p, c) => p + c),
+          .fold<int>(0, (p, c) => (p + c).toInt()),
       itemBuilder: (c, i) =>
           _buildListItem(race["${i % nCars}"][i ~/ nCars].toDouble()),
     );
