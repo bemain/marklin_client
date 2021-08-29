@@ -1,7 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
-import 'package:marklin_bluetooth/btconnect.dart';
 
 import 'package:marklin_bluetooth/controller.dart';
 import 'package:marklin_bluetooth/lap_counter.dart';
@@ -86,13 +85,10 @@ class FindDevicesScreenState extends State<FindDevicesScreen> {
         MaterialPageRoute(
           builder: (context) => (lapCounter)
               ? PageView(children: [
-                  LapCounterScreen(device: null),
+                  LapCounterScreen(device: device),
                   RaceBrowserScreen()
                 ])
-              : BTConnect(
-                  device: device,
-                  connectedScreen: ControllerScreen(device: device),
-                ),
+              : ControllerScreen(),
         ),
       ),
     );

@@ -3,13 +3,13 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
+import 'package:marklin_bluetooth/bluetooth.dart';
+import 'package:marklin_bluetooth/find_devices.dart';
 
 import 'package:marklin_bluetooth/widgets.dart';
 
 class ControllerScreen extends StatefulWidget {
-  const ControllerScreen({Key? key, required this.device}) : super(key: key);
-
-  final BluetoothDevice device;
+  const ControllerScreen({Key? key}) : super(key: key);
 
   @override
   _ControllerScreenState createState() => new _ControllerScreenState();
@@ -20,49 +20,46 @@ class _ControllerScreenState extends State<ControllerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Theme(
-        data: ThemeData(
-          primarySwatch: [
-            Colors.green,
-            Colors.purple,
-            Colors.orange,
-            Colors.grey,
-          ][carID],
-        ),
-        child: Scaffold(
-          appBar: AppBar(
-            leading: IconButton(
-              onPressed: () => _showQuitDialog(context),
-              icon: Icon(Icons.bluetooth_disabled, color: Colors.white),
+    return (Bluetooth.device == null)
+        ? SelectDeviceScreen(onDeviceConnected: (device) => setState(() {}))
+        : Theme(
+            data: ThemeData(
+              primarySwatch: [
+                Colors.green,
+                Colors.purple,
+                Colors.orange,
+                Colors.grey,
+              ][carID],
             ),
-            title: Text("Märklin BLE Controller"),
-          ),
-          body: SpeedSlider(
-            device: widget.device,
-            onCarIDChange: (id) {
-              setState(() {
-                carID = id;
-              });
-            },
-          ),
-        ));
+            child: Scaffold(
+              appBar: AppBar(
+                leading: IconButton(
+                  onPressed: () => _showQuitDialog(context),
+                  icon: Icon(Icons.bluetooth_disabled, color: Colors.white),
+                ),
+                title: Text("Märklin BLE Controller"),
+              ),
+              body: SpeedSlider(
+                onCarIDChange: (id) {
+                  setState(() {
+                    carID = id;
+                  });
+                },
+              ),
+            ));
   }
 
   void _showQuitDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (c) => QuitDialog(
-        onQuit: () => widget.device.disconnect(),
-      ),
+      builder: (c) => QuitDialog(),
     );
   }
 }
 
 class SpeedSlider extends StatefulWidget {
-  SpeedSlider({Key? key, required this.device, this.onCarIDChange})
-      : super(key: key);
+  SpeedSlider({Key? key, this.onCarIDChange}) : super(key: key);
 
-  final BluetoothDevice device;
   final Function(int newID)? onCarIDChange;
 
   @override
@@ -117,6 +114,7 @@ class SpeedSliderState extends State<SpeedSlider> {
                       value: speed,
                       onChanged: (value) {
                         sendNeeded = true;
+                        print("Value changed");
                         setState(() {
                           speed = value;
                         });
@@ -164,10 +162,14 @@ class SpeedSliderState extends State<SpeedSlider> {
     super.dispose();
 
     sendLoop?.cancel();
+    slowDownLoop?.cancel();
   }
 
   Future<bool> getCharacteristic() async {
-    List<BluetoothService> services = await widget.device.discoverServices();
+    List<BluetoothService> services =
+        await Bluetooth.device!.discoverServices();
+
+    print(services);
 
     var service = services.firstWhere(
         (s) => s.uuid == Guid("0000180c-0000-1000-8000-00805f9b34fb"));

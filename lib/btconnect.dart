@@ -9,7 +9,7 @@ import 'package:marklin_bluetooth/widgets.dart';
 /// Replaces itself with [connectedScreen] when connected to [device],
 /// and shows loading / error or connected screen while connecting.
 class BTConnect extends StatefulWidget {
-  BTConnect({Key key, @required this.device, @required this.connectedScreen})
+  BTConnect({Key? key, required this.device, required this.connectedScreen})
       : super(key: key);
 
   final BluetoothDevice device;
@@ -20,7 +20,7 @@ class BTConnect extends StatefulWidget {
 }
 
 class BTConnectState extends State<BTConnect> {
-  Future _futureConnect;
+  Future? _futureConnect;
   bool connected = false;
 
   @override

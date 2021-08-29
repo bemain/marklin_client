@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:marklin_bluetooth/widgets.dart';
@@ -43,15 +45,15 @@ class SelectDeviceScreenState extends State<SelectDeviceScreen> {
                               children: snapshot.data!
                                   .map((result) => BluetoothDeviceTile(
                                       device: result.device,
-                                      onTap: () =>
-                                          selectedDevice = result.device))
+                                      onTap: () => setState(() =>
+                                          selectedDevice = result.device)))
                                   .toList(),
                             ),
                           ),
                         ),
             )
           : FutureBuilder(
-              future: selectedDevice!.connect(),
+              future: _connectBT(),
               builder: (c, snapshot) {
                 if (snapshot.hasError)
                   return ErrorScreen(text: "Failed to connect to device");
@@ -59,8 +61,6 @@ class SelectDeviceScreenState extends State<SelectDeviceScreen> {
                 if (snapshot.connectionState == ConnectionState.waiting)
                   return LoadingScreen(text: "Connecting to device...");
 
-                Bluetooth.device = selectedDevice;
-                widget.onDeviceConnected?.call(selectedDevice!);
                 return InfoScreen(
                     icon: Icon(Icons.bluetooth_connected),
                     text: "Connected to device");
@@ -78,6 +78,18 @@ class SelectDeviceScreenState extends State<SelectDeviceScreen> {
         ),
       ),
     );
+  }
+
+  Future _connectBT() async {
+    await selectedDevice!.connect();
+
+    Bluetooth.device = selectedDevice;
+
+    // Start timer for switching screen
+    Timer(Duration(seconds: 1), () {
+      widget.onDeviceConnected?.call(selectedDevice!);
+      Navigator.of(context).pop();
+    });
   }
 }
 

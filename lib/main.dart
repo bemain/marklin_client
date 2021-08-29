@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:marklin_bluetooth/bluetooth.dart';
+import 'package:marklin_bluetooth/controller.dart';
 import 'package:marklin_bluetooth/find_devices.dart';
 
 void main() {
@@ -14,6 +16,6 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.blue,
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        home: FindDevicesScreen());
+        home: ControllerScreen());
   }
 }
