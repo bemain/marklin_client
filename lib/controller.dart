@@ -166,15 +166,16 @@ class SpeedSliderState extends State<SpeedSlider> {
   }
 
   Future<bool> getCharacteristic() async {
+    assert(Bluetooth.device != null);
     List<BluetoothService> services =
         await Bluetooth.device!.discoverServices();
 
-    print(services);
+    print("services: $services");
 
     var service = services.firstWhere(
-        (s) => s.uuid == Guid("0000180c-0000-1000-8000-00805f9b34fb"));
+        (s) => s.uuid == Guid("00001801-0000-1000-8000-00805f9b34fb"));
     var char = service.characteristics.firstWhere(
-        (c) => c.uuid == Guid("0000180c-0000-1000-8000-00805f9b34fb"));
+        (c) => c.serviceUuid == Guid("00001801-0000-1000-8000-00805f9b34fb"));
 
     speedChar = char;
     return true;
