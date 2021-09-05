@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:marklin_bluetooth/bluetooth.dart';
 import 'package:marklin_bluetooth/controller.dart';
-import 'package:marklin_bluetooth/find_devices.dart';
 
 void main() {
   runApp(MyApp());

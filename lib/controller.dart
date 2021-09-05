@@ -4,7 +4,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:marklin_bluetooth/bluetooth.dart';
-import 'package:marklin_bluetooth/find_devices.dart';
 
 import 'package:marklin_bluetooth/widgets.dart';
 
@@ -97,12 +96,12 @@ class SpeedSliderState extends State<SpeedSlider> {
     return FutureBuilder<bool>(
         future: _futureChar,
         builder: (c, snapshot) {
-          if (!snapshot.hasData)
+          if (!snapshot.hasData) // Getting characteristic
             return InfoScreen(
                 icon: CircularProgressIndicator(),
                 text: "Getting Characteristic");
           else
-            return (!snapshot.data!)
+            return (!snapshot.data!) // Characteristic not found
                 ? ErrorScreen(
                     text: "Could not get characteristic from Bluetooth device",
                   )
@@ -155,8 +154,10 @@ class SpeedSliderState extends State<SpeedSlider> {
                       style: ButtonStyle(
                           foregroundColor: MaterialStateProperty.all<Color>(
                               Theme.of(context).primaryColor)),
-                      child:
-                          Text("Slow down? ${enableSlowDown ? "YES" : "NO"}"),
+                      child: Text(
+                        "Slow down? ${enableSlowDown ? "YES" : "NO"}",
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                   ]);
         });
