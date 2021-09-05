@@ -81,14 +81,15 @@ class SelectDeviceScreenState extends State<SelectDeviceScreen> {
   }
 
   Future _connectBT() async {
-    await selectedDevice!.connect();
+    // Don't connect if already connected
+    if ((await FlutterBlue.instance.connectedDevices).isEmpty)
+      await selectedDevice!.connect();
 
     Bluetooth.device = selectedDevice;
 
     // Start timer for switching screen
     Timer(Duration(seconds: 1), () {
       widget.onDeviceConnected?.call(selectedDevice!);
-      Navigator.of(context).pop();
     });
   }
 }
