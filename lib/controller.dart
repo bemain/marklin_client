@@ -94,7 +94,7 @@ class SpeedSliderState extends State<SpeedSlider> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
+    return FutureBuilder<bool>(
         future: _futureChar,
         builder: (c, snapshot) {
           if (!snapshot.hasData)
@@ -102,58 +102,63 @@ class SpeedSliderState extends State<SpeedSlider> {
                 icon: CircularProgressIndicator(),
                 text: "Getting Characteristic");
           else
-            return Column(children: [
-              Expanded(
-                child: Listener(
-                  behavior: HitTestBehavior.translucent,
-                  onPointerDown: (event) => willSlowDown = false,
-                  onPointerUp: (event) => willSlowDown = true,
-                  child: RotatedBox(
-                    quarterTurns: -1,
-                    child: Slider(
-                      value: speed,
-                      onChanged: (value) {
-                        sendNeeded = true;
-                        print("Value changed");
+            return (!snapshot.data!)
+                ? ErrorScreen(
+                    text: "Could not get characteristic from Bluetooth device",
+                  )
+                : Column(children: [
+                    Expanded(
+                      child: Listener(
+                        behavior: HitTestBehavior.translucent,
+                        onPointerDown: (event) => willSlowDown = false,
+                        onPointerUp: (event) => willSlowDown = true,
+                        child: RotatedBox(
+                          quarterTurns: -1,
+                          child: Slider(
+                            value: speed,
+                            onChanged: (value) {
+                              sendNeeded = true;
+                              print("Value changed");
+                              setState(() {
+                                speed = value;
+                              });
+                            },
+                            min: 0,
+                            max: 100,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: List.generate(
+                        4,
+                        (index) => Radio(
+                          value: index,
+                          groupValue: carID,
+                          onChanged: (int? value) {
+                            setState(() {
+                              carID = value ?? 0;
+                              sendNeeded = true;
+                              widget.onCarIDChange?.call(carID);
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
                         setState(() {
-                          speed = value;
+                          enableSlowDown = !enableSlowDown;
                         });
                       },
-                      min: 0,
-                      max: 100,
+                      style: ButtonStyle(
+                          foregroundColor: MaterialStateProperty.all<Color>(
+                              Theme.of(context).primaryColor)),
+                      child:
+                          Text("Slow down? ${enableSlowDown ? "YES" : "NO"}"),
                     ),
-                  ),
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: List.generate(
-                  4,
-                  (index) => Radio(
-                    value: index,
-                    groupValue: carID,
-                    onChanged: (int? value) {
-                      setState(() {
-                        carID = value ?? 0;
-                        sendNeeded = true;
-                        widget.onCarIDChange?.call(carID);
-                      });
-                    },
-                  ),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    enableSlowDown = !enableSlowDown;
-                  });
-                },
-                style: ButtonStyle(
-                    foregroundColor: MaterialStateProperty.all<Color>(
-                        Theme.of(context).primaryColor)),
-                child: Text("Slow down? ${enableSlowDown ? "YES" : "NO"}"),
-              ),
-            ]);
+                  ]);
         });
   }
 
@@ -165,19 +170,27 @@ class SpeedSliderState extends State<SpeedSlider> {
     slowDownLoop?.cancel();
   }
 
+  /// Tries to get the given characteristic from [Bluetooth.device].
+  /// Requires [Bluetooth.device] to be a connected BluetoothDevice
+  /// Returns true if get was successful, false otherwise
   Future<bool> getCharacteristic() async {
-    assert(Bluetooth.device != null);
+    final serviceID = "00001801-0000-1000-8000-00805f9b34fb";
+    final charID = "00001801-0000-1000-8000-00805f9b34fb";
+
+    assert(Bluetooth.device != null); // Needs connected BT device
+
     List<BluetoothService> services =
         await Bluetooth.device!.discoverServices();
+    var sers = services.where((s) => s.uuid == Guid(serviceID)).toList();
+    if (sers.isEmpty) return false; // Service not found
 
-    print("services: $services");
+    var chars = sers[0]
+        .characteristics
+        .where((c) => c.serviceUuid == Guid(charID))
+        .toList();
+    if (chars.isEmpty) return false; // Characteristic not found
 
-    var service = services.firstWhere(
-        (s) => s.uuid == Guid("00001801-0000-1000-8000-00805f9b34fb"));
-    var char = service.characteristics.firstWhere(
-        (c) => c.serviceUuid == Guid("00001801-0000-1000-8000-00805f9b34fb"));
-
-    speedChar = char;
+    speedChar = chars[0];
     return true;
   }
 
