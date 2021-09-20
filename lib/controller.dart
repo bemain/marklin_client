@@ -81,12 +81,14 @@ class SpeedSliderState extends State<SpeedSlider> {
   bool sendNeeded = false;
   Timer? sendLoop;
 
+  Future<bool>? _futureChar;
   BluetoothCharacteristic? speedChar;
 
   // Methods
   @override
   void initState() {
     super.initState();
+    _futureChar = getCharacteristic();
 
     sendLoop = Timer.periodic(Duration(milliseconds: 100), sendSpeed);
     slowDownLoop = Timer.periodic(Duration(milliseconds: 10), slowDown);
@@ -95,7 +97,7 @@ class SpeedSliderState extends State<SpeedSlider> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<bool>(
-        future: getCharacteristic(),
+        future: _futureChar,
         builder: (c, snapshot) {
           if (!snapshot.hasData) // Getting characteristic
             return InfoScreen(
@@ -108,6 +110,7 @@ class SpeedSliderState extends State<SpeedSlider> {
                       setState(() {
                         serviceID = sid;
                         charID = cid;
+                        _futureChar = getCharacteristic();
                       });
                     },
                   )
@@ -123,7 +126,6 @@ class SpeedSliderState extends State<SpeedSlider> {
                             value: speed,
                             onChanged: (value) {
                               sendNeeded = true;
-                              print("Value changed");
                               setState(() {
                                 speed = value;
                               });
