@@ -75,6 +75,48 @@ class QuitDialog extends StatelessWidget {
   }
 }
 
+class TextTile extends StatelessWidget {
+  const TextTile({Key? key, required this.title, this.text, this.onTap})
+      : super(key: key);
+
+  final String title;
+  final String? text;
+  final Function()? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: TextButton(
+        child: _buildTitle(context),
+        onPressed: onTap,
+      ),
+    );
+  }
+
+  Widget _buildTitle(BuildContext context) {
+    if (title.length > 0 && text != null)
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            title,
+            overflow: TextOverflow.ellipsis,
+          ),
+          Text(
+            text!,
+            style: Theme.of(context).textTheme.caption,
+          )
+        ],
+      );
+    else
+      return Text(
+        text ?? title,
+        overflow: TextOverflow.ellipsis,
+      );
+  }
+}
+
 /// Widget for selecting a race from the database.
 ///
 /// Executes [onSelect] whenever user selects a race.

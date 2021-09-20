@@ -37,19 +37,17 @@ class SelectDeviceScreenState extends State<SelectDeviceScreen> {
                       ? InfoScreen(
                           icon: Icon(Icons.bluetooth_disabled),
                           text: "Bluetooth unavailable")
-                      : SingleChildScrollView(
-                          child: StreamBuilder<List<ScanResult>>(
-                            stream: flutterBlue.scanResults,
-                            initialData: [],
-                            builder: (c, snapshot) => Column(
+                      : StreamBuilder<List<ScanResult>>(
+                          stream: flutterBlue.scanResults,
+                          initialData: [],
+                          builder: (c, snapshot) => ListView(
                               children: snapshot.data!
-                                  .map((result) => BluetoothDeviceTile(
-                                      device: result.device,
+                                  .map((result) => TextTile(
+                                      title: result.device.name,
+                                      text: result.device.id.toString(),
                                       onTap: () => setState(() =>
                                           selectedDevice = result.device)))
-                                  .toList(),
-                            ),
-                          ),
+                                  .toList()),
                         ),
             )
           : FutureBuilder(
@@ -91,42 +89,5 @@ class SelectDeviceScreenState extends State<SelectDeviceScreen> {
     Timer(Duration(seconds: 1), () {
       widget.onDeviceConnected?.call(selectedDevice!);
     });
-  }
-}
-
-class BluetoothDeviceTile extends StatelessWidget {
-  const BluetoothDeviceTile({Key? key, required this.device, this.onTap})
-      : super(key: key);
-
-  final BluetoothDevice device;
-  final Function()? onTap;
-
-  Widget _buildTitle(BuildContext context) {
-    if (device.name.length > 0) {
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            device.name,
-            overflow: TextOverflow.ellipsis,
-          ),
-          Text(
-            device.id.toString(),
-            style: Theme.of(context).textTheme.caption,
-          )
-        ],
-      );
-    } else {
-      return Text(device.id.toString());
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return TextButton(
-      child: _buildTitle(context),
-      onPressed: onTap,
-    );
   }
 }
