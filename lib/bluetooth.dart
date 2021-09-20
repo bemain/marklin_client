@@ -91,3 +91,71 @@ class SelectDeviceScreenState extends State<SelectDeviceScreen> {
     });
   }
 }
+
+class CharacteristicSelectorScreen extends StatefulWidget {
+  CharacteristicSelectorScreen({Key? key, this.onCharSelected})
+      : super(key: key);
+
+  final Function(String serviceID, String charID)? onCharSelected;
+
+  @override
+  State<StatefulWidget> createState() {
+    return CharacteristicSelectorScreenState();
+  }
+}
+
+class CharacteristicSelectorScreenState
+    extends State<CharacteristicSelectorScreen> {
+  BluetoothService? service;
+  String serviceID = "";
+  String charID = "";
+
+  @override
+  Widget build(BuildContext context) {
+    assert(Bluetooth.device != null); // Needs connected BT device
+
+    if (service == null)
+      return FutureBuilder(
+          future: Bluetooth.device!.discoverServices(),
+          initialData: [],
+          builder: (BuildContext c, AsyncSnapshot<List<dynamic>> snapshot) {
+            if (snapshot.hasError)
+              return ErrorScreen(text: "Unable to get services from device");
+
+            if (snapshot.connectionState == ConnectionState.waiting)
+              return LoadingScreen(text: "Getting services...");
+
+            return ListView(
+              children: snapshot.data!
+                  .map(
+                    (serv) => TextTile(
+                      title: serv.uuid.toString(),
+                      onTap: () {
+                        setState(() {
+                          serviceID = serv.uuid.toString();
+                          service = serv;
+                        });
+                      },
+                    ),
+                  )
+                  .toList(),
+            );
+          });
+
+    return ListView(
+      children: service!.characteristics
+          .map(
+            (char) => TextTile(
+              title: char.uuid.toString(),
+              onTap: () {
+                setState(() {
+                  charID = char.uuid.toString();
+                });
+                widget.onCharSelected?.call(serviceID, charID);
+              },
+            ),
+          )
+          .toList(),
+    );
+  }
+}

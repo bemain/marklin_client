@@ -68,6 +68,9 @@ class SpeedSlider extends StatefulWidget {
 class SpeedSliderState extends State<SpeedSlider> {
   final friction = 10;
 
+  String serviceID = "0000181c-0000-1000-8000-00805f9b34fb";
+  String charID = "0000181c-0000-1000-8000-00805f9b34fb";
+
   double speed = 0.0;
   int carID = 0;
 
@@ -78,14 +81,12 @@ class SpeedSliderState extends State<SpeedSlider> {
   bool sendNeeded = false;
   Timer? sendLoop;
 
-  Future<bool>? _futureChar;
   BluetoothCharacteristic? speedChar;
 
   // Methods
   @override
   void initState() {
     super.initState();
-    _futureChar = getCharacteristic();
 
     sendLoop = Timer.periodic(Duration(milliseconds: 100), sendSpeed);
     slowDownLoop = Timer.periodic(Duration(milliseconds: 10), slowDown);
@@ -94,7 +95,7 @@ class SpeedSliderState extends State<SpeedSlider> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<bool>(
-        future: _futureChar,
+        future: getCharacteristic(),
         builder: (c, snapshot) {
           if (!snapshot.hasData) // Getting characteristic
             return InfoScreen(
@@ -102,8 +103,13 @@ class SpeedSliderState extends State<SpeedSlider> {
                 text: "Getting Characteristic");
           else
             return (!snapshot.data!) // Characteristic not found
-                ? ErrorScreen(
-                    text: "Could not get characteristic from Bluetooth device",
+                ? CharacteristicSelectorScreen(
+                    onCharSelected: (sid, cid) {
+                      setState(() {
+                        serviceID = sid;
+                        charID = cid;
+                      });
+                    },
                   )
                 : Column(children: [
                     Expanded(
@@ -173,11 +179,8 @@ class SpeedSliderState extends State<SpeedSlider> {
 
   /// Tries to get the given characteristic from [Bluetooth.device].
   /// Requires [Bluetooth.device] to be a connected BluetoothDevice
-  /// Returns true if get was successful, false otherwise
+  /// Returns true if successful, false otherwise
   Future<bool> getCharacteristic() async {
-    final serviceID = "00001801-0000-1000-8000-00805f9b34fb";
-    final charID = "00001801-0000-1000-8000-00805f9b34fb";
-
     assert(Bluetooth.device != null); // Needs connected BT device
 
     List<BluetoothService> services =
