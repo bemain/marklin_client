@@ -114,61 +114,55 @@ class SpeedSliderState extends State<SpeedSlider> {
                       });
                     },
                   )
-                : Column(children: [
-                    Expanded(
-                      child: Listener(
-                        behavior: HitTestBehavior.translucent,
-                        onPointerDown: (event) => willSlowDown = false,
-                        onPointerUp: (event) => willSlowDown = true,
-                        child: RotatedBox(
-                          quarterTurns: -1,
-                          child: Slider(
-                            value: speed,
-                            onChanged: (value) {
-                              sendNeeded = true;
-                              setState(() {
-                                speed = value;
-                              });
-                            },
-                            min: 0,
-                            max: 100,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: List.generate(
-                        4,
-                        (index) => Radio(
-                          value: index,
-                          groupValue: carID,
-                          onChanged: (int? value) {
-                            setState(() {
-                              carID = value ?? 0;
-                              sendNeeded = true;
-                              widget.onCarIDChange?.call(carID);
-                            });
-                          },
-                        ),
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          enableSlowDown = !enableSlowDown;
-                        });
-                      },
-                      style: ButtonStyle(
-                          foregroundColor: MaterialStateProperty.all<Color>(
-                              Theme.of(context).primaryColor)),
-                      child: Text(
-                        "Slow down? ${enableSlowDown ? "YES" : "NO"}",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ]);
+                : PageView(
+                    children: List.filled(4, _buildSlider()),
+                    onPageChanged: (int i) => setState(() {
+                      carID = i;
+                      sendNeeded = true;
+                      widget.onCarIDChange?.call(carID);
+                    }),
+                  );
         });
+  }
+
+  Widget _buildSlider() {
+    return Column(children: [
+      Expanded(
+        child: Listener(
+          behavior: HitTestBehavior.translucent,
+          onPointerDown: (event) => willSlowDown = false,
+          onPointerUp: (event) => willSlowDown = true,
+          child: RotatedBox(
+            quarterTurns: -1,
+            child: Slider(
+              value: speed,
+              onChanged: (value) {
+                sendNeeded = true;
+                setState(() {
+                  speed = value;
+                });
+              },
+              min: 0,
+              max: 100,
+            ),
+          ),
+        ),
+      ),
+      ElevatedButton(
+        onPressed: () {
+          setState(() {
+            enableSlowDown = !enableSlowDown;
+          });
+        },
+        style: ButtonStyle(
+            foregroundColor: MaterialStateProperty.all<Color>(
+                Theme.of(context).primaryColor)),
+        child: Text(
+          "Slow down? ${enableSlowDown ? "YES" : "NO"}",
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+    ]);
   }
 
   @override
