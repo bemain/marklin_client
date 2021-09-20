@@ -51,7 +51,9 @@ class _ControllerScreenState extends State<ControllerScreen> {
   void _showQuitDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (c) => QuitDialog(),
+      builder: (c) => QuitDialog(
+        onQuit: () => Bluetooth.device?.disconnect(),
+      ),
     );
   }
 }
