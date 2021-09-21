@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:marklin_bluetooth/bluetooth.dart';
 import 'package:marklin_bluetooth/controller.dart';
+import 'package:marklin_bluetooth/lap_counter.dart';
 
 void main() {
   runApp(MyApp());
@@ -22,6 +23,6 @@ class MyAppState extends State<MyApp> {
         ),
         home: (Bluetooth.device == null)
             ? SelectDeviceScreen(onDeviceConnected: (device) => setState(() {}))
-            : ControllerScreen());
+            : LapCounterScreen());
   }
 }

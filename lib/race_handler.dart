@@ -4,6 +4,8 @@ final int nCars = 2;
 
 /// Helper class for creating, deleting and updating races
 /// on the Firestore database.
+///
+/// Requires Firebase to be initalized (Firebase.initializeApp()).
 class RaceHandler {
   static final races = FirebaseFirestore.instance.collection("races");
   final DocumentReference currentRace = races.doc("current");
