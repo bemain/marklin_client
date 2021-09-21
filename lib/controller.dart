@@ -19,33 +19,31 @@ class _ControllerScreenState extends State<ControllerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return (Bluetooth.device == null)
-        ? SelectDeviceScreen(onDeviceConnected: (device) => setState(() {}))
-        : Theme(
-            data: ThemeData(
-              primarySwatch: [
-                Colors.green,
-                Colors.purple,
-                Colors.orange,
-                Colors.grey,
-              ][carID],
+    return Theme(
+        data: ThemeData(
+          primarySwatch: [
+            Colors.green,
+            Colors.purple,
+            Colors.orange,
+            Colors.grey,
+          ][carID],
+        ),
+        child: Scaffold(
+          appBar: AppBar(
+            leading: IconButton(
+              onPressed: () => _showQuitDialog(context),
+              icon: Icon(Icons.bluetooth_disabled, color: Colors.white),
             ),
-            child: Scaffold(
-              appBar: AppBar(
-                leading: IconButton(
-                  onPressed: () => _showQuitDialog(context),
-                  icon: Icon(Icons.bluetooth_disabled, color: Colors.white),
-                ),
-                title: Text("Märklin BLE Controller"),
-              ),
-              body: SpeedSlider(
-                onCarIDChange: (id) {
-                  setState(() {
-                    carID = id;
-                  });
-                },
-              ),
-            ));
+            title: Text("Märklin BLE Controller"),
+          ),
+          body: SpeedSlider(
+            onCarIDChange: (id) {
+              setState(() {
+                carID = id;
+              });
+            },
+          ),
+        ));
   }
 
   void _showQuitDialog(BuildContext context) {
