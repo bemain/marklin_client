@@ -1,21 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_blue/flutter_blue.dart';
+import 'package:marklin_bluetooth/bluetooth.dart';
 import 'package:marklin_bluetooth/race_handler.dart';
 
 import 'package:marklin_bluetooth/widgets.dart';
 
-/// Widget for handling laps and lap times.
+/// Receives lap times from [Bluetooth.device] and stores them on a Cloud Firestore
+/// database, using [RaceHandler] to read and write data.
 ///
-/// Connects to and receives lap times from [device].
-/// Also features buttons for adding laps manually (temporary debug).
-///
-/// Stores the laps on a Cloud Firestore database,
-/// using [RaceHandler] to read and write data.
+/// Also features buttons for adding laps manually (used for debugging).
 class LapCounterScreen extends StatefulWidget {
-  const LapCounterScreen({Key? key, required this.device}) : super(key: key);
-
-  final BluetoothDevice device;
+  const LapCounterScreen({Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => LapCounterScreenState();
@@ -24,7 +19,14 @@ class LapCounterScreen extends StatefulWidget {
 class LapCounterScreenState extends State<LapCounterScreen> {
   RaceHandler raceHandler = RaceHandler();
 
-  List<Stopwatch> lapTimers = List.generate(4, (index) => Stopwatch()..start());
+  List<Stopwatch> lapTimers = List.generate(4, (i) => Stopwatch()..start());
+
+  @override
+  void initState() {
+    assert(Bluetooth.device != null); // Needs connected BT device
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +111,7 @@ class LapCounterScreenState extends State<LapCounterScreen> {
     showDialog(
       context: context,
       builder: (c) => QuitDialog(
-        onQuit: () => widget.device.disconnect(),
+        onQuit: () => Bluetooth.device!.disconnect(),
       ),
     );
   }

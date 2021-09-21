@@ -31,7 +31,7 @@ class RaceHandler {
         await doc.reference.delete();
   }
 
-  /// Copy current race to a separate race, then clear current laps
+  /// Copy current race to a new race, then clear current laps
   Future saveCurrentRace() async {
     var data = (await currentRace.get()).data() as Map<String, dynamic>;
     data["date"] = Timestamp.now();
