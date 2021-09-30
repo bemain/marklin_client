@@ -55,27 +55,13 @@ class LapCounterScreenState extends State<LapCounterScreen> {
               if (snapshot.hasError)
                 return ErrorScreen(text: "Error: ${snapshot.error}");
 
-              return StreamBuilder<DocumentSnapshot>(
-                  stream: raceHandler!.currentRaceStream,
-                  builder: (c, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting)
-                      return LoadingScreen(text: "Getting lap times...");
-
-                    if (snapshot.hasError)
-                      return ErrorScreen(text: "Error: ${snapshot.error}");
-
-                    var doc = snapshot.data!.data()! as Map<String, dynamic>;
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _lapViewer(0, doc["0"].length),
-                        VerticalDivider(
-                          thickness: 1.0,
-                        ),
-                        _lapViewer(1, doc["1"].length),
-                      ],
-                    );
-                  });
+              return Row(children: [
+                Expanded(child: lapViewer(0)),
+                VerticalDivider(
+                  thickness: 1.0,
+                ),
+                Expanded(child: lapViewer(1))
+              ]);
             }));
   }
 
@@ -84,36 +70,43 @@ class LapCounterScreenState extends State<LapCounterScreen> {
     raceHandler = RaceHandler();
   }
 
-  Widget _lapViewer(int carID, int laps) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Expanded(
-          child: Center(
-            child: Text(
-              "$laps",
-              textScaleFactor: 5.0,
-            ),
-          ),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            setState(() {
-              // Add lap to database
-              var lapTime = lapTimers[carID].elapsedMilliseconds / 1000;
-              raceHandler?.addLap(carID, lapTime);
+  Widget lapViewer(int carID) {
+    return StreamBuilder<QuerySnapshot>(
+        stream: raceHandler!.carCollection(carID).orderBy("date").snapshots(),
+        builder: (c, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting)
+            return LoadingScreen(text: "Getting lap times...");
 
-              // Restart timer
-              lapTimers[carID].reset();
-            });
-          },
-          style: ButtonStyle(
-              foregroundColor: MaterialStateProperty.all<Color>(
-                  Theme.of(context).primaryColor)),
-          child: Icon(Icons.plus_one),
-        )
-      ],
-    );
+          if (snapshot.hasError)
+            return ErrorScreen(text: "Error: ${snapshot.error}");
+
+          return Column(children: [
+            Expanded(
+                child: ListView(
+              children: snapshot.data!.docs
+                  .map(
+                    (doc) => TextTile(
+                      title:
+                          "${doc.get("lapNumber")}  |  ${doc.get("lapTime")}s",
+                      text: (doc.get("date") as Timestamp).toDate().toString(),
+                    ),
+                  )
+                  .toList(),
+            )),
+            ElevatedButton(
+              onPressed: () {
+                // Add lap to database
+                var lapTime = lapTimers[carID].elapsedMilliseconds / 1000;
+                raceHandler?.addLap(carID, lapTime,
+                    lapN: snapshot.data!.docs.length + 1);
+
+                // Restart timer
+                lapTimers[carID].reset();
+              },
+              child: Icon(Icons.plus_one),
+            ),
+          ]);
+        });
   }
 
   /// Popup Dialog for exiting this widget

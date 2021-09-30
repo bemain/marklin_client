@@ -19,9 +19,10 @@ class RaceHandler {
   CollectionReference carCollection(carID) => currentRace.collection("$carID");
 
   /// Add [lapTime] to lap times of [carID] on current race
-  Future addLap(int carID, double lapTime) async {
+  Future addLap(int carID, double lapTime, {int? lapN}) async {
     await carCollection(carID).add({
       "lapTime": lapTime,
+      "lapNumber": lapN ?? 0,
       "date": Timestamp.now(),
     });
   }
