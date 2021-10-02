@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:marklin_bluetooth/race_handler.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
 /// Widget for viewing the races currently on the database
@@ -29,8 +30,10 @@ class RaceBrowserScreenState extends State<RaceBrowserScreen> {
 }
 
 /// Widget for displaying lap times and other information about [raceDoc].
+/// TODO: Add button for deleting race
 class RaceViewer extends StatelessWidget {
-  // TODO: Add button for deleting race
+  final RaceHandler raceHandler = RaceHandler();
+
   RaceViewer({Key? key, required this.raceDoc}) : super(key: key);
 
   final DocumentSnapshot raceDoc;
@@ -42,36 +45,43 @@ class RaceViewer extends StatelessWidget {
       appBar: AppBar(
         title: Text("${race["dateTime"].toDate().toString()}"),
       ),
-      body: _buildGridView(race),
+      body: Row(children: [
+        Expanded(child: lapViewer(0)),
+        VerticalDivider(
+          thickness: 1.0,
+        ),
+        Expanded(child: lapViewer(1))
+      ]),
     );
   }
 
-  Widget _buildGridView(Map<String, dynamic> race) {
-    // TODO: Rewrite this to work with lapTimes of different lengths for different cars
-    int nCars = 2;
+  Widget lapViewer(int carID) {
+    return StreamBuilder<QuerySnapshot>(
+        stream: raceHandler
+            .carCollection(carID)
+            .orderBy("date", descending: true)
+            .snapshots(),
+        builder: (c, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting)
+            return LoadingScreen(text: "Getting lap times...");
 
-    return GridView.builder(
-      gridDelegate:
-          SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: nCars),
-      itemCount: List.generate(nCars, (i) => race["$i"].length)
-          .fold<int>(0, (p, c) => (p + c).toInt()),
-      itemBuilder: (c, i) =>
-          _buildListItem(race["${i % nCars}"][i ~/ nCars].toDouble()),
-    );
-  }
+          if (snapshot.hasError)
+            return ErrorScreen(text: "Error: ${snapshot.error}");
 
-  Widget _buildListItem(double lapTime) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
-          borderRadius: BorderRadius.circular(5.0),
-        ),
-        child: ListTile(
-          title: Center(child: Text(lapTime.toString())),
-        ),
-      ),
-    );
+          return Column(children: [
+            Expanded(
+                child: ListView(
+              children: snapshot.data!.docs
+                  .map(
+                    (doc) => TextTile(
+                      title:
+                          "${doc.get("lapNumber")}  |  ${doc.get("lapTime")}s",
+                      text: (doc.get("date") as Timestamp).toDate().toString(),
+                    ),
+                  )
+                  .toList(),
+            )),
+          ]);
+        });
   }
 }
