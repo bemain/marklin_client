@@ -42,11 +42,8 @@ class LapCounterScreenState extends State<LapCounterScreen> {
               icon: Icon(Icons.bluetooth_disabled, color: Colors.white)),
           actions: [
             IconButton(
-                onPressed: () => _showStartDialog(context),
+                onPressed: () => showNewDialog(context),
                 icon: Icon(Icons.add, color: Colors.white)),
-            IconButton(
-                onPressed: () => _showRestartDialog(context),
-                icon: Icon(Icons.clear, color: Colors.white)),
           ],
         ),
         body: FutureBuilder(
@@ -115,6 +112,22 @@ class LapCounterScreenState extends State<LapCounterScreen> {
         });
   }
 
+  void showNewDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (c) => StartDialog(
+        onSave: () {
+          raceHandler?.saveCurrentRace().then((_) => setState(() {}));
+          restartTimers();
+        },
+        onDiscard: () {
+          raceHandler?.clearCurrentRace();
+          restartTimers();
+        },
+      ),
+    );
+  }
+
   /// Popup Dialog for exiting this widget
   void _showQuitDialog(BuildContext context) {
     showDialog(
@@ -125,66 +138,92 @@ class LapCounterScreenState extends State<LapCounterScreen> {
     );
   }
 
-  /// Popup Dialog for starting a new race
-  void _showStartDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (c) => AlertDialog(
-        title: Text("Start new race"),
-        content: Text(
-            "You are about to start a new race.\nThe current race will be saved to the database, and can be viewed through the RaceViewer screen."),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text("Cancel"),
-          ),
-          TextButton(
-              onPressed: () {
-                // Save current race to database
-                raceHandler?.saveCurrentRace().then((_) => setState(() {}));
-
-                Navigator.of(context).pop();
-              },
-              child: Text("Continue")),
-        ],
-      ),
-    );
+  void restartTimers() {
+    for (final timer in lapTimers) {
+      timer.reset();
+    }
   }
+}
 
-  /// Popup Dialog for restarting the current race
-  void _showRestartDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (c) => AlertDialog(
-        title: Text("Restart race?"),
-        content: Text(
-            "You are about to restart the race and clear all laps. This action can't be undone."),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text("Cancel"),
-          ),
-          TextButton(
-              onPressed: () {
-                setState(() {
-                  // Clear laps on database
-                  raceHandler?.clearCurrentRace();
+/// Popup dialog for starting a new race.
+/// Includes option to save or discard current race.
+class StartDialog extends StatefulWidget {
+  final Function? onCancel;
+  final Function? onDiscard;
+  final Function? onSave;
 
-                  // Restart timers
-                  for (final timer in lapTimers) {
-                    timer.reset();
-                  }
-                });
-                Navigator.of(context).pop();
-              },
-              child: Text("Continue")),
-        ],
-      ),
-    );
+  StartDialog({Key? key, this.onCancel, this.onDiscard, this.onSave})
+      : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => StartDialogState();
+}
+
+class StartDialogState extends State<StartDialog> {
+  bool discardDialog = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return (!discardDialog)
+        ? AlertDialog(
+            title: Text("Start new race"),
+            content: Text(
+                "You are about to start a new race.\nSave the current race to the database?"),
+            actions: [
+              TextButton(
+                child: Text("Cancel"),
+                onPressed: () {
+                  widget.onCancel?.call();
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: Text("Discard"),
+                onPressed: () {
+                  setState(() {
+                    discardDialog = true;
+                  });
+                },
+              ),
+              TextButton(
+                child: Text("Save", style: TextStyle(color: Colors.white)),
+                style: ButtonStyle(
+                  backgroundColor:
+                      MaterialStateProperty.all(Theme.of(context).primaryColor),
+                ),
+                onPressed: () {
+                  widget.onSave?.call();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          )
+        : AlertDialog(
+            title: Text("Discard race?"),
+            content: Text(
+                "You are about to restart the race and clear all laps. \nThis action can't be undone."),
+            actions: [
+              TextButton(
+                child: Text("Cancel", style: TextStyle(color: Colors.white)),
+                style: ButtonStyle(
+                  backgroundColor:
+                      MaterialStateProperty.all(Theme.of(context).primaryColor),
+                ),
+                onPressed: () {
+                  setState(() {
+                    discardDialog = false;
+                  });
+                },
+              ),
+              TextButton(
+                child: Text("Discard"),
+                onPressed: () {
+                  widget.onDiscard?.call();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
   }
 }
 
@@ -194,7 +233,8 @@ class TimerText extends StatefulWidget {
 
   TimerText({required this.stopwatch, this.decimalPlaces = 1});
 
-  TimerTextState createState() => TimerTextState();
+  @override
+  State<TimerText> createState() => TimerTextState();
 }
 
 class TimerTextState extends State<TimerText> {
@@ -209,7 +249,7 @@ class TimerTextState extends State<TimerText> {
     super.initState();
   }
 
-  void callback(Timer timer) {
+  void callback(Timer t) {
     if (widget.stopwatch.isRunning) setState(() {});
   }
 
@@ -217,5 +257,11 @@ class TimerTextState extends State<TimerText> {
   Widget build(BuildContext context) {
     double seconds = widget.stopwatch.elapsedMilliseconds / 1000;
     return Text("${seconds.toStringAsFixed(widget.decimalPlaces)}s");
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
   }
 }
