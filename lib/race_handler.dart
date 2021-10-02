@@ -12,12 +12,9 @@ final int nCars = 2;
 ///
 /// Requires Firebase to be initalized (Firebase.initializeApp()).
 class RaceHandler {
-  static final races = FirebaseFirestore.instance.collection("races");
-  final DocumentReference currentRace = races.doc("current");
+  final races = FirebaseFirestore.instance.collection("races");
 
-  /// Realtime changes to the current race
-  /// Subscribe with listen()
-  Stream<DocumentSnapshot> get currentRaceStream => currentRace.snapshots();
+  DocumentReference get currentRace => races.doc("current");
 
   /// Get the collection that contains all laps for the car with id [carID]
   /// on the current race.
