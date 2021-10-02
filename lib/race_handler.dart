@@ -38,7 +38,16 @@ class RaceHandler {
   Future saveCurrentRace() async {
     var data = (await currentRace.get()).data() as Map<String, dynamic>;
     data["date"] = Timestamp.now();
-    await races.add(data);
+    var newRace = await races.add(data);
+
+    // Copy laps
+    for (var carID = 0; carID < nCars; carID++) {
+      var coll = await carCollection(carID).get();
+      for (var doc in coll.docs) {
+        var data = doc.data() as Map<String, dynamic>;
+        newRace.collection("$carID").doc(doc.id).set(data);
+      }
+    }
 
     clearCurrentRace();
   }
