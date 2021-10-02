@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -204,5 +207,44 @@ class RaceCard extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class TimerText extends StatefulWidget {
+  final Stopwatch stopwatch;
+  final int decimalPlaces;
+
+  TimerText({required this.stopwatch, this.decimalPlaces = 1});
+
+  @override
+  State<TimerText> createState() => TimerTextState();
+}
+
+class TimerTextState extends State<TimerText> {
+  Timer? timer;
+
+  @override
+  void initState() {
+    timer = Timer.periodic(
+      Duration(milliseconds: 1000 ~/ pow(10, widget.decimalPlaces)),
+      callback,
+    );
+    super.initState();
+  }
+
+  void callback(Timer t) {
+    if (widget.stopwatch.isRunning) setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    double seconds = widget.stopwatch.elapsedMilliseconds / 1000;
+    return Text("${seconds.toStringAsFixed(widget.decimalPlaces)}s");
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
   }
 }
