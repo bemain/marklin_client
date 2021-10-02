@@ -75,7 +75,10 @@ class LapCounterScreenState extends State<LapCounterScreen> {
 
   Widget lapViewer(int carID) {
     return StreamBuilder<QuerySnapshot>(
-        stream: raceHandler!.carCollection(carID).orderBy("date").snapshots(),
+        stream: raceHandler!
+            .carCollection(carID)
+            .orderBy("date", descending: true)
+            .snapshots(),
         builder: (c, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting)
             return LoadingScreen(text: "Getting lap times...");
