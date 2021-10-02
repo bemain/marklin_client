@@ -1,15 +1,12 @@
-import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:marklin_bluetooth/bluetooth.dart';
 import 'package:marklin_bluetooth/race_handler.dart';
 
 import 'package:marklin_bluetooth/widgets.dart';
 
-/// Receives lap times from [Bluetooth.device] and stores them on a Cloud Firestore
-/// database, using [RaceHandler] to read and write data.
+/// Receives lap times from [Bluetooth.device] and stores them on a Cloud
+/// Firestore database, using [RaceHandler] to read and write data.
 ///
 /// Also features buttons for adding laps manually (used for debugging).
 class LapCounterScreen extends StatefulWidget {
@@ -20,7 +17,7 @@ class LapCounterScreen extends StatefulWidget {
 }
 
 class LapCounterScreenState extends State<LapCounterScreen> {
-  RaceHandler? raceHandler;
+  RaceHandler raceHandler = RaceHandler();
 
   List<Stopwatch> lapTimers = List.generate(4, (i) => Stopwatch()..start());
 
@@ -34,44 +31,30 @@ class LapCounterScreenState extends State<LapCounterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text("Lap Counter"),
-          leading: IconButton(
-              onPressed: () => _showQuitDialog(context),
-              icon: Icon(Icons.bluetooth_disabled, color: Colors.white)),
-          actions: [
-            IconButton(
-                onPressed: () => showNewDialog(context),
-                icon: Icon(Icons.add, color: Colors.white)),
-          ],
+      appBar: AppBar(
+        title: Text("Lap Counter"),
+        leading: IconButton(
+            onPressed: () => _showQuitDialog(context),
+            icon: Icon(Icons.bluetooth_disabled, color: Colors.white)),
+        actions: [
+          IconButton(
+              onPressed: () => showNewDialog(context),
+              icon: Icon(Icons.add, color: Colors.white)),
+        ],
+      ),
+      body: Row(children: [
+        Expanded(child: lapViewer(0)),
+        VerticalDivider(
+          thickness: 1.0,
         ),
-        body: FutureBuilder(
-            future: initFirebase(),
-            builder: (c, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting)
-                return LoadingScreen(text: "Initalizing Firebase...");
-
-              if (snapshot.hasError)
-                return ErrorScreen(text: "Error: ${snapshot.error}");
-
-              return Row(children: [
-                Expanded(child: lapViewer(0)),
-                VerticalDivider(
-                  thickness: 1.0,
-                ),
-                Expanded(child: lapViewer(1))
-              ]);
-            }));
-  }
-
-  Future initFirebase() async {
-    await Firebase.initializeApp(); // Initialize Firebase
-    raceHandler = RaceHandler();
+        Expanded(child: lapViewer(1))
+      ]),
+    );
   }
 
   Widget lapViewer(int carID) {
     return StreamBuilder<QuerySnapshot>(
-        stream: raceHandler!
+        stream: raceHandler
             .carCollection(carID)
             .orderBy("date", descending: true)
             .snapshots(),
@@ -99,7 +82,7 @@ class LapCounterScreenState extends State<LapCounterScreen> {
               onPressed: () {
                 // Add lap to database
                 var lapTime = lapTimers[carID].elapsedMilliseconds / 1000;
-                raceHandler?.addLap(carID, lapTime,
+                raceHandler.addLap(carID, lapTime,
                     lapN: snapshot.data!.docs.length + 1);
 
                 // Restart timer
@@ -116,11 +99,11 @@ class LapCounterScreenState extends State<LapCounterScreen> {
       context: context,
       builder: (c) => StartDialog(
         onSave: () {
-          raceHandler?.saveCurrentRace().then((_) => setState(() {}));
+          raceHandler.saveCurrentRace().then((_) => setState(() {}));
           restartTimers();
         },
         onDiscard: () {
-          raceHandler?.clearCurrentRace();
+          raceHandler.clearCurrentRace();
           restartTimers();
         },
       ),
