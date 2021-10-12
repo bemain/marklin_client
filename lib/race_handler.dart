@@ -5,8 +5,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
-final int nCars = 2;
-
 /// Helper class for creating, deleting and updating races
 /// on the Firestore database.
 ///
@@ -14,11 +12,15 @@ final int nCars = 2;
 class RaceHandler {
   final races = FirebaseFirestore.instance.collection("races");
 
+  /// Get the current race.
   DocumentReference get currentRace => races.doc("current");
 
   /// Get the collection that contains all laps for the car with id [carID]
   /// on the current race.
   CollectionReference carCollection(carID) => currentRace.collection("$carID");
+
+  /// nCars for [currentRace]
+  Future<int> get nCars async => (await currentRace.get()).get("nCars");
 
   /// Add [lapTime] to lap times of [carID] on current race
   Future addLap(int carID, double lapTime, {int? lapN}) async {
@@ -31,7 +33,7 @@ class RaceHandler {
 
   /// Delete all laps on current race
   Future clearCurrentRace() async {
-    for (var i = 0; i < nCars; i++)
+    for (var i = 0; i < (await nCars); i++)
       for (var doc in (await carCollection(i).get()).docs)
         await doc.reference.delete();
   }
@@ -43,15 +45,14 @@ class RaceHandler {
     var newRace = await races.add(data);
 
     // Copy laps
-    for (var carID = 0; carID < nCars; carID++) {
+    for (var carID = 0; carID < (await nCars); carID++) {
       var coll = await carCollection(carID).get();
       for (var doc in coll.docs) {
         var data = doc.data() as Map<String, dynamic>;
         newRace.collection("$carID").doc(doc.id).set(data);
       }
     }
-
-    clearCurrentRace();
+    await clearCurrentRace();
   }
 }
 
