@@ -72,13 +72,25 @@ class RaceViewer extends StatelessWidget {
       appBar: AppBar(
         title: Text("Viewing race: ${raceString(raceDoc)}"),
       ),
-      body: Row(children: [
-        Expanded(child: lapViewer(raceDoc.id, 0)),
-        VerticalDivider(
-          thickness: 1.0,
-        ),
-        Expanded(child: lapViewer(raceDoc.id, 1))
-      ]),
+      body: FutureBuilder<int>(
+        future: raceHandler.nCars,
+        builder: (c, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting)
+            return LoadingScreen(text: "Determining number of cars...");
+
+          if (snapshot.hasError)
+            return ErrorScreen(text: "Error: ${snapshot.error}");
+
+          return Row(
+            children: List.generate(
+              snapshot.data! * 2 - 1,
+              (i) => i.isEven
+                  ? Expanded(child: lapViewer(raceDoc.id, i ~/ 2))
+                  : VerticalDivider(thickness: 1.0),
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -96,20 +108,16 @@ class RaceViewer extends StatelessWidget {
           if (snapshot.hasError)
             return ErrorScreen(text: "Error: ${snapshot.error}");
 
-          return Column(children: [
-            Expanded(
-                child: ListView(
-              children: snapshot.data!.docs
-                  .map(
-                    (doc) => TextTile(
-                      title:
-                          "${doc.get("lapNumber")}  |  ${doc.get("lapTime")}s",
-                      text: (doc.get("date") as Timestamp).toDate().toString(),
-                    ),
-                  )
-                  .toList(),
-            )),
-          ]);
+          return ListView(
+            children: snapshot.data!.docs
+                .map(
+                  (doc) => TextTile(
+                    title: "${doc.get("lapNumber")} | ${doc.get("lapTime")}s",
+                    text: (doc.get("date") as Timestamp).toDate().toString(),
+                  ),
+                )
+                .toList(),
+          );
         });
   }
 }
