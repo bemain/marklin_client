@@ -87,28 +87,28 @@ class SpeedSliderState extends State<SpeedSlider> {
         future: _futureChar,
         builder: (c, snapshot) {
           if (!snapshot.hasData) // Getting characteristic
-            return InfoScreen(
-                icon: CircularProgressIndicator(),
-                text: "Getting Characteristic");
-          else
-            return (!snapshot.data!) // Characteristic not found
-                ? CharacteristicSelectorScreen(
-                    onCharSelected: (sid, cid) {
-                      setState(() {
-                        serviceID = sid;
-                        charID = cid;
-                        _futureChar = getCharacteristic();
-                      });
-                    },
-                  )
-                : PageView(
-                    children: List.filled(4, _buildSlider()),
-                    onPageChanged: (int i) => setState(() {
-                      carID = i;
-                      sendNeeded = true;
-                      widget.onCarIDChange?.call(carID);
-                    }),
-                  );
+            return LoadingScreen(text: "Getting characteristic");
+          if (snapshot.hasError)
+            return ErrorScreen(text: "Error: ${snapshot.error}");
+
+          return (!snapshot.data!) // Characteristic not found
+              ? CharacteristicSelectorScreen(
+                  onCharSelected: (sid, cid) {
+                    setState(() {
+                      serviceID = sid;
+                      charID = cid;
+                      _futureChar = getCharacteristic();
+                    });
+                  },
+                )
+              : PageView(
+                  children: List.filled(4, _buildSlider()),
+                  onPageChanged: (int i) => setState(() {
+                    carID = i;
+                    sendNeeded = true;
+                    widget.onCarIDChange?.call(carID);
+                  }),
+                );
         });
   }
 
