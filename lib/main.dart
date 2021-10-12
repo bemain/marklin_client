@@ -27,6 +27,6 @@ class MyAppState extends State<MyApp> {
             child: (Bluetooth.device == null)
                 ? SelectDeviceScreen(
                     onDeviceConnected: (device) => setState(() {}))
-                : RaceBrowserScreen()));
+                : ControllerScreen()));
   }
 }

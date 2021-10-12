@@ -33,9 +33,6 @@ class LapCounterScreenState extends State<LapCounterScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Lap Counter"),
-        leading: IconButton(
-            onPressed: () => _showQuitDialog(context),
-            icon: Icon(Icons.bluetooth_disabled, color: Colors.white)),
         actions: [
           IconButton(
               onPressed: () => showNewDialog(context),
@@ -106,16 +103,6 @@ class LapCounterScreenState extends State<LapCounterScreen> {
           raceHandler.clearCurrentRace();
           restartTimers();
         },
-      ),
-    );
-  }
-
-  /// Popup Dialog for exiting this widget
-  void _showQuitDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (c) => QuitDialog(
-        onQuit: () => Bluetooth.device!.disconnect(),
       ),
     );
   }

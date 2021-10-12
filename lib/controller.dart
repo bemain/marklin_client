@@ -30,10 +30,6 @@ class _ControllerScreenState extends State<ControllerScreen> {
         ),
         child: Scaffold(
           appBar: AppBar(
-            leading: IconButton(
-              onPressed: () => _showQuitDialog(context),
-              icon: Icon(Icons.bluetooth_disabled, color: Colors.white),
-            ),
             title: Text("Märklin BLE Controller"),
           ),
           body: SpeedSlider(
@@ -44,15 +40,6 @@ class _ControllerScreenState extends State<ControllerScreen> {
             },
           ),
         ));
-  }
-
-  void _showQuitDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (c) => QuitDialog(
-        onQuit: () => Bluetooth.device?.disconnect(),
-      ),
-    );
   }
 }
 
