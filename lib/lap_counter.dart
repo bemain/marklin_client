@@ -91,59 +91,69 @@ class LapCounterScreenState extends State<LapCounterScreen> {
         });
   }
 
-  void showNewDialog(BuildContext context) {
-    showDialog(
+  void showNewDialog(BuildContext context) async {
+    bool ret = false;
+    await showDialog(
       context: context,
-      builder: (c) => StartDialog(
+      builder: (c) => SaveRaceDialog(
+        onCancel: () {
+          ret = true;
+        },
         onSave: () {
           raceHandler.saveCurrentRace().then((_) => setState(() {}));
-          restartTimers();
         },
         onDiscard: () {
           raceHandler.clearCurrentRace();
-          restartTimers();
         },
       ),
     );
-  }
+    if (ret) return;
 
-  void restartTimers() {
+    await showDialog(
+      context: context,
+      builder: (c) => NewRaceDialog(
+        onNew: (nCars) {
+          raceHandler.nCars = nCars;
+        },
+      ),
+    );
+
+    print("Restarting timers");
     for (final timer in lapTimers) {
       timer.reset();
     }
   }
 }
 
-/// Popup dialog for starting a new race.
-/// Includes option to save or discard current race.
-class StartDialog extends StatefulWidget {
+/// Popup dialog for selecting whether to save or discard the current race
+class SaveRaceDialog extends StatefulWidget {
   final Function? onCancel;
   final Function? onDiscard;
   final Function? onSave;
 
-  StartDialog({Key? key, this.onCancel, this.onDiscard, this.onSave})
+  SaveRaceDialog({Key? key, this.onCancel, this.onDiscard, this.onSave})
       : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => StartDialogState();
+  State<StatefulWidget> createState() => SaveRaceDialogState();
 }
 
-class StartDialogState extends State<StartDialog> {
+class SaveRaceDialogState extends State<SaveRaceDialog> {
   bool discardDialog = false;
 
   @override
   Widget build(BuildContext context) {
     return (!discardDialog)
         ? AlertDialog(
-            title: Text("Start new race"),
+            title: Text("Save old race"),
             content: Text(
                 "You are about to start a new race.\nSave the current race to the database?"),
             actions: [
               TextButton(
                 child: Text("Cancel"),
                 onPressed: () {
-                  widget.onCancel?.call();
                   Navigator.of(context).pop();
+                  widget.onCancel?.call();
                 },
               ),
               TextButton(
@@ -161,8 +171,8 @@ class StartDialogState extends State<StartDialog> {
                       MaterialStateProperty.all(Theme.of(context).primaryColor),
                 ),
                 onPressed: () {
-                  widget.onSave?.call();
                   Navigator.of(context).pop();
+                  widget.onSave?.call();
                 },
               ),
             ],
@@ -187,11 +197,62 @@ class StartDialogState extends State<StartDialog> {
               TextButton(
                 child: Text("Discard"),
                 onPressed: () {
-                  widget.onDiscard?.call();
                   Navigator.of(context).pop();
+                  widget.onDiscard?.call();
                 },
               ),
             ],
           );
+  }
+}
+
+/// Popup dialog for starting a new race.
+class NewRaceDialog extends StatefulWidget {
+  NewRaceDialog({Key? key, this.onNew}) : super(key: key);
+
+  final Function(int nCars)? onNew;
+
+  @override
+  State<StatefulWidget> createState() => NewRaceDialogState();
+}
+
+class NewRaceDialogState extends State<NewRaceDialog> {
+  int nCars = 2;
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text("Start new race"),
+      content: Wrap(children: [
+        Slider(
+          min: 1,
+          max: 4,
+          divisions: 3,
+          label: "$nCars",
+          value: nCars.toDouble(),
+          onChanged: (value) => setState(() {
+            nCars = value.toInt();
+          }),
+        )
+      ]),
+      actions: [
+        TextButton(
+          child: Text("Cancel"),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        TextButton(
+          child: Text("Start", style: TextStyle(color: Colors.white)),
+          style: ButtonStyle(
+            backgroundColor:
+                MaterialStateProperty.all(Theme.of(context).primaryColor),
+          ),
+          onPressed: () {
+            Navigator.of(context).pop();
+            widget.onNew?.call(nCars);
+          },
+        ),
+      ],
+    );
   }
 }
