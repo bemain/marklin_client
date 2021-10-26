@@ -21,6 +21,7 @@ class RaceHandler {
 
   /// nCars for [currentRace]
   Future<int> get nCars async => (await currentRace.get()).get("nCars");
+  set nCars(value) => currentRace.update({"nCars": value.toInt()});
 
   /// Add [lapTime] to lap times of [carID] on current race
   Future addLap(int carID, double lapTime, {int? lapN}) async {
