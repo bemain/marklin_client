@@ -82,6 +82,8 @@ class SelectDeviceScreenState extends State<SelectDeviceScreen> {
     // Don't connect if already connected
     if ((await FlutterBlue.instance.connectedDevices).isEmpty)
       await selectedDevice!.connect();
+    else
+      print("BLUETOOTH: Already connected");
 
     Bluetooth.device = selectedDevice;
 
