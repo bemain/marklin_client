@@ -39,13 +39,25 @@ class LapCounterScreenState extends State<LapCounterScreen> {
               icon: Icon(Icons.add, color: Colors.white)),
         ],
       ),
-      body: Row(children: [
-        Expanded(child: lapViewer(0)),
-        VerticalDivider(
-          thickness: 1.0,
-        ),
-        Expanded(child: lapViewer(1))
-      ]),
+      body: FutureBuilder<int>(
+        future: raceHandler.nCars,
+        builder: (c, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting)
+            return LoadingScreen(text: "Determining number of cars...");
+
+          if (snapshot.hasError)
+            return ErrorScreen(text: "Error: ${snapshot.error}");
+
+          return Row(
+            children: List.generate(
+              snapshot.data! * 2 - 1,
+              (i) => i.isEven
+                  ? Expanded(child: lapViewer(i ~/ 2))
+                  : VerticalDivider(thickness: 1.0),
+            ),
+          );
+        },
+      ),
     );
   }
 
