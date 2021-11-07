@@ -69,29 +69,17 @@ class RaceViewer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Viewing race: ${raceString(raceDoc)}"),
-      ),
-      body: FutureBuilder<int>(
-        future: raceHandler.nCars,
-        builder: (c, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting)
-            return LoadingScreen(text: "Determining number of cars...");
-
-          if (snapshot.hasError)
-            return ErrorScreen(text: "Error: ${snapshot.error}");
-
-          return Row(
-            children: List.generate(
-              snapshot.data! * 2 - 1,
-              (i) => i.isEven
-                  ? Expanded(child: lapViewer(raceDoc.id, i ~/ 2))
-                  : VerticalDivider(thickness: 1.0),
-            ),
-          );
-        },
-      ),
-    );
+        appBar: AppBar(
+          title: Text("Viewing race: ${raceString(raceDoc)}"),
+        ),
+        body: Row(
+          children: List.generate(
+            raceDoc.get("nCars") * 2 - 1,
+            (i) => i.isEven
+                ? Expanded(child: lapViewer(raceDoc.id, i ~/ 2))
+                : VerticalDivider(thickness: 1.0),
+          ),
+        ));
   }
 
   Widget lapViewer(String raceID, int carID) {
