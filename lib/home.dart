@@ -22,8 +22,9 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Center(child: _pages.elementAt(_selectedIndex)),
       bottomNavigationBar: BottomNavigationBar(
         items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Controller"),
-          BottomNavigationBarItem(icon: Icon(Icons.add), label: "Counter"),
+          BottomNavigationBarItem(icon: Icon(Icons.swipe), label: "Controller"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.query_builder), label: "Timer"),
           BottomNavigationBarItem(icon: Icon(Icons.layers), label: "Browser")
         ],
         currentIndex: _selectedIndex,
