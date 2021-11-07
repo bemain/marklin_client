@@ -134,6 +134,8 @@ class LapCounterScreenState extends State<LapCounterScreen> {
     for (final timer in lapTimers) {
       timer.reset();
     }
+
+    setState(() {});
   }
 }
 
