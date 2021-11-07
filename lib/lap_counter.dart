@@ -1,194 +1,272 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_blue/flutter_blue.dart';
+import 'package:marklin_bluetooth/bluetooth.dart';
 import 'package:marklin_bluetooth/race_handler.dart';
 
 import 'package:marklin_bluetooth/widgets.dart';
 
+/// Receives lap times from [Bluetooth.device] and stores them on a Cloud
+/// Firestore database, using [RaceHandler] to read and write data.
+///
+/// Also features buttons for adding laps manually (used for debugging).
 class LapCounterScreen extends StatefulWidget {
-  const LapCounterScreen({Key key, this.device}) : super(key: key);
-
-  final BluetoothDevice device;
+  const LapCounterScreen({Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => LapCounterScreenState();
 }
 
 class LapCounterScreenState extends State<LapCounterScreen> {
-  RaceHandler raceHandler = RaceHandler("test");
+  RaceHandler raceHandler = RaceHandler();
 
-  List<Stopwatch> lapTimers = List.generate(4, (index) => Stopwatch()..start());
+  List<Stopwatch> lapTimers = List.generate(4, (i) => Stopwatch()..start());
+
+  @override
+  void initState() {
+    assert(Bluetooth.device != null); // Needs connected BT device
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text("Lap Counter"),
-          leading: IconButton(
-              onPressed: () => _showQuitDialog(context),
-              icon: Icon(Icons.bluetooth_disabled, color: Colors.white)),
-          actions: [
-            IconButton(
-                onPressed: () => _showStartDialog(context),
-                icon: Icon(Icons.add, color: Colors.white)),
-            IconButton(
-                onPressed: () => _showRestartDialog(context),
-                icon: Icon(Icons.clear, color: Colors.white)),
-            IconButton(
-                onPressed: () => _showSelectDialog(context),
-                icon: Icon(Icons.menu, color: Colors.white)),
-          ],
-        ),
-        body: StreamBuilder<DocumentSnapshot>(
-            stream: raceHandler.stream,
-            builder: (c, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting)
-                return InfoScreen(
-                  icon: CircularProgressIndicator(),
-                  text: "Getting lap times...",
-                );
+      appBar: AppBar(
+        title: Text("Lap Counter"),
+        actions: [
+          IconButton(
+              onPressed: () => showNewDialog(context),
+              icon: Icon(Icons.add, color: Colors.white)),
+        ],
+      ),
+      body: FutureBuilder<int>(
+        future: raceHandler.nCars,
+        builder: (c, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting)
+            return LoadingScreen(text: "Determining number of cars...");
 
-              if (snapshot.hasError)
-                return InfoScreen(
-                  icon: Icon(Icons.error),
-                  text: "Error: ${snapshot.error}",
-                );
+          if (snapshot.hasError)
+            return ErrorScreen(text: "Error: ${snapshot.error}");
 
-              var doc = snapshot.data.data();
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _lapViewer(0, doc["0"].length),
-                  VerticalDivider(
-                    thickness: 1.0,
-                  ),
-                  _lapViewer(1, doc["1"].length),
-                ],
-              );
-            }));
-  }
-
-  Widget _lapViewer(int carID, int laps) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Expanded(
-          child: Center(
-            child: Text(
-              "$laps",
-              textScaleFactor: 5.0,
+          return Row(
+            children: List.generate(
+              snapshot.data! * 2 - 1,
+              (i) => i.isEven
+                  ? Expanded(child: lapViewer(i ~/ 2))
+                  : VerticalDivider(thickness: 1.0),
             ),
-          ),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            setState(() {
-              var lapTime = lapTimers[carID].elapsedMilliseconds / 1000;
+          );
+        },
+      ),
+    );
+  }
 
-              // Add lap to database
-              raceHandler.addLap(carID, lapTime);
+  Widget lapViewer(int carID) {
+    return StreamBuilder<QuerySnapshot>(
+        stream: raceHandler
+            .carCollection(carID)
+            .orderBy("date", descending: true)
+            .snapshots(),
+        builder: (c, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting)
+            return LoadingScreen(text: "Getting lap times...");
 
-              // Restart timer
-              lapTimers[carID].reset();
-            });
-          },
-          style: ButtonStyle(
-              foregroundColor: MaterialStateProperty.all<Color>(
-                  Theme.of(context).primaryColor)),
-          child: Icon(Icons.plus_one),
+          if (snapshot.hasError)
+            return ErrorScreen(text: "Error: ${snapshot.error}");
+
+          return Column(children: [
+            Expanded(
+                child: ListView(
+              children: snapshot.data!.docs
+                  .map(
+                    (doc) => TextTile(
+                      title:
+                          "${doc.get("lapNumber")}  |  ${doc.get("lapTime")}s",
+                      text: (doc.get("date") as Timestamp).toDate().toString(),
+                    ),
+                  )
+                  .toList(),
+            )),
+            ElevatedButton(
+              onPressed: () {
+                // Add lap to database
+                var lapTime = lapTimers[carID].elapsedMilliseconds / 1000;
+                raceHandler.addLap(carID, lapTime,
+                    lapN: snapshot.data!.docs.length + 1);
+
+                // Restart timer
+                lapTimers[carID].reset();
+              },
+              child: TimerText(stopwatch: lapTimers[carID]),
+            ),
+          ]);
+        });
+  }
+
+  void showNewDialog(BuildContext context) async {
+    bool ret = false;
+    await showDialog(
+      context: context,
+      builder: (c) => SaveRaceDialog(
+        onCancel: () {
+          ret = true;
+        },
+        onSave: () {
+          raceHandler.saveCurrentRace().then((_) => setState(() {}));
+        },
+        onDiscard: () {
+          raceHandler.clearCurrentRace();
+        },
+      ),
+    );
+    if (ret) return;
+
+    await showDialog(
+      context: context,
+      builder: (c) => NewRaceDialog(
+        onNew: (nCars) {
+          raceHandler.nCars = nCars;
+        },
+      ),
+    );
+
+    print("Restarting timers");
+    for (final timer in lapTimers) {
+      timer.reset();
+    }
+
+    setState(() {});
+  }
+}
+
+/// Popup dialog for selecting whether to save or discard the current race
+class SaveRaceDialog extends StatefulWidget {
+  final Function? onCancel;
+  final Function? onDiscard;
+  final Function? onSave;
+
+  SaveRaceDialog({Key? key, this.onCancel, this.onDiscard, this.onSave})
+      : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => SaveRaceDialogState();
+}
+
+class SaveRaceDialogState extends State<SaveRaceDialog> {
+  bool discardDialog = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return (!discardDialog)
+        ? AlertDialog(
+            title: Text("Save old race"),
+            content: Text(
+                "You are about to start a new race.\nSave the current race to the database?"),
+            actions: [
+              TextButton(
+                child: Text("Cancel"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  widget.onCancel?.call();
+                },
+              ),
+              TextButton(
+                child: Text("Discard"),
+                onPressed: () {
+                  setState(() {
+                    discardDialog = true;
+                  });
+                },
+              ),
+              TextButton(
+                child: Text("Save", style: TextStyle(color: Colors.white)),
+                style: ButtonStyle(
+                  backgroundColor:
+                      MaterialStateProperty.all(Theme.of(context).primaryColor),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  widget.onSave?.call();
+                },
+              ),
+            ],
+          )
+        : AlertDialog(
+            title: Text("Discard race?"),
+            content: Text(
+                "You are about to restart the race and clear all laps. \nThis action can't be undone."),
+            actions: [
+              TextButton(
+                child: Text("Cancel", style: TextStyle(color: Colors.white)),
+                style: ButtonStyle(
+                  backgroundColor:
+                      MaterialStateProperty.all(Theme.of(context).primaryColor),
+                ),
+                onPressed: () {
+                  setState(() {
+                    discardDialog = false;
+                  });
+                },
+              ),
+              TextButton(
+                child: Text("Discard"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  widget.onDiscard?.call();
+                },
+              ),
+            ],
+          );
+  }
+}
+
+/// Popup dialog for starting a new race.
+class NewRaceDialog extends StatefulWidget {
+  NewRaceDialog({Key? key, this.onNew}) : super(key: key);
+
+  final Function(int nCars)? onNew;
+
+  @override
+  State<StatefulWidget> createState() => NewRaceDialogState();
+}
+
+class NewRaceDialogState extends State<NewRaceDialog> {
+  int nCars = 2;
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text("Start new race"),
+      content: Wrap(children: [
+        Slider(
+          min: 1,
+          max: 4,
+          divisions: 3,
+          label: "$nCars",
+          value: nCars.toDouble(),
+          onChanged: (value) => setState(() {
+            nCars = value.toInt();
+          }),
         )
-      ],
-    );
-  }
-
-  void _showQuitDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (c) => QuitDialog(
-        onQuit: () => widget.device.disconnect(),
-      ),
-    );
-  }
-
-  void _showStartDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (c) => AlertDialog(
-        title: Text("Start new race"),
-        content: Text(
-            "You are about to start a new race.\nOld races can be viewed using the Race Browser screen."),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text("Cancel"),
-          ),
-          TextButton(
-              onPressed: () {
-                // Start new race on database
-                raceHandler.startRace().then((value) => setState(() {}));
-
-                Navigator.of(context).pop();
-              },
-              child: Text("Start race")),
-        ],
-      ),
-    );
-  }
-
-  void _showRestartDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (c) => AlertDialog(
-        title: Text("Restart race?"),
-        content: Text(
-            "You are about to restart the race and clear all laps. This action can't be undone. \nContinue?"),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text("Cancel"),
-          ),
-          TextButton(
-              onPressed: () {
-                setState(() {
-                  // Clear laps on database
-                  raceHandler.clearLaps();
-
-                  // Restart timers
-                  for (final timer in lapTimers) {
-                    timer.reset();
-                  }
-                });
-                Navigator.of(context).pop();
-              },
-              child: Text("Yes")),
-        ],
-      ),
-    );
-  }
-
-  void _showSelectDialog(BuildContext context) {
-    // TODO: Add "cancel" and "sandbox mode" buttons
-    showDialog(
-      context: context,
-      builder: (c) => AlertDialog(
-        title: Text("Switch race"),
-        content: RacePicker(
-          onSelect: (doc) {
-            setState(() {
-              raceHandler.race = doc.reference;
-              // Restart timers
-              for (final timer in lapTimers) {
-                timer.reset();
-              }
-            });
+      ]),
+      actions: [
+        TextButton(
+          child: Text("Cancel"),
+          onPressed: () {
             Navigator.of(context).pop();
           },
         ),
-      ),
+        TextButton(
+          child: Text("Start", style: TextStyle(color: Colors.white)),
+          style: ButtonStyle(
+            backgroundColor:
+                MaterialStateProperty.all(Theme.of(context).primaryColor),
+          ),
+          onPressed: () {
+            Navigator.of(context).pop();
+            widget.onNew?.call(nCars);
+          },
+        ),
+      ],
     );
   }
 }

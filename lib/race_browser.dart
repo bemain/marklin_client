@@ -1,16 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:marklin_bluetooth/race_handler.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
+/// Widget for viewing the races currently on the database
 class RaceBrowserScreen extends StatefulWidget {
-  RaceBrowserScreen({Key key}) : super(key: key);
+  final bool includeCurrentRace;
+
+  RaceBrowserScreen({
+    Key? key,
+    this.includeCurrentRace = true,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => RaceBrowserScreenState();
 }
 
 class RaceBrowserScreenState extends State<RaceBrowserScreen> {
-  CollectionReference races = FirebaseFirestore.instance.collection("races");
+  final RaceHandler raceHandler = RaceHandler();
 
   @override
   Widget build(BuildContext context) {
@@ -18,56 +25,113 @@ class RaceBrowserScreenState extends State<RaceBrowserScreen> {
       appBar: AppBar(
         title: Text("Race Browser"),
       ),
-      body: RacePicker(
-        onSelect: (raceSnapshot) => Navigator.of(context)
-            .push(MaterialPageRoute(builder: (c) => RaceViewer(raceSnapshot))),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: raceHandler.races.orderBy("date", descending: true).snapshots(),
+        builder: (c, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting)
+            return LoadingScreen(text: "Getting races...");
+
+          if (snapshot.hasError)
+            return ErrorScreen(text: "Error: ${snapshot.error}");
+
+          var docs = snapshot.data!.docs;
+
+          if (!widget.includeCurrentRace) // Remove current race
+            docs.removeWhere((element) => element.id == "current");
+
+          return ListView(children: docs.map((doc) => raceCard(doc)).toList());
+        },
+      ),
+    );
+  }
+
+  Widget raceCard(DocumentSnapshot raceDoc) {
+    var title = raceString(raceDoc);
+    return TextTile(
+      title: title,
+      text: raceDoc.id,
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(builder: (c) => (RaceViewer(raceDoc: raceDoc))),
       ),
     );
   }
 }
 
+/// Widget for displaying lap times and other information about [raceDoc].
+/// TODO: Add button for deleting race
 class RaceViewer extends StatelessWidget {
-  RaceViewer(this.raceSnapshot, {Key key}) : super(key: key);
+  final RaceHandler raceHandler = RaceHandler();
 
-  final DocumentSnapshot raceSnapshot;
+  RaceViewer({Key? key, required this.raceDoc}) : super(key: key);
+
+  final DocumentSnapshot raceDoc;
 
   @override
   Widget build(BuildContext context) {
-    var race = raceSnapshot.data();
     return Scaffold(
       appBar: AppBar(
-        title: Text("${race["dateTime"].toDate().toString()}"),
+        title: Text("Viewing race: ${raceString(raceDoc)}"),
       ),
-      body: _buildGridView(race),
-    );
-  }
+      body: FutureBuilder<int>(
+        future: raceHandler.nCars,
+        builder: (c, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting)
+            return LoadingScreen(text: "Determining number of cars...");
 
-  Widget _buildGridView(Map race) {
-    // TODO: Rewrite this to work with lapTimes of different lengths for different cars
-    int nCars = 2;
+          if (snapshot.hasError)
+            return ErrorScreen(text: "Error: ${snapshot.error}");
 
-    return GridView.builder(
-      gridDelegate:
-          SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: nCars),
-      itemCount: List.generate(nCars, (i) => race["$i"].length)
-          .fold(0, (p, c) => p + c),
-      itemBuilder: (c, i) =>
-          _buildListItem(race["${i % nCars}"][i ~/ nCars].toDouble()),
-    );
-  }
-
-  Widget _buildListItem(double lapTime) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
-          borderRadius: BorderRadius.circular(5.0),
-        ),
-        child: ListTile(
-          title: Center(child: Text(lapTime.toString())),
-        ),
+          return Row(
+            children: List.generate(
+              snapshot.data! * 2 - 1,
+              (i) => i.isEven
+                  ? Expanded(child: lapViewer(raceDoc.id, i ~/ 2))
+                  : VerticalDivider(thickness: 1.0),
+            ),
+          );
+        },
       ),
     );
   }
+
+  Widget lapViewer(String raceID, int carID) {
+    return StreamBuilder<QuerySnapshot>(
+        stream: raceHandler.races
+            .doc(raceID)
+            .collection("$carID")
+            .orderBy("date", descending: true)
+            .snapshots(),
+        builder: (c, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting)
+            return LoadingScreen(text: "Getting lap times...");
+
+          if (snapshot.hasError)
+            return ErrorScreen(text: "Error: ${snapshot.error}");
+
+          return ListView(
+            children: snapshot.data!.docs
+                .map(
+                  (doc) => TextTile(
+                    title: "${doc.get("lapNumber")} | ${doc.get("lapTime")}s",
+                    text: (doc.get("date") as Timestamp).toDate().toString(),
+                  ),
+                )
+                .toList(),
+          );
+        });
+  }
+}
+
+String raceString(DocumentSnapshot raceDoc) {
+  Map<String, dynamic> data = raceDoc.data() as Map<String, dynamic>;
+  DateTime date = (data["date"] as Timestamp).toDate();
+  return (raceDoc.id == "current") ? "Current" : dateString(date);
+}
+
+String dateString(DateTime date) {
+  return "${date.day}/${date.month} - " +
+      ((date.hour < 10) ? "0" : "") +
+      "${date.hour}:" +
+      ((date.minute < 10) ? "0" : "") +
+      "${date.minute}";
 }

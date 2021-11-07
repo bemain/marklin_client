@@ -3,13 +3,12 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
+import 'package:marklin_bluetooth/bluetooth.dart';
 
 import 'package:marklin_bluetooth/widgets.dart';
 
 class ControllerScreen extends StatefulWidget {
-  const ControllerScreen({Key key, this.device}) : super(key: key);
-
-  final BluetoothDevice device;
+  const ControllerScreen({Key? key}) : super(key: key);
 
   @override
   _ControllerScreenState createState() => new _ControllerScreenState();
@@ -31,14 +30,9 @@ class _ControllerScreenState extends State<ControllerScreen> {
         ),
         child: Scaffold(
           appBar: AppBar(
-            leading: IconButton(
-              onPressed: () => _showQuitDialog(context),
-              icon: Icon(Icons.bluetooth_disabled, color: Colors.white),
-            ),
             title: Text("Märklin BLE Controller"),
           ),
           body: SpeedSlider(
-            device: widget.device,
             onCarIDChange: (id) {
               setState(() {
                 carID = id;
@@ -47,22 +41,12 @@ class _ControllerScreenState extends State<ControllerScreen> {
           ),
         ));
   }
-
-  void _showQuitDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (c) => QuitDialog(
-        onQuit: () => widget.device.disconnect(),
-      ),
-    );
-  }
 }
 
 class SpeedSlider extends StatefulWidget {
-  SpeedSlider({Key key, this.device, this.onCarIDChange}) : super(key: key);
+  SpeedSlider({Key? key, this.onCarIDChange}) : super(key: key);
 
-  final BluetoothDevice device;
-  final Function(int newID) onCarIDChange;
+  final Function(int newID)? onCarIDChange;
 
   @override
   State<StatefulWidget> createState() => SpeedSliderState();
@@ -71,18 +55,21 @@ class SpeedSlider extends StatefulWidget {
 class SpeedSliderState extends State<SpeedSlider> {
   final friction = 10;
 
+  String serviceID = "0000181c-0000-1000-8000-00805f9b34fb";
+  String charID = "0000181c-0000-1000-8000-00805f9b34fb";
+
   double speed = 0.0;
   int carID = 0;
 
   bool enableSlowDown = true;
   bool willSlowDown = false;
-  Timer slowDownLoop;
+  Timer? slowDownLoop;
 
   bool sendNeeded = false;
-  Timer sendLoop;
+  Timer? sendLoop;
 
-  Future<bool> _futureChar;
-  BluetoothCharacteristic speedChar;
+  Future<bool>? _futureChar;
+  BluetoothCharacteristic? speedChar;
 
   // Methods
   @override
@@ -96,84 +83,101 @@ class SpeedSliderState extends State<SpeedSlider> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
+    return FutureBuilder<bool>(
         future: _futureChar,
         builder: (c, snapshot) {
-          if (!snapshot.hasData)
-            return InfoScreen(
-                icon: CircularProgressIndicator(),
-                text: "Getting Characteristic");
-          else
-            return Column(children: [
-              Expanded(
-                child: Listener(
-                  behavior: HitTestBehavior.translucent,
-                  onPointerDown: (event) => willSlowDown = false,
-                  onPointerUp: (event) => willSlowDown = true,
-                  child: RotatedBox(
-                    quarterTurns: -1,
-                    child: Slider(
-                      value: speed,
-                      onChanged: (value) {
-                        sendNeeded = true;
-                        setState(() {
-                          speed = value;
-                        });
-                      },
-                      min: 0,
-                      max: 100,
-                    ),
-                  ),
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: List.generate(
-                  4,
-                  (index) => Radio(
-                    value: index,
-                    groupValue: carID,
-                    onChanged: (value) {
-                      setState(() {
-                        carID = value;
-                        sendNeeded = true;
-                        widget.onCarIDChange(carID);
-                      });
-                    },
-                  ),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    enableSlowDown = !enableSlowDown;
-                  });
-                },
-                style: ButtonStyle(
-                    foregroundColor: MaterialStateProperty.all<Color>(
-                        Theme.of(context).primaryColor)),
-                child: Text("Slow down? ${enableSlowDown ? "YES" : "NO"}"),
-              ),
-            ]);
+          if (!snapshot.hasData) // Getting characteristic
+            return LoadingScreen(text: "Getting characteristic");
+          if (snapshot.hasError)
+            return ErrorScreen(text: "Error: ${snapshot.error}");
+
+          return (!snapshot.data!) // Characteristic not found
+              ? CharacteristicSelectorScreen(
+                  onCharSelected: (sid, cid) {
+                    setState(() {
+                      serviceID = sid;
+                      charID = cid;
+                      _futureChar = getCharacteristic();
+                    });
+                  },
+                )
+              : PageView(
+                  children: List.filled(4, _buildSlider()),
+                  onPageChanged: (int i) => setState(() {
+                    carID = i;
+                    sendNeeded = true;
+                    widget.onCarIDChange?.call(carID);
+                  }),
+                );
         });
+  }
+
+  Widget _buildSlider() {
+    return Column(children: [
+      Expanded(
+        child: Listener(
+          behavior: HitTestBehavior.translucent,
+          onPointerDown: (event) => willSlowDown = false,
+          onPointerUp: (event) => willSlowDown = true,
+          child: RotatedBox(
+            quarterTurns: -1,
+            child: Slider(
+              value: speed,
+              onChanged: (value) {
+                sendNeeded = true;
+                setState(() {
+                  speed = value;
+                });
+              },
+              min: 0,
+              max: 100,
+            ),
+          ),
+        ),
+      ),
+      ElevatedButton(
+        onPressed: () {
+          setState(() {
+            enableSlowDown = !enableSlowDown;
+          });
+        },
+        style: ButtonStyle(
+            foregroundColor: MaterialStateProperty.all<Color>(
+                Theme.of(context).primaryColor)),
+        child: Text(
+          "Slow down? ${enableSlowDown ? "YES" : "NO"}",
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+    ]);
   }
 
   @override
   void dispose() {
     super.dispose();
 
-    sendLoop.cancel();
+    sendLoop?.cancel();
+    slowDownLoop?.cancel();
   }
 
+  /// Tries to get the given characteristic from [Bluetooth.device].
+  /// Requires [Bluetooth.device] to be a connected BluetoothDevice
+  /// Returns true if successful, false otherwise
   Future<bool> getCharacteristic() async {
-    List<BluetoothService> services = await widget.device.discoverServices();
+    assert(Bluetooth.device != null); // Needs connected BT device
 
-    var service = services.firstWhere(
-        (s) => s.uuid == Guid("0000180c-0000-1000-8000-00805f9b34fb"));
-    var char = service.characteristics.firstWhere(
-        (c) => c.uuid == Guid("0000180c-0000-1000-8000-00805f9b34fb"));
+    List<BluetoothService> services =
+        await Bluetooth.device!.discoverServices();
+    var sers = services.where((s) => s.uuid == Guid(serviceID)).toList();
+    if (sers.isEmpty) return false; // Service not found
 
-    speedChar = char;
+    var chars = sers[0]
+        .characteristics
+        .where((c) => c.serviceUuid == Guid(charID))
+        .toList();
+    if (chars.isEmpty) return false; // Characteristic not found
+
+    speedChar = chars[0];
     return true;
   }
 
@@ -181,7 +185,7 @@ class SpeedSliderState extends State<SpeedSlider> {
     // Send speed to bluetooth device
     if (sendNeeded) {
       await speedChar
-          .write([carID, 100 - speed.toInt()], withoutResponse: true);
+          ?.write([carID, 100 - speed.toInt()], withoutResponse: true);
       sendNeeded = false;
     }
   }

@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:marklin_bluetooth/find_devices.dart';
+import 'package:marklin_bluetooth/bluetooth.dart';
+import 'package:marklin_bluetooth/controller.dart';
+import 'package:marklin_bluetooth/lap_counter.dart';
+import 'package:marklin_bluetooth/race_browser.dart';
+import 'package:marklin_bluetooth/race_handler.dart';
 
 void main() {
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => MyAppState();
+}
+
+class MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -14,6 +23,10 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.blue,
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        home: FindDevicesScreen());
+        home: InitFirebase(
+            child: (Bluetooth.device == null)
+                ? SelectDeviceScreen(
+                    onDeviceConnected: (device) => setState(() {}))
+                : ControllerScreen()));
   }
 }
