@@ -1,12 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:marklin_bluetooth/bluetooth.dart';
 import 'package:marklin_bluetooth/race_handler.dart';
 
 import 'package:marklin_bluetooth/widgets.dart';
 
-/// Receives lap times from [Bluetooth.device] and stores them on a Cloud
-/// Firestore database, using [RaceHandler] to read and write data.
+/// Screen for watching and restarting the current race.
 ///
 /// Also features buttons for adding laps manually (used for debugging).
 class LapCounterScreen extends StatefulWidget {
@@ -20,13 +18,6 @@ class LapCounterScreenState extends State<LapCounterScreen> {
   RaceHandler raceHandler = RaceHandler();
 
   List<Stopwatch> lapTimers = List.generate(4, (i) => Stopwatch()..start());
-
-  @override
-  void initState() {
-    assert(Bluetooth.device != null); // Needs connected BT device
-
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
