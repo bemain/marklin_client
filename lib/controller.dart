@@ -11,10 +11,11 @@ class ControllerScreen extends StatefulWidget {
   const ControllerScreen({Key? key}) : super(key: key);
 
   @override
-  _ControllerScreenState createState() => new _ControllerScreenState();
+  _ControllerScreenState createState() => _ControllerScreenState();
 }
 
 class _ControllerScreenState extends State<ControllerScreen> {
+  bool _enableSlowDown = true;
   int carID = 0;
 
   @override
@@ -33,8 +34,20 @@ class _ControllerScreenState extends State<ControllerScreen> {
             child: Scaffold(
               appBar: AppBar(
                 title: Text("Märklin BLE Controller"),
+                actions: [
+                  IconButton(
+                      icon: Icon(_enableSlowDown
+                          ? Icons.toggle_on
+                          : Icons.toggle_off_outlined),
+                      onPressed: () {
+                        setState(() {
+                          _enableSlowDown = !_enableSlowDown;
+                        });
+                      })
+                ],
               ),
               body: SpeedSlider(
+                enableSlowDown: _enableSlowDown,
                 onCarIDChange: (id) {
                   setState(() {
                     carID = id;
@@ -46,8 +59,13 @@ class _ControllerScreenState extends State<ControllerScreen> {
 }
 
 class SpeedSlider extends StatefulWidget {
-  SpeedSlider({Key? key, this.onCarIDChange}) : super(key: key);
+  SpeedSlider({
+    Key? key,
+    this.enableSlowDown = false,
+    this.onCarIDChange,
+  }) : super(key: key);
 
+  final bool enableSlowDown;
   final Function(int newID)? onCarIDChange;
 
   @override
@@ -63,7 +81,6 @@ class SpeedSliderState extends State<SpeedSlider> {
   double speed = 0.0;
   int carID = 0;
 
-  bool enableSlowDown = true;
   bool willSlowDown = false;
   Timer? slowDownLoop;
 
@@ -114,43 +131,25 @@ class SpeedSliderState extends State<SpeedSlider> {
   }
 
   Widget _buildSlider() {
-    return Column(children: [
-      Expanded(
-        child: Listener(
-          behavior: HitTestBehavior.translucent,
-          onPointerDown: (event) => willSlowDown = false,
-          onPointerUp: (event) => willSlowDown = true,
-          child: RotatedBox(
-            quarterTurns: -1,
-            child: Slider(
-              value: speed,
-              onChanged: (value) {
-                sendNeeded = true;
-                setState(() {
-                  speed = value;
-                });
-              },
-              min: 0,
-              max: 100,
-            ),
-          ),
+    return Listener(
+      behavior: HitTestBehavior.translucent,
+      onPointerDown: (event) => willSlowDown = false,
+      onPointerUp: (event) => willSlowDown = true,
+      child: RotatedBox(
+        quarterTurns: -1,
+        child: Slider(
+          value: speed,
+          onChanged: (value) {
+            sendNeeded = true;
+            setState(() {
+              speed = value;
+            });
+          },
+          min: 0,
+          max: 100,
         ),
       ),
-      ElevatedButton(
-        onPressed: () {
-          setState(() {
-            enableSlowDown = !enableSlowDown;
-          });
-        },
-        style: ButtonStyle(
-            foregroundColor: MaterialStateProperty.all<Color>(
-                Theme.of(context).primaryColor)),
-        child: Text(
-          "Slow down? ${enableSlowDown ? "YES" : "NO"}",
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
-    ]);
+    );
   }
 
   @override
@@ -193,7 +192,7 @@ class SpeedSliderState extends State<SpeedSlider> {
 
   void slowDown(Timer timer) {
     // Slow down car
-    if (enableSlowDown && willSlowDown && speed != 0) {
+    if (widget.enableSlowDown && willSlowDown && speed != 0) {
       sendNeeded = true;
       setState(() {
         speed -= min(speed, friction);
