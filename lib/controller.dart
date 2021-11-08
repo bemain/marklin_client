@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:marklin_bluetooth/bluetooth.dart';
+import 'package:marklin_bluetooth/race_handler.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
 /// Screen for controlling and receiving lap times from the cars.
@@ -17,6 +18,9 @@ class ControllerScreen extends StatefulWidget {
 class _ControllerScreenState extends State<ControllerScreen> {
   bool _enableSlowDown = true;
   int carID = 0;
+
+  final Stopwatch lapTimer = Stopwatch()..start();
+  final RaceHandler raceHandler = RaceHandler();
 
   @override
   Widget build(BuildContext context) {
@@ -46,14 +50,29 @@ class _ControllerScreenState extends State<ControllerScreen> {
                       })
                 ],
               ),
-              body: SpeedSlider(
-                enableSlowDown: _enableSlowDown,
-                onCarIDChange: (id) {
-                  setState(() {
-                    carID = id;
-                  });
-                },
-              ),
+              body: Column(children: [
+                Expanded(
+                  child: SpeedSlider(
+                    enableSlowDown: _enableSlowDown,
+                    onCarIDChange: (id) {
+                      setState(() {
+                        carID = id;
+                      });
+                    },
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    // Add lap to database
+                    var lapTime = lapTimer.elapsedMilliseconds / 1000;
+                    raceHandler.addLap(carID, lapTime);
+
+                    // Restart timer
+                    lapTimer.reset();
+                  },
+                  child: TimerText(stopwatch: lapTimer),
+                ),
+              ]),
             ));
   }
 }

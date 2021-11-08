@@ -5,8 +5,6 @@ import 'package:marklin_bluetooth/race_handler.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
 /// Screen for watching and restarting the current race.
-///
-/// Also features buttons for adding laps manually (used for debugging).
 class LapCounterScreen extends StatefulWidget {
   const LapCounterScreen({Key? key}) : super(key: key);
 
@@ -16,8 +14,6 @@ class LapCounterScreen extends StatefulWidget {
 
 class LapCounterScreenState extends State<LapCounterScreen> {
   RaceHandler raceHandler = RaceHandler();
-
-  List<Stopwatch> lapTimers = List.generate(4, (i) => Stopwatch()..start());
 
   @override
   Widget build(BuildContext context) {
@@ -65,32 +61,16 @@ class LapCounterScreenState extends State<LapCounterScreen> {
           if (snapshot.hasError)
             return ErrorScreen(text: "Error: ${snapshot.error}");
 
-          return Column(children: [
-            Expanded(
-                child: ListView(
-              children: snapshot.data!.docs
-                  .map(
-                    (doc) => TextTile(
-                      title:
-                          "${doc.get("lapNumber")}  |  ${doc.get("lapTime")}s",
-                      text: (doc.get("date") as Timestamp).toDate().toString(),
-                    ),
-                  )
-                  .toList(),
-            )),
-            ElevatedButton(
-              onPressed: () {
-                // Add lap to database
-                var lapTime = lapTimers[carID].elapsedMilliseconds / 1000;
-                raceHandler.addLap(carID, lapTime,
-                    lapN: snapshot.data!.docs.length + 1);
-
-                // Restart timer
-                lapTimers[carID].reset();
-              },
-              child: TimerText(stopwatch: lapTimers[carID]),
-            ),
-          ]);
+          return ListView(
+            children: snapshot.data!.docs
+                .map(
+                  (doc) => TextTile(
+                    title: "${doc.get("lapNumber")}  |  ${doc.get("lapTime")}s",
+                    text: (doc.get("date") as Timestamp).toDate().toString(),
+                  ),
+                )
+                .toList(),
+          );
         });
   }
 
@@ -120,11 +100,6 @@ class LapCounterScreenState extends State<LapCounterScreen> {
         },
       ),
     );
-
-    print("Restarting timers");
-    for (final timer in lapTimers) {
-      timer.reset();
-    }
 
     setState(() {});
   }
