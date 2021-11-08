@@ -4,9 +4,9 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:marklin_bluetooth/bluetooth.dart';
-
 import 'package:marklin_bluetooth/widgets.dart';
 
+/// Screen for controlling and receiving lap times from the cars.
 class ControllerScreen extends StatefulWidget {
   const ControllerScreen({Key? key}) : super(key: key);
 
@@ -73,7 +73,6 @@ class SpeedSliderState extends State<SpeedSlider> {
   Future<bool>? _futureChar;
   BluetoothCharacteristic? speedChar;
 
-  // Methods
   @override
   void initState() {
     super.initState();
