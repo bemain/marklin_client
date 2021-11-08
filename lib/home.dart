@@ -23,8 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: BottomNavigationBar(
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.swipe), label: "Controller"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.query_builder), label: "Timer"),
+          BottomNavigationBarItem(icon: Icon(Icons.schedule), label: "Race"),
           BottomNavigationBarItem(icon: Icon(Icons.layers), label: "Browser")
         ],
         currentIndex: _selectedIndex,
