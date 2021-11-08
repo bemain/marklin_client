@@ -50,6 +50,8 @@ class RaceHandler {
     for (var i = 0; i < (await nCars); i++)
       for (var doc in (await carCollection(i).get()).docs)
         await doc.reference.delete();
+
+    await currentRace.update({"date": Timestamp.now()});
   }
 
   /// Copy current race to a new race, then clear current laps
