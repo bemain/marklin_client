@@ -24,13 +24,22 @@ class RaceHandler {
   set nCars(value) => currentRace.update({"nCars": value.toInt()});
 
   /// Add [lapTime] to lap times of [carID] on current race
-  Future addLap(int carID, double lapTime, {int? lapN}) async {
+  Future addLap(int carID, {double? lapTime, int? lapN}) async {
+    var timeNow = Timestamp.now();
+    if (lapTime == null) {
+      Timestamp timePrev = (await currentRace.get()).get("date");
+      lapTime = (timeNow.millisecondsSinceEpoch ~/ 10 -
+              timePrev.millisecondsSinceEpoch ~/ 10) /
+          100;
+    }
     if (lapN == null) lapN = (await carCollection(carID).get()).docs.length + 1;
+
     await carCollection(carID).add({
       "lapTime": lapTime,
       "lapNumber": lapN,
-      "date": Timestamp.now(),
+      "date": timeNow,
     });
+    await currentRace.update({"date": timeNow});
   }
 
   /// Delete all laps on current race

@@ -16,11 +16,10 @@ class ControllerScreen extends StatefulWidget {
 }
 
 class _ControllerScreenState extends State<ControllerScreen> {
+  final RaceHandler raceHandler = RaceHandler();
+
   bool _enableSlowDown = true;
   int carID = 0;
-
-  final Stopwatch lapTimer = Stopwatch()..start();
-  final RaceHandler raceHandler = RaceHandler();
 
   @override
   Widget build(BuildContext context) {
@@ -63,14 +62,9 @@ class _ControllerScreenState extends State<ControllerScreen> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    // Add lap to database
-                    var lapTime = lapTimer.elapsedMilliseconds / 1000;
-                    raceHandler.addLap(carID, lapTime);
-
-                    // Restart timer
-                    lapTimer.reset();
+                    raceHandler.addLap(carID); // Add lap to database
                   },
-                  child: TimerText(stopwatch: lapTimer),
+                  child: Icon(Icons.add),
                 ),
               ]),
             ));
