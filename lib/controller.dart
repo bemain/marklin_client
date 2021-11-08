@@ -39,34 +39,30 @@ class _ControllerScreenState extends State<ControllerScreen> {
                 title: Text("Märklin BLE Controller"),
                 actions: [
                   IconButton(
+                    icon: Icon(Icons.plus_one),
+                    onPressed: () {
+                      raceHandler.addLap(carID); // Add lap to database
+                    },
+                  ),
+                  IconButton(
                       icon: Icon(_enableSlowDown
                           ? Icons.toggle_on
                           : Icons.toggle_off_outlined),
                       onPressed: () {
                         setState(() {
-                          _enableSlowDown = !_enableSlowDown;
+                          _enableSlowDown = !_enableSlowDown; // Toggle slowdown
                         });
                       })
                 ],
               ),
-              body: Column(children: [
-                Expanded(
-                  child: SpeedSlider(
-                    enableSlowDown: _enableSlowDown,
-                    onCarIDChange: (id) {
-                      setState(() {
-                        carID = id;
-                      });
-                    },
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    raceHandler.addLap(carID); // Add lap to database
-                  },
-                  child: Icon(Icons.add),
-                ),
-              ]),
+              body: SpeedSlider(
+                enableSlowDown: _enableSlowDown,
+                onCarIDChange: (id) {
+                  setState(() {
+                    carID = id;
+                  });
+                },
+              ),
             ));
   }
 }
