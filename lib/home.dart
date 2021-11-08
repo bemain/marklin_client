@@ -19,12 +19,14 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(child: _pages.elementAt(_selectedIndex)),
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _pages,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.swipe), label: "Controller"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.query_builder), label: "Timer"),
+          BottomNavigationBarItem(icon: Icon(Icons.schedule), label: "Race"),
           BottomNavigationBarItem(icon: Icon(Icons.layers), label: "Browser")
         ],
         currentIndex: _selectedIndex,

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:marklin_bluetooth/bluetooth.dart';
 import 'package:marklin_bluetooth/home.dart';
 import 'package:marklin_bluetooth/race_handler.dart';
 
@@ -21,10 +20,6 @@ class MyAppState extends State<MyApp> {
           primarySwatch: Colors.blue,
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        home: InitFirebase(
-            child: (Bluetooth.device == null)
-                ? SelectDeviceScreen(
-                    onDeviceConnected: (device) => setState(() {}))
-                : HomeScreen()));
+        home: InitFirebase(child: HomeScreen()));
   }
 }

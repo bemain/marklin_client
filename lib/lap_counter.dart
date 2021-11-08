@@ -1,14 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:marklin_bluetooth/bluetooth.dart';
 import 'package:marklin_bluetooth/race_handler.dart';
 
 import 'package:marklin_bluetooth/widgets.dart';
 
-/// Receives lap times from [Bluetooth.device] and stores them on a Cloud
-/// Firestore database, using [RaceHandler] to read and write data.
-///
-/// Also features buttons for adding laps manually (used for debugging).
+/// Screen for watching and restarting the current race.
 class LapCounterScreen extends StatefulWidget {
   const LapCounterScreen({Key? key}) : super(key: key);
 
@@ -18,15 +14,6 @@ class LapCounterScreen extends StatefulWidget {
 
 class LapCounterScreenState extends State<LapCounterScreen> {
   RaceHandler raceHandler = RaceHandler();
-
-  List<Stopwatch> lapTimers = List.generate(4, (i) => Stopwatch()..start());
-
-  @override
-  void initState() {
-    assert(Bluetooth.device != null); // Needs connected BT device
-
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,32 +61,16 @@ class LapCounterScreenState extends State<LapCounterScreen> {
           if (snapshot.hasError)
             return ErrorScreen(text: "Error: ${snapshot.error}");
 
-          return Column(children: [
-            Expanded(
-                child: ListView(
-              children: snapshot.data!.docs
-                  .map(
-                    (doc) => TextTile(
-                      title:
-                          "${doc.get("lapNumber")}  |  ${doc.get("lapTime")}s",
-                      text: (doc.get("date") as Timestamp).toDate().toString(),
-                    ),
-                  )
-                  .toList(),
-            )),
-            ElevatedButton(
-              onPressed: () {
-                // Add lap to database
-                var lapTime = lapTimers[carID].elapsedMilliseconds / 1000;
-                raceHandler.addLap(carID, lapTime,
-                    lapN: snapshot.data!.docs.length + 1);
-
-                // Restart timer
-                lapTimers[carID].reset();
-              },
-              child: TimerText(stopwatch: lapTimers[carID]),
-            ),
-          ]);
+          return ListView(
+            children: snapshot.data!.docs
+                .map(
+                  (doc) => TextTile(
+                    title: "${doc.get("lapNumber")}  |  ${doc.get("lapTime")}s",
+                    text: (doc.get("date") as Timestamp).toDate().toString(),
+                  ),
+                )
+                .toList(),
+          );
         });
   }
 
@@ -129,11 +100,6 @@ class LapCounterScreenState extends State<LapCounterScreen> {
         },
       ),
     );
-
-    print("Restarting timers");
-    for (final timer in lapTimers) {
-      timer.reset();
-    }
 
     setState(() {});
   }

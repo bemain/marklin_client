@@ -23,12 +23,33 @@ class RaceHandler {
   Future<int> get nCars async => (await currentRace.get()).get("nCars");
   set nCars(value) => currentRace.update({"nCars": value.toInt()});
 
-  /// Add [lapTime] to lap times of [carID] on current race
-  Future addLap(int carID, double lapTime, {int? lapN}) async {
+  /// Add time since last lap, or since the race was started if no laps have
+  /// been run, to lap times of [carID] on the current race.
+  Future addLap(int carID, {double? lapTime, int? lapN}) async {
+    if (carID >= await nCars) return; // Trying to add lap to car not in race
+
+    var timeNow = Timestamp.now();
+    if (lapTime == null) {
+      // Get time since last lap
+      var laps = (await carCollection(carID)
+              .orderBy("date", descending: true)
+              .limit(1)
+              .get())
+          .docs;
+      Timestamp timePrev = laps.isEmpty
+          ? (await currentRace.get()).get("date") // Time since race started
+          : laps[0].get("date"); // Time since last lap
+      lapTime =
+          (timeNow.millisecondsSinceEpoch - timePrev.millisecondsSinceEpoch) ~/
+              10 /
+              100;
+    }
+    if (lapN == null) lapN = (await carCollection(carID).get()).docs.length + 1;
+
     await carCollection(carID).add({
       "lapTime": lapTime,
-      "lapNumber": lapN ?? 0,
-      "date": Timestamp.now(),
+      "lapNumber": lapN,
+      "date": timeNow,
     });
   }
 
@@ -37,6 +58,8 @@ class RaceHandler {
     for (var i = 0; i < (await nCars); i++)
       for (var doc in (await carCollection(i).get()).docs)
         await doc.reference.delete();
+
+    await currentRace.update({"date": Timestamp.now()});
   }
 
   /// Copy current race to a new race, then clear current laps
