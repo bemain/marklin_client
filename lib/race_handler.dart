@@ -23,14 +23,17 @@ class RaceHandler {
   Future<int> get nCars async => (await currentRace.get()).get("nCars");
   set nCars(value) => currentRace.update({"nCars": value.toInt()});
 
-  /// Add [lapTime] to lap times of [carID] on current race
+  /// Add [lapTime], or time since last lap if not given,
+  /// to lap times of [carID] on current race as lap number [lapN],
+  /// or the next lap if not given.
   Future addLap(int carID, {double? lapTime, int? lapN}) async {
     var timeNow = Timestamp.now();
     if (lapTime == null) {
       Timestamp timePrev = (await currentRace.get()).get("date");
-      lapTime = (timeNow.millisecondsSinceEpoch ~/ 10 -
-              timePrev.millisecondsSinceEpoch ~/ 10) /
-          100;
+      lapTime =
+          (timeNow.millisecondsSinceEpoch - timePrev.millisecondsSinceEpoch) ~/
+              10 /
+              100;
     }
     if (lapN == null) lapN = (await carCollection(carID).get()).docs.length + 1;
 
