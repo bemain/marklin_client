@@ -26,6 +26,8 @@ class RaceHandler {
   /// Add time since last lap, or since the race was started if no laps have
   /// been run, to lap times of [carID] on the current race.
   Future addLap(int carID, {double? lapTime, int? lapN}) async {
+    if (carID >= await nCars) return; // Trying to add lap to car not in race
+
     var timeNow = Timestamp.now();
     if (lapTime == null) {
       // Get time since last lap
