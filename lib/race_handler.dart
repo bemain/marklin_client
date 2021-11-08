@@ -25,9 +25,10 @@ class RaceHandler {
 
   /// Add [lapTime] to lap times of [carID] on current race
   Future addLap(int carID, double lapTime, {int? lapN}) async {
+    if (lapN == null) lapN = (await carCollection(carID).get()).docs.length + 1;
     await carCollection(carID).add({
       "lapTime": lapTime,
-      "lapNumber": lapN ?? 0,
+      "lapNumber": lapN,
       "date": Timestamp.now(),
     });
   }
