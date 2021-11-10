@@ -57,9 +57,11 @@ class RaceHandler {
 
   /// Delete all laps on current race
   Future clearCurrentRace() async {
-    for (var i = 0; i < (await nCars); i++)
-      for (var doc in (await carCollection(i).get()).docs)
+    for (var i = 0; i < (await nCars); i++) {
+      for (var doc in (await carCollection(i).get()).docs) {
         await doc.reference.delete();
+      }
+    }
 
     await currentRace.update({"date": Timestamp.now()});
   }
@@ -86,7 +88,7 @@ class RaceHandler {
 class InitFirebase extends StatefulWidget {
   final Widget child;
 
-  InitFirebase({Key? key, required this.child}) : super(key: key);
+  const InitFirebase({Key? key, required this.child}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => InitFirebaseState();
@@ -101,7 +103,8 @@ class InitFirebaseState extends State<InitFirebase> {
       future: _initialization,
       builder: (c, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting)
-          return Scaffold(body: LoadingScreen(text: "Initalizing Firebase..."));
+          return const Scaffold(
+              body: LoadingScreen(text: "Initalizing Firebase..."));
 
         if (snapshot.hasError)
           return Scaffold(body: ErrorScreen(text: "Error: ${snapshot.error}"));

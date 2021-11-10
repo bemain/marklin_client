@@ -7,10 +7,8 @@ import 'package:marklin_bluetooth/widgets.dart';
 class RaceBrowserScreen extends StatefulWidget {
   final bool includeCurrentRace;
 
-  RaceBrowserScreen({
-    Key? key,
-    this.includeCurrentRace = true,
-  }) : super(key: key);
+  const RaceBrowserScreen({Key? key, this.includeCurrentRace = true})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => RaceBrowserScreenState();
@@ -23,21 +21,23 @@ class RaceBrowserScreenState extends State<RaceBrowserScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Race Browser"),
+        title: const Text("Race Browser"),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: raceHandler.races.orderBy("date", descending: true).snapshots(),
         builder: (c, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting)
-            return LoadingScreen(text: "Getting races...");
+            return const LoadingScreen(text: "Getting races...");
 
           if (snapshot.hasError)
             return ErrorScreen(text: "Error: ${snapshot.error}");
 
           var docs = snapshot.data!.docs;
 
-          if (!widget.includeCurrentRace) // Remove current race
+          if (!widget.includeCurrentRace) {
+            // Remove current race
             docs.removeWhere((element) => element.id == "current");
+          }
 
           return ListView(children: docs.map((doc) => raceCard(doc)).toList());
         },
@@ -77,7 +77,7 @@ class RaceViewer extends StatelessWidget {
             raceDoc.get("nCars") * 2 - 1,
             (i) => i.isEven
                 ? Expanded(child: lapViewer(raceDoc.id, i ~/ 2))
-                : VerticalDivider(thickness: 1.0),
+                : const VerticalDivider(thickness: 1.0),
           ),
         ));
   }
@@ -91,7 +91,7 @@ class RaceViewer extends StatelessWidget {
             .snapshots(),
         builder: (c, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting)
-            return LoadingScreen(text: "Getting lap times...");
+            return const LoadingScreen(text: "Getting lap times...");
 
           if (snapshot.hasError)
             return ErrorScreen(text: "Error: ${snapshot.error}");

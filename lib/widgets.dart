@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class InfoScreen extends StatelessWidget {
@@ -28,7 +27,7 @@ class ErrorScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InfoScreen(
-      icon: Icon(Icons.error),
+      icon: const Icon(Icons.error),
       text: text,
     );
   }
@@ -42,7 +41,7 @@ class LoadingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InfoScreen(
-      icon: CircularProgressIndicator(),
+      icon: const CircularProgressIndicator(),
       text: text,
     );
   }
@@ -56,17 +55,17 @@ class QuitDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text("Quit?"),
-      content: Text("Are you sure you want to quit?"),
+      title: const Text("Quit?"),
+      content: const Text("Are you sure you want to quit?"),
       actions: <Widget>[
         TextButton(
-          child: Text("Cancel"),
+          child: const Text("Cancel"),
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
         TextButton(
-          child: Text("Quit"),
+          child: const Text("Quit"),
           onPressed: () {
             onQuit?.call();
             Navigator.of(context).pop();
@@ -97,7 +96,7 @@ class TextTile extends StatelessWidget {
   }
 
   Widget _buildTitle(BuildContext context) {
-    if (title.length > 0 && text != null)
+    if (title.isNotEmpty && text != null) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -112,11 +111,12 @@ class TextTile extends StatelessWidget {
           )
         ],
       );
-    else
+    } else {
       return Text(
         text ?? title,
         overflow: TextOverflow.ellipsis,
       );
+    }
   }
 }
 
@@ -124,7 +124,8 @@ class TimerText extends StatefulWidget {
   final Stopwatch stopwatch;
   final int decimalPlaces;
 
-  TimerText({required this.stopwatch, this.decimalPlaces = 1});
+  const TimerText({Key? key, required this.stopwatch, this.decimalPlaces = 1})
+      : super(key: key);
 
   @override
   State<TimerText> createState() => TimerTextState();

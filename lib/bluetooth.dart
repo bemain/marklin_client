@@ -11,7 +11,8 @@ class Bluetooth {
 class SelectDeviceScreen extends StatefulWidget {
   final Function(BluetoothDevice)? onDeviceConnected;
 
-  SelectDeviceScreen({Key? key, this.onDeviceConnected}) : super(key: key);
+  const SelectDeviceScreen({Key? key, this.onDeviceConnected})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => SelectDeviceScreenState();
@@ -26,20 +27,20 @@ class SelectDeviceScreenState extends State<SelectDeviceScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Connect to Bluetooth Device"),
+        title: const Text("Connect to Bluetooth Device"),
       ),
       body: (selectedDevice == null)
           ? FutureBuilder(
               future: flutterBlue.isAvailable,
               builder: (c, AsyncSnapshot<bool> snapshot) => (!snapshot.hasData)
-                  ? LoadingScreen(text: "Waiting for Bluetooth")
+                  ? const LoadingScreen(text: "Waiting for Bluetooth")
                   : (!snapshot.data!)
-                      ? InfoScreen(
+                      ? const InfoScreen(
                           icon: Icon(Icons.bluetooth_disabled),
                           text: "Bluetooth unavailable")
                       : StreamBuilder<List<ScanResult>>(
                           stream: flutterBlue.scanResults,
-                          initialData: [],
+                          initialData: const [],
                           builder: (c, snapshot) => ListView(
                               children: snapshot.data!
                                   .map((result) => TextTile(
@@ -54,12 +55,12 @@ class SelectDeviceScreenState extends State<SelectDeviceScreen> {
               future: _connectBT(),
               builder: (c, snapshot) {
                 if (snapshot.hasError)
-                  return ErrorScreen(text: "Failed to connect to device");
+                  return const ErrorScreen(text: "Failed to connect to device");
 
                 if (snapshot.connectionState == ConnectionState.waiting)
-                  return LoadingScreen(text: "Connecting to device...");
+                  return const LoadingScreen(text: "Connecting to device...");
 
-                return InfoScreen(
+                return const InfoScreen(
                     icon: Icon(Icons.bluetooth_connected),
                     text: "Connected to device");
               }),
@@ -70,8 +71,9 @@ class SelectDeviceScreenState extends State<SelectDeviceScreen> {
           child:
               Icon(snapshot.data! ? Icons.bluetooth_searching : Icons.search),
           onPressed: () {
-            if (!snapshot.data!) // Not scanning
-              flutterBlue.startScan(timeout: Duration(seconds: 4));
+            if (!snapshot.data!) {
+              flutterBlue.startScan(timeout: const Duration(seconds: 4));
+            }
           },
         ),
       ),
@@ -80,22 +82,23 @@ class SelectDeviceScreenState extends State<SelectDeviceScreen> {
 
   Future _connectBT() async {
     // Don't connect if already connected
-    if ((await FlutterBlue.instance.connectedDevices).isEmpty)
+    if ((await FlutterBlue.instance.connectedDevices).isEmpty) {
       await selectedDevice!.connect();
-    else
+    } else {
       print("BLUETOOTH: Already connected");
+    }
 
     Bluetooth.device = selectedDevice;
 
     // Start timer for switching screen
-    Timer(Duration(seconds: 1), () {
+    Timer(const Duration(seconds: 1), () {
       widget.onDeviceConnected?.call(selectedDevice!);
     });
   }
 }
 
 class CharacteristicSelectorScreen extends StatefulWidget {
-  CharacteristicSelectorScreen({Key? key, this.onCharSelected})
+  const CharacteristicSelectorScreen({Key? key, this.onCharSelected})
       : super(key: key);
 
   final Function(String serviceID, String charID)? onCharSelected;
@@ -116,16 +119,17 @@ class CharacteristicSelectorScreenState
   Widget build(BuildContext context) {
     assert(Bluetooth.device != null); // Needs connected BT device
 
-    if (service == null)
+    if (service == null) {
       return FutureBuilder(
           future: Bluetooth.device!.discoverServices(),
-          initialData: [],
+          initialData: const [],
           builder: (BuildContext c, AsyncSnapshot<List<dynamic>> snapshot) {
             if (snapshot.hasError)
-              return ErrorScreen(text: "Unable to get services from device");
+              return const ErrorScreen(
+                  text: "Unable to get services from device");
 
             if (snapshot.connectionState == ConnectionState.waiting)
-              return LoadingScreen(text: "Getting services...");
+              return const LoadingScreen(text: "Getting services...");
 
             return ListView(
               children: snapshot.data!
@@ -143,6 +147,7 @@ class CharacteristicSelectorScreenState
                   .toList(),
             );
           });
+    }
 
     return ListView(
       children: service!.characteristics

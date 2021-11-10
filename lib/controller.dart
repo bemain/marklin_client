@@ -36,10 +36,10 @@ class _ControllerScreenState extends State<ControllerScreen> {
             ),
             child: Scaffold(
               appBar: AppBar(
-                title: Text("Märklin BLE Controller"),
+                title: const Text("Märklin BLE Controller"),
                 actions: [
                   IconButton(
-                    icon: Icon(Icons.plus_one),
+                    icon: const Icon(Icons.plus_one),
                     onPressed: () {
                       raceHandler.addLap(carID); // Add lap to database
                     },
@@ -68,11 +68,8 @@ class _ControllerScreenState extends State<ControllerScreen> {
 }
 
 class SpeedSlider extends StatefulWidget {
-  SpeedSlider({
-    Key? key,
-    this.enableSlowDown = false,
-    this.onCarIDChange,
-  }) : super(key: key);
+  const SpeedSlider({Key? key, this.enableSlowDown = false, this.onCarIDChange})
+      : super(key: key);
 
   final bool enableSlowDown;
   final Function(int newID)? onCarIDChange;
@@ -104,8 +101,8 @@ class SpeedSliderState extends State<SpeedSlider> {
     super.initState();
     _futureChar = getCharacteristic();
 
-    sendLoop = Timer.periodic(Duration(milliseconds: 100), sendSpeed);
-    slowDownLoop = Timer.periodic(Duration(milliseconds: 10), slowDown);
+    sendLoop = Timer.periodic(const Duration(milliseconds: 100), sendSpeed);
+    slowDownLoop = Timer.periodic(const Duration(milliseconds: 10), slowDown);
   }
 
   @override
@@ -114,7 +111,7 @@ class SpeedSliderState extends State<SpeedSlider> {
         future: _futureChar,
         builder: (c, snapshot) {
           if (!snapshot.hasData) // Getting characteristic
-            return LoadingScreen(text: "Getting characteristic");
+            return const LoadingScreen(text: "Getting characteristic");
           if (snapshot.hasError)
             return ErrorScreen(text: "Error: ${snapshot.error}");
 
