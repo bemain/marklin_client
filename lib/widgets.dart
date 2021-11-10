@@ -159,3 +159,22 @@ class TimerTextState extends State<TimerText> {
     super.dispose();
   }
 }
+
+/// Returns a builder that returns [activeBuilder] when future is active or done,
+/// and error or loading screens as applicable otherwise.
+Widget Function(BuildContext, AsyncSnapshot) niceAsyncBuilder(
+    {required Function(BuildContext, AsyncSnapshot) activeBuilder,
+    String? loadingText,
+    String? errorText}) {
+  return (BuildContext c, AsyncSnapshot snapshot) {
+    if (snapshot.hasError) {
+      return ErrorScreen(text: errorText ?? "Error: ${snapshot.error}");
+    }
+
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return LoadingScreen(text: loadingText ?? "Loading...");
+    }
+
+    return activeBuilder(c, snapshot);
+  };
+}

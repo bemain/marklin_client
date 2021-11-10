@@ -28,39 +28,32 @@ class LapCounterScreenState extends State<LapCounterScreen> {
       ),
       body: FutureBuilder<int>(
         future: raceHandler.nCars,
-        builder: (c, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting)
-            return const LoadingScreen(text: "Determining number of cars...");
-
-          if (snapshot.hasError)
-            return ErrorScreen(text: "Error: ${snapshot.error}");
-
-          return Row(
-            children: List.generate(
-              snapshot.data! * 2 - 1,
-              (i) => i.isEven
-                  ? Expanded(child: lapViewer(i ~/ 2))
-                  : const VerticalDivider(thickness: 1.0),
-            ),
-          );
-        },
+        builder: niceAsyncBuilder(
+          loadingText: "Determining number of cars...",
+          activeBuilder: (BuildContext c, AsyncSnapshot snapshot) {
+            return Row(
+              children: List.generate(
+                snapshot.data! * 2 - 1,
+                (i) => i.isEven
+                    ? Expanded(child: lapViewer(i ~/ 2))
+                    : const VerticalDivider(thickness: 1.0),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
 
   Widget lapViewer(int carID) {
     return StreamBuilder<QuerySnapshot>(
-        stream: raceHandler
-            .carCollection(carID)
-            .orderBy("date", descending: true)
-            .snapshots(),
-        builder: (c, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting)
-            return const LoadingScreen(text: "Getting lap times...");
-
-          if (snapshot.hasError)
-            return ErrorScreen(text: "Error: ${snapshot.error}");
-
+      stream: raceHandler
+          .carCollection(carID)
+          .orderBy("date", descending: true)
+          .snapshots(),
+      builder: niceAsyncBuilder(
+        loadingText: "Getting lap times...",
+        activeBuilder: (BuildContext c, AsyncSnapshot snapshot) {
           return ListView(
             children: snapshot.data!.docs
                 .map(
@@ -71,7 +64,9 @@ class LapCounterScreenState extends State<LapCounterScreen> {
                 )
                 .toList(),
           );
-        });
+        },
+      ),
+    );
   }
 
   void showNewDialog(BuildContext context) async {

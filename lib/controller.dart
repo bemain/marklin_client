@@ -108,13 +108,10 @@ class SpeedSliderState extends State<SpeedSlider> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<bool>(
-        future: _futureChar,
-        builder: (c, snapshot) {
-          if (!snapshot.hasData) // Getting characteristic
-            return const LoadingScreen(text: "Getting characteristic");
-          if (snapshot.hasError)
-            return ErrorScreen(text: "Error: ${snapshot.error}");
-
+      future: _futureChar,
+      builder: niceAsyncBuilder(
+        loadingText: "Getting characteristic...",
+        activeBuilder: (BuildContext c, AsyncSnapshot snapshot) {
           return (!snapshot.data!) // Characteristic not found
               ? CharacteristicSelectorScreen(
                   onCharSelected: (sid, cid) {
@@ -133,7 +130,9 @@ class SpeedSliderState extends State<SpeedSlider> {
                     widget.onCarIDChange?.call(carID);
                   }),
                 );
-        });
+        },
+      ),
+    );
   }
 
   Widget _buildSlider() {

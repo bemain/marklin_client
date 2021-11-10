@@ -24,24 +24,22 @@ class RaceBrowserScreenState extends State<RaceBrowserScreen> {
         title: const Text("Race Browser"),
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: raceHandler.races.orderBy("date", descending: true).snapshots(),
-        builder: (c, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting)
-            return const LoadingScreen(text: "Getting races...");
+          stream:
+              raceHandler.races.orderBy("date", descending: true).snapshots(),
+          builder: niceAsyncBuilder(
+            loadingText: "Getting races...",
+            activeBuilder: (BuildContext c, AsyncSnapshot snapshot) {
+              var docs = snapshot.data!.docs;
 
-          if (snapshot.hasError)
-            return ErrorScreen(text: "Error: ${snapshot.error}");
+              if (!widget.includeCurrentRace) {
+                // Remove current race
+                docs.removeWhere((element) => element.id == "current");
+              }
 
-          var docs = snapshot.data!.docs;
-
-          if (!widget.includeCurrentRace) {
-            // Remove current race
-            docs.removeWhere((element) => element.id == "current");
-          }
-
-          return ListView(children: docs.map((doc) => raceCard(doc)).toList());
-        },
-      ),
+              return ListView(
+                  children: docs.map((doc) => raceCard(doc)).toList());
+            },
+          )),
     );
   }
 
@@ -84,18 +82,14 @@ class RaceViewer extends StatelessWidget {
 
   Widget lapViewer(String raceID, int carID) {
     return StreamBuilder<QuerySnapshot>(
-        stream: raceHandler.races
-            .doc(raceID)
-            .collection("$carID")
-            .orderBy("date", descending: true)
-            .snapshots(),
-        builder: (c, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting)
-            return const LoadingScreen(text: "Getting lap times...");
-
-          if (snapshot.hasError)
-            return ErrorScreen(text: "Error: ${snapshot.error}");
-
+      stream: raceHandler.races
+          .doc(raceID)
+          .collection("$carID")
+          .orderBy("date", descending: true)
+          .snapshots(),
+      builder: niceAsyncBuilder(
+        loadingText: "Getting lap times...",
+        activeBuilder: (BuildContext c, AsyncSnapshot snapshot) {
           return ListView(
             children: snapshot.data!.docs
                 .map(
@@ -106,7 +100,9 @@ class RaceViewer extends StatelessWidget {
                 )
                 .toList(),
           );
-        });
+        },
+      ),
+    );
   }
 }
 

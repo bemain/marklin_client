@@ -32,38 +32,36 @@ class SelectDeviceScreenState extends State<SelectDeviceScreen> {
       body: (selectedDevice == null)
           ? FutureBuilder(
               future: flutterBlue.isAvailable,
-              builder: (c, AsyncSnapshot<bool> snapshot) => (!snapshot.hasData)
-                  ? const LoadingScreen(text: "Waiting for Bluetooth")
-                  : (!snapshot.data!)
-                      ? const InfoScreen(
-                          icon: Icon(Icons.bluetooth_disabled),
-                          text: "Bluetooth unavailable")
-                      : StreamBuilder<List<ScanResult>>(
-                          stream: flutterBlue.scanResults,
-                          initialData: const [],
-                          builder: (c, snapshot) => ListView(
-                              children: snapshot.data!
-                                  .map((result) => TextTile(
-                                      title: result.device.name,
-                                      text: result.device.id.toString(),
-                                      onTap: () => setState(() =>
-                                          selectedDevice = result.device)))
-                                  .toList()),
-                        ),
+              builder: niceAsyncBuilder(
+                loadingText: "Waiting for Bluetooth...",
+                errorText: "Bluetooth unavailable",
+                activeBuilder: (BuildContext c, AsyncSnapshot snapshot) {
+                  return StreamBuilder<List<ScanResult>>(
+                    stream: flutterBlue.scanResults,
+                    initialData: const [],
+                    builder: (c, snapshot) => ListView(
+                        children: snapshot.data!
+                            .map((result) => TextTile(
+                                title: result.device.name,
+                                text: result.device.id.toString(),
+                                onTap: () => setState(
+                                    () => selectedDevice = result.device)))
+                            .toList()),
+                  );
+                },
+              ),
             )
           : FutureBuilder(
               future: _connectBT(),
-              builder: (c, snapshot) {
-                if (snapshot.hasError)
-                  return const ErrorScreen(text: "Failed to connect to device");
-
-                if (snapshot.connectionState == ConnectionState.waiting)
-                  return const LoadingScreen(text: "Connecting to device...");
-
-                return const InfoScreen(
-                    icon: Icon(Icons.bluetooth_connected),
-                    text: "Connected to device");
-              }),
+              builder: niceAsyncBuilder(
+                loadingText: "Connecting to device...",
+                activeBuilder: (BuildContext c, AsyncSnapshot snapshot) {
+                  return const InfoScreen(
+                      icon: Icon(Icons.bluetooth_connected),
+                      text: "Connected to device");
+                },
+              ),
+            ),
       floatingActionButton: StreamBuilder(
         stream: flutterBlue.isScanning,
         initialData: false,
@@ -121,16 +119,11 @@ class CharacteristicSelectorScreenState
 
     if (service == null) {
       return FutureBuilder(
-          future: Bluetooth.device!.discoverServices(),
-          initialData: const [],
-          builder: (BuildContext c, AsyncSnapshot<List<dynamic>> snapshot) {
-            if (snapshot.hasError)
-              return const ErrorScreen(
-                  text: "Unable to get services from device");
-
-            if (snapshot.connectionState == ConnectionState.waiting)
-              return const LoadingScreen(text: "Getting services...");
-
+        future: Bluetooth.device!.discoverServices(),
+        initialData: const [],
+        builder: niceAsyncBuilder(
+          loadingText: "Getting services...",
+          activeBuilder: (BuildContext c, AsyncSnapshot snapshot) {
             return ListView(
               children: snapshot.data!
                   .map(
@@ -146,7 +139,9 @@ class CharacteristicSelectorScreenState
                   )
                   .toList(),
             );
-          });
+          },
+        ),
+      );
     }
 
     return ListView(
