@@ -102,12 +102,14 @@ class InitFirebaseState extends State<InitFirebase> {
     return FutureBuilder(
       future: _initialization,
       builder: (c, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting)
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
               body: LoadingScreen(text: "Initalizing Firebase..."));
+        }
 
-        if (snapshot.hasError)
+        if (snapshot.hasError) {
           return Scaffold(body: ErrorScreen(text: "Error: ${snapshot.error}"));
+        }
 
         return widget.child;
       },
