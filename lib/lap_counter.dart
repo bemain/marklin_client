@@ -54,8 +54,9 @@ class LapCounterScreenState extends State<LapCounterScreen> {
       builder: niceAsyncBuilder(
         loadingText: "Getting lap times...",
         activeBuilder: (BuildContext c, AsyncSnapshot snapshot) {
+          List<QueryDocumentSnapshot> docs = snapshot.data!.docs;
           return ListView(
-            children: snapshot.data!.docs
+            children: docs
                 .map(
                   (doc) => TextTile(
                     title: "${doc.get("lapNumber")}  |  ${doc.get("lapTime")}s",

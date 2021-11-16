@@ -29,7 +29,7 @@ class RaceBrowserScreenState extends State<RaceBrowserScreen> {
           builder: niceAsyncBuilder(
             loadingText: "Getting races...",
             activeBuilder: (BuildContext c, AsyncSnapshot snapshot) {
-              var docs = snapshot.data!.docs;
+              List<DocumentSnapshot> docs = snapshot.data!.docs;
 
               if (!widget.includeCurrentRace) {
                 // Remove current race
