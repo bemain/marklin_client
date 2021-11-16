@@ -115,11 +115,11 @@ class SaveRaceDialog extends StatefulWidget {
 }
 
 class SaveRaceDialogState extends State<SaveRaceDialog> {
-  bool discardDialog = false;
+  bool _discardDialog = false;
 
   @override
   Widget build(BuildContext context) {
-    return (!discardDialog)
+    return (!_discardDialog)
         ? AlertDialog(
             title: const Text("Save old race"),
             content: const Text(
@@ -136,7 +136,7 @@ class SaveRaceDialogState extends State<SaveRaceDialog> {
                 child: const Text("Discard"),
                 onPressed: () {
                   setState(() {
-                    discardDialog = true;
+                    _discardDialog = true;
                   });
                 },
               ),
@@ -168,7 +168,7 @@ class SaveRaceDialogState extends State<SaveRaceDialog> {
                 ),
                 onPressed: () {
                   setState(() {
-                    discardDialog = false;
+                    _discardDialog = false;
                   });
                 },
               ),

@@ -109,7 +109,7 @@ class CharacteristicSelectorScreen extends StatefulWidget {
 
 class CharacteristicSelectorScreenState
     extends State<CharacteristicSelectorScreen> {
-  BluetoothService? service;
+  BluetoothService? _service;
   String serviceID = "";
   String charID = "";
 
@@ -117,7 +117,7 @@ class CharacteristicSelectorScreenState
   Widget build(BuildContext context) {
     assert(Bluetooth.device != null); // Needs connected BT device
 
-    if (service == null) {
+    if (_service == null) {
       return FutureBuilder(
         future: Bluetooth.device!.discoverServices(),
         initialData: const [],
@@ -132,7 +132,7 @@ class CharacteristicSelectorScreenState
                       onTap: () {
                         setState(() {
                           serviceID = serv.uuid.toString();
-                          service = serv;
+                          _service = serv;
                         });
                       },
                     ),
@@ -145,7 +145,7 @@ class CharacteristicSelectorScreenState
     }
 
     return ListView(
-      children: service!.characteristics
+      children: _service!.characteristics
           .map(
             (char) => TextTile(
               title: char.uuid.toString(),

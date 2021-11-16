@@ -132,11 +132,11 @@ class TimerText extends StatefulWidget {
 }
 
 class TimerTextState extends State<TimerText> {
-  Timer? timer;
+  Timer? _timer;
 
   @override
   void initState() {
-    timer = Timer.periodic(
+    _timer = Timer.periodic(
       Duration(milliseconds: 1000 ~/ pow(10, widget.decimalPlaces)),
       callback,
     );
@@ -155,7 +155,7 @@ class TimerTextState extends State<TimerText> {
 
   @override
   void dispose() {
-    timer?.cancel();
+    _timer?.cancel();
     super.dispose();
   }
 }
