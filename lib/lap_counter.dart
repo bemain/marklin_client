@@ -19,50 +19,44 @@ class LapCounterScreenState extends State<LapCounterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Lap Counter"),
+        title: const Text("Lap Counter"),
         actions: [
           IconButton(
               onPressed: () => showNewDialog(context),
-              icon: Icon(Icons.add, color: Colors.white)),
+              icon: const Icon(Icons.add, color: Colors.white)),
         ],
       ),
       body: FutureBuilder<int>(
         future: raceHandler.nCars,
-        builder: (c, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting)
-            return LoadingScreen(text: "Determining number of cars...");
-
-          if (snapshot.hasError)
-            return ErrorScreen(text: "Error: ${snapshot.error}");
-
-          return Row(
-            children: List.generate(
-              snapshot.data! * 2 - 1,
-              (i) => i.isEven
-                  ? Expanded(child: lapViewer(i ~/ 2))
-                  : VerticalDivider(thickness: 1.0),
-            ),
-          );
-        },
+        builder: niceAsyncBuilder(
+          loadingText: "Determining number of cars...",
+          activeBuilder: (BuildContext c, AsyncSnapshot snapshot) {
+            return Row(
+              children: List.generate(
+                snapshot.data! * 2 - 1,
+                (i) => i.isEven
+                    ? Expanded(child: lapViewer(i ~/ 2))
+                    : const VerticalDivider(thickness: 1.0),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
 
   Widget lapViewer(int carID) {
     return StreamBuilder<QuerySnapshot>(
-        stream: raceHandler
-            .carCollection(carID)
-            .orderBy("date", descending: true)
-            .snapshots(),
-        builder: (c, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting)
-            return LoadingScreen(text: "Getting lap times...");
-
-          if (snapshot.hasError)
-            return ErrorScreen(text: "Error: ${snapshot.error}");
-
+      stream: raceHandler
+          .carCollection(carID)
+          .orderBy("date", descending: true)
+          .snapshots(),
+      builder: niceAsyncBuilder(
+        loadingText: "Getting lap times...",
+        activeBuilder: (BuildContext c, AsyncSnapshot snapshot) {
+          List<QueryDocumentSnapshot> docs = snapshot.data!.docs;
           return ListView(
-            children: snapshot.data!.docs
+            children: docs
                 .map(
                   (doc) => TextTile(
                     title: "${doc.get("lapNumber")}  |  ${doc.get("lapTime")}s",
@@ -71,7 +65,9 @@ class LapCounterScreenState extends State<LapCounterScreen> {
                 )
                 .toList(),
           );
-        });
+        },
+      ),
+    );
   }
 
   void showNewDialog(BuildContext context) async {
@@ -111,7 +107,7 @@ class SaveRaceDialog extends StatefulWidget {
   final Function? onDiscard;
   final Function? onSave;
 
-  SaveRaceDialog({Key? key, this.onCancel, this.onDiscard, this.onSave})
+  const SaveRaceDialog({Key? key, this.onCancel, this.onDiscard, this.onSave})
       : super(key: key);
 
   @override
@@ -119,33 +115,34 @@ class SaveRaceDialog extends StatefulWidget {
 }
 
 class SaveRaceDialogState extends State<SaveRaceDialog> {
-  bool discardDialog = false;
+  bool _discardDialog = false;
 
   @override
   Widget build(BuildContext context) {
-    return (!discardDialog)
+    return (!_discardDialog)
         ? AlertDialog(
-            title: Text("Save old race"),
-            content: Text(
+            title: const Text("Save old race"),
+            content: const Text(
                 "You are about to start a new race.\nSave the current race to the database?"),
             actions: [
               TextButton(
-                child: Text("Cancel"),
+                child: const Text("Cancel"),
                 onPressed: () {
                   Navigator.of(context).pop();
                   widget.onCancel?.call();
                 },
               ),
               TextButton(
-                child: Text("Discard"),
+                child: const Text("Discard"),
                 onPressed: () {
                   setState(() {
-                    discardDialog = true;
+                    _discardDialog = true;
                   });
                 },
               ),
               TextButton(
-                child: Text("Save", style: TextStyle(color: Colors.white)),
+                child:
+                    const Text("Save", style: TextStyle(color: Colors.white)),
                 style: ButtonStyle(
                   backgroundColor:
                       MaterialStateProperty.all(Theme.of(context).primaryColor),
@@ -158,24 +155,25 @@ class SaveRaceDialogState extends State<SaveRaceDialog> {
             ],
           )
         : AlertDialog(
-            title: Text("Discard race?"),
-            content: Text(
+            title: const Text("Discard race?"),
+            content: const Text(
                 "You are about to restart the race and clear all laps. \nThis action can't be undone."),
             actions: [
               TextButton(
-                child: Text("Cancel", style: TextStyle(color: Colors.white)),
+                child:
+                    const Text("Cancel", style: TextStyle(color: Colors.white)),
                 style: ButtonStyle(
                   backgroundColor:
                       MaterialStateProperty.all(Theme.of(context).primaryColor),
                 ),
                 onPressed: () {
                   setState(() {
-                    discardDialog = false;
+                    _discardDialog = false;
                   });
                 },
               ),
               TextButton(
-                child: Text("Discard"),
+                child: const Text("Discard"),
                 onPressed: () {
                   Navigator.of(context).pop();
                   widget.onDiscard?.call();
@@ -188,7 +186,7 @@ class SaveRaceDialogState extends State<SaveRaceDialog> {
 
 /// Popup dialog for starting a new race.
 class NewRaceDialog extends StatefulWidget {
-  NewRaceDialog({Key? key, this.onNew}) : super(key: key);
+  const NewRaceDialog({Key? key, this.onNew}) : super(key: key);
 
   final Function(int nCars)? onNew;
 
@@ -201,7 +199,7 @@ class NewRaceDialogState extends State<NewRaceDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text("Start new race"),
+      title: const Text("Start new race"),
       content: Wrap(children: [
         Slider(
           min: 1,
@@ -216,13 +214,13 @@ class NewRaceDialogState extends State<NewRaceDialog> {
       ]),
       actions: [
         TextButton(
-          child: Text("Cancel"),
+          child: const Text("Cancel"),
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
         TextButton(
-          child: Text("Start", style: TextStyle(color: Colors.white)),
+          child: const Text("Start", style: TextStyle(color: Colors.white)),
           style: ButtonStyle(
             backgroundColor:
                 MaterialStateProperty.all(Theme.of(context).primaryColor),

@@ -3,10 +3,12 @@ import 'package:marklin_bluetooth/home.dart';
 import 'package:marklin_bluetooth/race_handler.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() => MyAppState();
 }
@@ -20,6 +22,6 @@ class MyAppState extends State<MyApp> {
           primarySwatch: Colors.blue,
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        home: InitFirebase(child: HomeScreen()));
+        home: const InitFirebase(child: HomeScreen()));
   }
 }

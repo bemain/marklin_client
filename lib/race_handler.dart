@@ -28,23 +28,10 @@ class RaceHandler {
   Future addLap(int carID, {double? lapTime, int? lapN}) async {
     if (carID >= await nCars) return; // Trying to add lap to car not in race
 
-    var timeNow = Timestamp.now();
-    if (lapTime == null) {
-      // Get time since last lap
-      var laps = (await carCollection(carID)
-              .orderBy("date", descending: true)
-              .limit(1)
-              .get())
-          .docs;
-      Timestamp timePrev = laps.isEmpty
-          ? (await currentRace.get()).get("date") // Time since race started
-          : laps[0].get("date"); // Time since last lap
-      lapTime =
-          (timeNow.millisecondsSinceEpoch - timePrev.millisecondsSinceEpoch) ~/
-              10 /
-              100;
-    }
-    if (lapN == null) lapN = (await carCollection(carID).get()).docs.length + 1;
+    Timestamp timeNow = Timestamp.now();
+
+    lapTime ??= await _getLapTime(carID, timeNow);
+    lapN ??= (await carCollection(carID).get()).docs.length + 1;
 
     await carCollection(carID).add({
       "lapTime": lapTime,
@@ -53,11 +40,28 @@ class RaceHandler {
     });
   }
 
+  /// Get time since last lap, or since race started if first lap.
+  Future<double> _getLapTime(int carID, Timestamp timeNow) async {
+    var query = await carCollection(carID)
+        .orderBy("date", descending: true)
+        .limit(1)
+        .get();
+    Timestamp timePrev = query.docs.isEmpty
+        ? (await currentRace.get()).get("date") // Time since race started
+        : query.docs[0].get("date"); // Time since last lap
+
+    return (timeNow.millisecondsSinceEpoch - timePrev.millisecondsSinceEpoch) ~/
+        10 /
+        100;
+  }
+
   /// Delete all laps on current race
   Future clearCurrentRace() async {
-    for (var i = 0; i < (await nCars); i++)
-      for (var doc in (await carCollection(i).get()).docs)
+    for (var i = 0; i < (await nCars); i++) {
+      for (var doc in (await carCollection(i).get()).docs) {
         await doc.reference.delete();
+      }
+    }
 
     await currentRace.update({"date": Timestamp.now()});
   }
@@ -84,7 +88,7 @@ class RaceHandler {
 class InitFirebase extends StatefulWidget {
   final Widget child;
 
-  InitFirebase({Key? key, required this.child}) : super(key: key);
+  const InitFirebase({Key? key, required this.child}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => InitFirebaseState();
@@ -98,11 +102,14 @@ class InitFirebaseState extends State<InitFirebase> {
     return FutureBuilder(
       future: _initialization,
       builder: (c, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting)
-          return Scaffold(body: LoadingScreen(text: "Initalizing Firebase..."));
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+              body: LoadingScreen(text: "Initalizing Firebase..."));
+        }
 
-        if (snapshot.hasError)
+        if (snapshot.hasError) {
           return Scaffold(body: ErrorScreen(text: "Error: ${snapshot.error}"));
+        }
 
         return widget.child;
       },

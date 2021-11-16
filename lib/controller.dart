@@ -18,7 +18,7 @@ class ControllerScreen extends StatefulWidget {
 class _ControllerScreenState extends State<ControllerScreen> {
   final RaceHandler raceHandler = RaceHandler();
 
-  bool _enableSlowDown = true;
+  bool enableSlowDown = true;
   int carID = 0;
 
   @override
@@ -36,27 +36,27 @@ class _ControllerScreenState extends State<ControllerScreen> {
             ),
             child: Scaffold(
               appBar: AppBar(
-                title: Text("Märklin BLE Controller"),
+                title: const Text("Märklin BLE Controller"),
                 actions: [
                   IconButton(
-                    icon: Icon(Icons.plus_one),
+                    icon: const Icon(Icons.plus_one),
                     onPressed: () {
                       raceHandler.addLap(carID); // Add lap to database
                     },
                   ),
                   IconButton(
-                      icon: Icon(_enableSlowDown
+                      icon: Icon(enableSlowDown
                           ? Icons.toggle_on
                           : Icons.toggle_off_outlined),
                       onPressed: () {
                         setState(() {
-                          _enableSlowDown = !_enableSlowDown; // Toggle slowdown
+                          enableSlowDown = !enableSlowDown; // Toggle slowdown
                         });
                       })
                 ],
               ),
               body: SpeedSlider(
-                enableSlowDown: _enableSlowDown,
+                enableSlowDown: enableSlowDown,
                 onCarIDChange: (id) {
                   setState(() {
                     carID = id;
@@ -68,11 +68,8 @@ class _ControllerScreenState extends State<ControllerScreen> {
 }
 
 class SpeedSlider extends StatefulWidget {
-  SpeedSlider({
-    Key? key,
-    this.enableSlowDown = false,
-    this.onCarIDChange,
-  }) : super(key: key);
+  const SpeedSlider({Key? key, this.enableSlowDown = false, this.onCarIDChange})
+      : super(key: key);
 
   final bool enableSlowDown;
   final Function(int newID)? onCarIDChange;
@@ -87,8 +84,8 @@ class SpeedSliderState extends State<SpeedSlider> {
   String serviceID = "0000181c-0000-1000-8000-00805f9b34fb";
   String charID = "0000181c-0000-1000-8000-00805f9b34fb";
 
-  double speed = 0.0;
-  int carID = 0;
+  double _speed = 0.0;
+  int _carID = 0;
 
   bool willSlowDown = false;
   Timer? slowDownLoop;
@@ -97,27 +94,24 @@ class SpeedSliderState extends State<SpeedSlider> {
   Timer? sendLoop;
 
   Future<bool>? _futureChar;
-  BluetoothCharacteristic? speedChar;
+  BluetoothCharacteristic? _speedChar;
 
   @override
   void initState() {
     super.initState();
     _futureChar = getCharacteristic();
 
-    sendLoop = Timer.periodic(Duration(milliseconds: 100), sendSpeed);
-    slowDownLoop = Timer.periodic(Duration(milliseconds: 10), slowDown);
+    sendLoop = Timer.periodic(const Duration(milliseconds: 100), sendSpeed);
+    slowDownLoop = Timer.periodic(const Duration(milliseconds: 10), slowDown);
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<bool>(
-        future: _futureChar,
-        builder: (c, snapshot) {
-          if (!snapshot.hasData) // Getting characteristic
-            return LoadingScreen(text: "Getting characteristic");
-          if (snapshot.hasError)
-            return ErrorScreen(text: "Error: ${snapshot.error}");
-
+      future: _futureChar,
+      builder: niceAsyncBuilder(
+        loadingText: "Getting characteristic...",
+        activeBuilder: (BuildContext c, AsyncSnapshot snapshot) {
           return (!snapshot.data!) // Characteristic not found
               ? CharacteristicSelectorScreen(
                   onCharSelected: (sid, cid) {
@@ -131,12 +125,14 @@ class SpeedSliderState extends State<SpeedSlider> {
               : PageView(
                   children: List.filled(4, _buildSlider()),
                   onPageChanged: (int i) => setState(() {
-                    carID = i;
+                    _carID = i;
                     sendNeeded = true;
-                    widget.onCarIDChange?.call(carID);
+                    widget.onCarIDChange?.call(_carID);
                   }),
                 );
-        });
+        },
+      ),
+    );
   }
 
   Widget _buildSlider() {
@@ -147,11 +143,11 @@ class SpeedSliderState extends State<SpeedSlider> {
       child: RotatedBox(
         quarterTurns: -1,
         child: Slider(
-          value: speed,
+          value: _speed,
           onChanged: (value) {
             sendNeeded = true;
             setState(() {
-              speed = value;
+              _speed = value;
             });
           },
           min: 0,
@@ -186,25 +182,25 @@ class SpeedSliderState extends State<SpeedSlider> {
         .toList();
     if (chars.isEmpty) return false; // Characteristic not found
 
-    speedChar = chars[0];
+    _speedChar = chars[0];
     return true;
   }
 
   void sendSpeed(Timer timer) async {
     // Send speed to bluetooth device
     if (sendNeeded) {
-      await speedChar
-          ?.write([carID, 100 - speed.toInt()], withoutResponse: true);
+      await _speedChar
+          ?.write([_carID, 100 - _speed.toInt()], withoutResponse: true);
       sendNeeded = false;
     }
   }
 
   void slowDown(Timer timer) {
     // Slow down car
-    if (widget.enableSlowDown && willSlowDown && speed != 0) {
+    if (widget.enableSlowDown && willSlowDown && _speed != 0) {
       sendNeeded = true;
       setState(() {
-        speed -= min(speed, friction);
+        _speed -= min(_speed, friction);
       });
     }
   }

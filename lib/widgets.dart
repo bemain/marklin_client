@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class InfoScreen extends StatelessWidget {
@@ -28,7 +27,7 @@ class ErrorScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InfoScreen(
-      icon: Icon(Icons.error),
+      icon: const Icon(Icons.error),
       text: text,
     );
   }
@@ -42,7 +41,7 @@ class LoadingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InfoScreen(
-      icon: CircularProgressIndicator(),
+      icon: const CircularProgressIndicator(),
       text: text,
     );
   }
@@ -56,17 +55,17 @@ class QuitDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text("Quit?"),
-      content: Text("Are you sure you want to quit?"),
+      title: const Text("Quit?"),
+      content: const Text("Are you sure you want to quit?"),
       actions: <Widget>[
         TextButton(
-          child: Text("Cancel"),
+          child: const Text("Cancel"),
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
         TextButton(
-          child: Text("Quit"),
+          child: const Text("Quit"),
           onPressed: () {
             onQuit?.call();
             Navigator.of(context).pop();
@@ -97,7 +96,7 @@ class TextTile extends StatelessWidget {
   }
 
   Widget _buildTitle(BuildContext context) {
-    if (title.length > 0 && text != null)
+    if (title.isNotEmpty && text != null) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -112,11 +111,12 @@ class TextTile extends StatelessWidget {
           )
         ],
       );
-    else
+    } else {
       return Text(
         text ?? title,
         overflow: TextOverflow.ellipsis,
       );
+    }
   }
 }
 
@@ -124,18 +124,19 @@ class TimerText extends StatefulWidget {
   final Stopwatch stopwatch;
   final int decimalPlaces;
 
-  TimerText({required this.stopwatch, this.decimalPlaces = 1});
+  const TimerText({Key? key, required this.stopwatch, this.decimalPlaces = 1})
+      : super(key: key);
 
   @override
   State<TimerText> createState() => TimerTextState();
 }
 
 class TimerTextState extends State<TimerText> {
-  Timer? timer;
+  Timer? _timer;
 
   @override
   void initState() {
-    timer = Timer.periodic(
+    _timer = Timer.periodic(
       Duration(milliseconds: 1000 ~/ pow(10, widget.decimalPlaces)),
       callback,
     );
@@ -154,7 +155,26 @@ class TimerTextState extends State<TimerText> {
 
   @override
   void dispose() {
-    timer?.cancel();
+    _timer?.cancel();
     super.dispose();
   }
+}
+
+/// Returns a builder that returns [activeBuilder] when future is active or done,
+/// and error or loading screens as applicable otherwise.
+Widget Function(BuildContext, AsyncSnapshot) niceAsyncBuilder(
+    {required Function(BuildContext, AsyncSnapshot) activeBuilder,
+    String? loadingText,
+    String? errorText}) {
+  return (BuildContext c, AsyncSnapshot snapshot) {
+    if (snapshot.hasError) {
+      return ErrorScreen(text: errorText ?? "Error: ${snapshot.error}");
+    }
+
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return LoadingScreen(text: loadingText ?? "Loading...");
+    }
+
+    return activeBuilder(c, snapshot);
+  };
 }

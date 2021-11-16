@@ -5,12 +5,10 @@ import 'package:marklin_bluetooth/widgets.dart';
 
 /// Widget for viewing the races currently on the database
 class RaceBrowserScreen extends StatefulWidget {
-  final bool includeCurrentRace;
+  const RaceBrowserScreen({Key? key, this.includeCurrentRace = true})
+      : super(key: key);
 
-  RaceBrowserScreen({
-    Key? key,
-    this.includeCurrentRace = true,
-  }) : super(key: key);
+  final bool includeCurrentRace;
 
   @override
   State<StatefulWidget> createState() => RaceBrowserScreenState();
@@ -23,25 +21,25 @@ class RaceBrowserScreenState extends State<RaceBrowserScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Race Browser"),
+        title: const Text("Race Browser"),
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: raceHandler.races.orderBy("date", descending: true).snapshots(),
-        builder: (c, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting)
-            return LoadingScreen(text: "Getting races...");
+          stream:
+              raceHandler.races.orderBy("date", descending: true).snapshots(),
+          builder: niceAsyncBuilder(
+            loadingText: "Getting races...",
+            activeBuilder: (BuildContext c, AsyncSnapshot snapshot) {
+              List<DocumentSnapshot> docs = snapshot.data!.docs;
 
-          if (snapshot.hasError)
-            return ErrorScreen(text: "Error: ${snapshot.error}");
+              if (!widget.includeCurrentRace) {
+                // Remove current race
+                docs.removeWhere((element) => element.id == "current");
+              }
 
-          var docs = snapshot.data!.docs;
-
-          if (!widget.includeCurrentRace) // Remove current race
-            docs.removeWhere((element) => element.id == "current");
-
-          return ListView(children: docs.map((doc) => raceCard(doc)).toList());
-        },
-      ),
+              return ListView(
+                  children: docs.map((doc) => raceCard(doc)).toList());
+            },
+          )),
     );
   }
 
@@ -77,27 +75,24 @@ class RaceViewer extends StatelessWidget {
             raceDoc.get("nCars") * 2 - 1,
             (i) => i.isEven
                 ? Expanded(child: lapViewer(raceDoc.id, i ~/ 2))
-                : VerticalDivider(thickness: 1.0),
+                : const VerticalDivider(thickness: 1.0),
           ),
         ));
   }
 
   Widget lapViewer(String raceID, int carID) {
     return StreamBuilder<QuerySnapshot>(
-        stream: raceHandler.races
-            .doc(raceID)
-            .collection("$carID")
-            .orderBy("date", descending: true)
-            .snapshots(),
-        builder: (c, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting)
-            return LoadingScreen(text: "Getting lap times...");
-
-          if (snapshot.hasError)
-            return ErrorScreen(text: "Error: ${snapshot.error}");
-
+      stream: raceHandler.races
+          .doc(raceID)
+          .collection("$carID")
+          .orderBy("date", descending: true)
+          .snapshots(),
+      builder: niceAsyncBuilder(
+        loadingText: "Getting lap times...",
+        activeBuilder: (BuildContext c, AsyncSnapshot snapshot) {
+          List<QueryDocumentSnapshot> docs = snapshot.data!.docs;
           return ListView(
-            children: snapshot.data!.docs
+            children: docs
                 .map(
                   (doc) => TextTile(
                     title: "${doc.get("lapNumber")} | ${doc.get("lapTime")}s",
@@ -106,7 +101,9 @@ class RaceViewer extends StatelessWidget {
                 )
                 .toList(),
           );
-        });
+        },
+      ),
+    );
   }
 }
 
