@@ -42,7 +42,6 @@ class CurrentRaceScreenState extends State<CurrentRaceScreen> {
                 setState(() {
                   if (running) {
                     // Stop race
-                    raceHandler.running = false;
                     showNewDialog(context);
                   } else {
                     // Start race
@@ -67,15 +66,19 @@ class CurrentRaceScreenState extends State<CurrentRaceScreen> {
       builder: (c) => NewRaceDialog(
         onSave: (int nCars) async {
           await raceHandler.saveCurrentRace();
-          raceHandler.nCars = nCars;
-          setState(() {});
+          restartRace(nCars);
         },
         onDiscard: (int nCars) async {
           await raceHandler.clearCurrentRace();
-          raceHandler.nCars = nCars;
-          setState(() {});
+          restartRace(nCars);
         },
       ),
     );
+  }
+
+  void restartRace(int nCars) {
+    raceHandler.running = false;
+    raceHandler.nCars = nCars;
+    setState(() {});
   }
 }
