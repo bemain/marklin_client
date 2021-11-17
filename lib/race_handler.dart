@@ -23,6 +23,10 @@ class RaceHandler {
   Future<int> get nCars async => (await currentRace.get()).get("nCars");
   set nCars(value) => currentRace.update({"nCars": value.toInt()});
 
+  Stream<bool> get runningStream =>
+      currentRace.snapshots().map((doc) => doc.get("running"));
+  set running(value) => currentRace.update({"running": value});
+
   /// Add time since last lap, or since the race was started if no laps have
   /// been run, to lap times of [carID] on the current race.
   Future addLap(int carID, {double? lapTime, int? lapN}) async {

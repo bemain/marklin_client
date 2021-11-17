@@ -16,8 +16,6 @@ class CurrentRaceScreen extends StatefulWidget {
 class CurrentRaceScreenState extends State<CurrentRaceScreen> {
   final RaceHandler raceHandler = RaceHandler();
 
-  bool _paused = false;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,20 +36,31 @@ class CurrentRaceScreenState extends State<CurrentRaceScreen> {
           },
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(_paused ? Icons.play_arrow : Icons.pause),
-        onPressed: () {
-          setState(() {
-            _paused = !_paused;
-            if (_paused) {
-              // Stop race
-              showNewDialog(context);
-            } else {
-              // Start race
-              raceHandler.currentRace.update({"date": Timestamp.now()});
-            }
-          });
-        },
+      floatingActionButton: StreamBuilder<bool>(
+        stream: raceHandler.runningStream,
+        builder: niceAsyncBuilder(
+          activeBuilder: (c, snapshot) {
+            bool running = snapshot.data;
+            return FloatingActionButton(
+              child: Icon(running ? Icons.pause : Icons.play_arrow),
+              onPressed: () {
+                setState(() {
+                  if (running) {
+                    // Stop race
+                    raceHandler.running = false;
+                    showNewDialog(context);
+                  } else {
+                    // Start race
+                    raceHandler.currentRace.update({
+                      "date": Timestamp.now(),
+                      "running": true,
+                    });
+                  }
+                });
+              },
+            );
+          },
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
