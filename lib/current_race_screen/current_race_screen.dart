@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:marklin_bluetooth/current_race_screen/dialogs.dart';
 import 'package:marklin_bluetooth/race_handler.dart';
 import 'package:marklin_bluetooth/race_viewer.dart';
-
 import 'package:marklin_bluetooth/widgets.dart';
 
 /// Screen for watching and restarting the current race.
@@ -15,7 +14,9 @@ class CurrentRaceScreen extends StatefulWidget {
 }
 
 class CurrentRaceScreenState extends State<CurrentRaceScreen> {
-  RaceHandler raceHandler = RaceHandler();
+  final RaceHandler raceHandler = RaceHandler();
+
+  bool _paused = false;
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +38,18 @@ class CurrentRaceScreenState extends State<CurrentRaceScreen> {
           },
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(_paused ? Icons.play_arrow : Icons.pause),
+        onPressed: () {
+          setState(() {
+            _paused = !_paused;
+            if (_paused) {
+              showNewDialog(context);
+            }
+          });
+        },
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
