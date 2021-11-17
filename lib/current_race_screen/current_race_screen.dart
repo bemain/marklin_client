@@ -44,7 +44,11 @@ class CurrentRaceScreenState extends State<CurrentRaceScreen> {
           setState(() {
             _paused = !_paused;
             if (_paused) {
+              // Stop race
               showNewDialog(context);
+            } else {
+              // Start race
+              raceHandler.currentRace.update({"date": Timestamp.now()});
             }
           });
         },
