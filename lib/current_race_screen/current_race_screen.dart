@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:marklin_bluetooth/current_race_screen/dialogs.dart';
 import 'package:marklin_bluetooth/race_handler.dart';
 import 'package:marklin_bluetooth/race_viewer.dart';
-import 'package:marklin_bluetooth/utils.dart';
 
 import 'package:marklin_bluetooth/widgets.dart';
 
@@ -37,31 +36,6 @@ class CurrentRaceScreenState extends State<CurrentRaceScreen> {
             return RaceViewer(raceDoc: snapshot.data);
           },
         ),
-      ),
-    );
-  }
-
-  Widget lapViewer(int carID) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: raceHandler
-          .carCollection(carID)
-          .orderBy("date", descending: true)
-          .snapshots(),
-      builder: niceAsyncBuilder(
-        loadingText: "Getting lap times...",
-        activeBuilder: (BuildContext c, AsyncSnapshot snapshot) {
-          List<QueryDocumentSnapshot> docs = snapshot.data!.docs;
-          return ListView(
-            children: docs
-                .map(
-                  (doc) => TextTile(
-                    title: "${doc.get("lapNumber")}  |  ${doc.get("lapTime")}s",
-                    text: dateString(doc.get("date").toDate()),
-                  ),
-                )
-                .toList(),
-          );
-        },
       ),
     );
   }
