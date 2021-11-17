@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:marklin_bluetooth/race_handler.dart';
+import 'package:marklin_bluetooth/utils.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
 /// Widget for viewing the races currently on the database
@@ -111,12 +112,4 @@ String raceString(DocumentSnapshot raceDoc) {
   Map<String, dynamic> data = raceDoc.data() as Map<String, dynamic>;
   DateTime date = (data["date"] as Timestamp).toDate();
   return (raceDoc.id == "current") ? "Current" : dateString(date);
-}
-
-String dateString(DateTime date) {
-  return "${date.day}/${date.month} - " +
-      ((date.hour < 10) ? "0" : "") +
-      "${date.hour}:" +
-      ((date.minute < 10) ? "0" : "") +
-      "${date.minute}";
 }

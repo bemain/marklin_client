@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:marklin_bluetooth/race_handler.dart';
+import 'package:marklin_bluetooth/utils.dart';
 
 import 'package:marklin_bluetooth/widgets.dart';
 
@@ -60,7 +61,7 @@ class LapCounterScreenState extends State<LapCounterScreen> {
                 .map(
                   (doc) => TextTile(
                     title: "${doc.get("lapNumber")}  |  ${doc.get("lapTime")}s",
-                    text: (doc.get("date") as Timestamp).toDate().toString(),
+                    text: dateString(doc.get("date").toDate()),
                   ),
                 )
                 .toList(),
