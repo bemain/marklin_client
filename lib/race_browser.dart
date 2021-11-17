@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:marklin_bluetooth/race_handler.dart';
+import 'package:marklin_bluetooth/race_viewer.dart';
 import 'package:marklin_bluetooth/utils.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
@@ -50,7 +51,7 @@ class RaceBrowserScreenState extends State<RaceBrowserScreen> {
       title: title,
       text: raceDoc.id,
       onTap: () => Navigator.of(context).push(
-        MaterialPageRoute(builder: (c) => (RaceViewer(raceDoc: raceDoc))),
+        MaterialPageRoute(builder: (c) => (RaceViewerScreen(raceDoc: raceDoc))),
       ),
     );
   }
@@ -58,10 +59,10 @@ class RaceBrowserScreenState extends State<RaceBrowserScreen> {
 
 /// Widget for displaying lap times and other information about [raceDoc].
 /// TODO: Add button for deleting race
-class RaceViewer extends StatelessWidget {
+class RaceViewerScreen extends StatelessWidget {
   final RaceHandler raceHandler = RaceHandler();
 
-  RaceViewer({Key? key, required this.raceDoc}) : super(key: key);
+  RaceViewerScreen({Key? key, required this.raceDoc}) : super(key: key);
 
   final DocumentSnapshot raceDoc;
 
@@ -71,40 +72,9 @@ class RaceViewer extends StatelessWidget {
         appBar: AppBar(
           title: Text("Viewing race: ${raceString(raceDoc)}"),
         ),
-        body: Row(
-          children: List.generate(
-            raceDoc.get("nCars") * 2 - 1,
-            (i) => i.isEven
-                ? Expanded(child: lapViewer(raceDoc.id, i ~/ 2))
-                : const VerticalDivider(thickness: 1.0),
-          ),
+        body: RaceViewer(
+          raceDoc: raceDoc,
         ));
-  }
-
-  Widget lapViewer(String raceID, int carID) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: raceHandler.races
-          .doc(raceID)
-          .collection("$carID")
-          .orderBy("date", descending: true)
-          .snapshots(),
-      builder: niceAsyncBuilder(
-        loadingText: "Getting lap times...",
-        activeBuilder: (BuildContext c, AsyncSnapshot snapshot) {
-          List<QueryDocumentSnapshot> docs = snapshot.data!.docs;
-          return ListView(
-            children: docs
-                .map(
-                  (doc) => TextTile(
-                    title: "${doc.get("lapNumber")} | ${doc.get("lapTime")}s",
-                    text: (doc.get("date") as Timestamp).toDate().toString(),
-                  ),
-                )
-                .toList(),
-          );
-        },
-      ),
-    );
   }
 }
 

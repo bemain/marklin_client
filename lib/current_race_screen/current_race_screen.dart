@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:marklin_bluetooth/current_race_screen/dialogs.dart';
 import 'package:marklin_bluetooth/race_handler.dart';
+import 'package:marklin_bluetooth/race_viewer.dart';
 import 'package:marklin_bluetooth/utils.dart';
 
 import 'package:marklin_bluetooth/widgets.dart';
@@ -28,19 +29,12 @@ class CurrentRaceScreenState extends State<CurrentRaceScreen> {
               icon: const Icon(Icons.add, color: Colors.white)),
         ],
       ),
-      body: FutureBuilder<int>(
-        future: raceHandler.nCars,
+      body: FutureBuilder<DocumentSnapshot>(
+        future: raceHandler.currentRace.get(),
         builder: niceAsyncBuilder(
           loadingText: "Determining number of cars...",
           activeBuilder: (BuildContext c, AsyncSnapshot snapshot) {
-            return Row(
-              children: List.generate(
-                snapshot.data! * 2 - 1,
-                (i) => i.isEven
-                    ? Expanded(child: lapViewer(i ~/ 2))
-                    : const VerticalDivider(thickness: 1.0),
-              ),
-            );
+            return RaceViewer(raceDoc: snapshot.data);
           },
         ),
       ),
