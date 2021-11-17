@@ -6,21 +6,21 @@ import 'package:marklin_bluetooth/utils.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
 /// Screen for watching and restarting the current race.
-class LapCounterScreen extends StatefulWidget {
-  const LapCounterScreen({Key? key}) : super(key: key);
+class CurrentRaceScreen extends StatefulWidget {
+  const CurrentRaceScreen({Key? key}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => LapCounterScreenState();
+  State<StatefulWidget> createState() => CurrentRaceScreenState();
 }
 
-class LapCounterScreenState extends State<LapCounterScreen> {
+class CurrentRaceScreenState extends State<CurrentRaceScreen> {
   RaceHandler raceHandler = RaceHandler();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Lap Counter"),
+        title: const Text("Current Race"),
         actions: [
           IconButton(
               onPressed: () => showNewDialog(context),
