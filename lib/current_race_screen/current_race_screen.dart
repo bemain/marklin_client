@@ -67,32 +67,20 @@ class CurrentRaceScreenState extends State<CurrentRaceScreen> {
   }
 
   void showNewDialog(BuildContext context) async {
-    bool ret = false;
-    await showDialog(
-      context: context,
-      builder: (c) => SaveRaceDialog(
-        onCancel: () {
-          ret = true;
-        },
-        onSave: () {
-          raceHandler.saveCurrentRace().then((_) => setState(() {}));
-        },
-        onDiscard: () {
-          raceHandler.clearCurrentRace();
-        },
-      ),
-    );
-    if (ret) return;
-
     await showDialog(
       context: context,
       builder: (c) => NewRaceDialog(
-        onNew: (nCars) {
+        onSave: (int nCars) async {
+          await raceHandler.saveCurrentRace();
           raceHandler.nCars = nCars;
+          setState(() {});
+        },
+        onDiscard: (int nCars) async {
+          await raceHandler.clearCurrentRace();
+          raceHandler.nCars = nCars;
+          setState(() {});
         },
       ),
     );
-
-    setState(() {});
   }
 }

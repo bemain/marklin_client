@@ -1,28 +1,45 @@
 import 'package:flutter/material.dart';
 
-/// Popup dialog for selecting whether to save or discard the current race
-class SaveRaceDialog extends StatefulWidget {
-  final Function? onCancel;
-  final Function? onDiscard;
-  final Function? onSave;
+/// Popup dialog for selecting whether to save or discard the current race.
+/// Also allows you to select the number of cars racing.
+class NewRaceDialog extends StatefulWidget {
+  final Function()? onCancel;
+  final Function(int nCars)? onDiscard;
+  final Function(int nCars)? onSave;
 
-  const SaveRaceDialog({Key? key, this.onCancel, this.onDiscard, this.onSave})
+  const NewRaceDialog({Key? key, this.onCancel, this.onDiscard, this.onSave})
       : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => SaveRaceDialogState();
+  State<StatefulWidget> createState() => NewRaceDialogState();
 }
 
-class SaveRaceDialogState extends State<SaveRaceDialog> {
+class NewRaceDialogState extends State<NewRaceDialog> {
+  int nCars = 2;
   bool _discardDialog = false;
 
   @override
   Widget build(BuildContext context) {
     return (!_discardDialog)
         ? AlertDialog(
-            title: const Text("Save old race"),
-            content: const Text(
-                "You are about to start a new race.\nSave the current race to the database?"),
+            title: const Text("Create new race"),
+            content: Wrap(
+              children: [
+                const Text(
+                    "You are about to start a new race.\nPlease choose the number of cars for the new race:"),
+                Slider(
+                  min: 1,
+                  max: 4,
+                  divisions: 3,
+                  label: "$nCars",
+                  value: nCars.toDouble(),
+                  onChanged: (value) => setState(() {
+                    nCars = value.toInt();
+                  }),
+                ),
+                const Text("Save the current race to the database?"),
+              ],
+            ),
             actions: [
               TextButton(
                 child: const Text("Cancel"),
@@ -48,7 +65,7 @@ class SaveRaceDialogState extends State<SaveRaceDialog> {
                 ),
                 onPressed: () {
                   Navigator.of(context).pop();
-                  widget.onSave?.call();
+                  widget.onSave?.call(nCars);
                 },
               ),
             ],
@@ -75,61 +92,10 @@ class SaveRaceDialogState extends State<SaveRaceDialog> {
                 child: const Text("Discard"),
                 onPressed: () {
                   Navigator.of(context).pop();
-                  widget.onDiscard?.call();
+                  widget.onDiscard?.call(nCars);
                 },
               ),
             ],
           );
-  }
-}
-
-/// Popup dialog for starting a new race.
-class NewRaceDialog extends StatefulWidget {
-  const NewRaceDialog({Key? key, this.onNew}) : super(key: key);
-
-  final Function(int nCars)? onNew;
-
-  @override
-  State<StatefulWidget> createState() => NewRaceDialogState();
-}
-
-class NewRaceDialogState extends State<NewRaceDialog> {
-  int nCars = 2;
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text("Start new race"),
-      content: Wrap(children: [
-        Slider(
-          min: 1,
-          max: 4,
-          divisions: 3,
-          label: "$nCars",
-          value: nCars.toDouble(),
-          onChanged: (value) => setState(() {
-            nCars = value.toInt();
-          }),
-        )
-      ]),
-      actions: [
-        TextButton(
-          child: const Text("Cancel"),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-        TextButton(
-          child: const Text("Start", style: TextStyle(color: Colors.white)),
-          style: ButtonStyle(
-            backgroundColor:
-                MaterialStateProperty.all(Theme.of(context).primaryColor),
-          ),
-          onPressed: () {
-            Navigator.of(context).pop();
-            widget.onNew?.call(nCars);
-          },
-        ),
-      ],
-    );
   }
 }
