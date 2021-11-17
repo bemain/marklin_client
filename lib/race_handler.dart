@@ -23,8 +23,10 @@ class RaceHandler {
   Future<int> get nCars async => (await currentRace.get()).get("nCars");
   set nCars(value) => currentRace.update({"nCars": value.toInt()});
 
+  /// Whether the current race is running or not.
   Stream<bool> get runningStream =>
       currentRace.snapshots().map((doc) => doc.get("running"));
+  Future<bool> get running async => (await currentRace.get()).get("running");
   set running(value) => currentRace.update({"running": value});
 
   /// Add time since last lap, or since the race was started if no laps have
