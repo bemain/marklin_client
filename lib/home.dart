@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:marklin_bluetooth/controller.dart';
-import 'package:marklin_bluetooth/lap_counter.dart';
+import 'package:marklin_bluetooth/current_race_screen/current_race_screen.dart';
 import 'package:marklin_bluetooth/race_browser.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -13,7 +13,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _pages = [
     const ControllerScreen(),
-    const LapCounterScreen(),
+    const CurrentRaceScreen(),
     const RaceBrowserScreen(),
   ];
   int _selectedIndex = 0;

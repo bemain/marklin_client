@@ -18,7 +18,7 @@ class ControllerScreen extends StatefulWidget {
 class _ControllerScreenState extends State<ControllerScreen> {
   final RaceHandler raceHandler = RaceHandler();
 
-  bool enableSlowDown = true;
+  bool _enableSlowDown = true;
   int carID = 0;
 
   @override
@@ -40,23 +40,25 @@ class _ControllerScreenState extends State<ControllerScreen> {
                 actions: [
                   IconButton(
                     icon: const Icon(Icons.plus_one),
-                    onPressed: () {
-                      raceHandler.addLap(carID); // Add lap to database
+                    onPressed: () async {
+                      if (await raceHandler.running) {
+                        raceHandler.addLap(carID); // Add lap to database
+                      }
                     },
                   ),
                   IconButton(
-                      icon: Icon(enableSlowDown
+                      icon: Icon(_enableSlowDown
                           ? Icons.toggle_on
                           : Icons.toggle_off_outlined),
                       onPressed: () {
                         setState(() {
-                          enableSlowDown = !enableSlowDown; // Toggle slowdown
+                          _enableSlowDown = !_enableSlowDown; // Toggle slowdown
                         });
                       })
                 ],
               ),
               body: SpeedSlider(
-                enableSlowDown: enableSlowDown,
+                enableSlowDown: _enableSlowDown,
                 onCarIDChange: (id) {
                   setState(() {
                     carID = id;
