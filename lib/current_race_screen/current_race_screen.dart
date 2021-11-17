@@ -21,11 +21,6 @@ class CurrentRaceScreenState extends State<CurrentRaceScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Current Race"),
-        actions: [
-          IconButton(
-              onPressed: () => showNewDialog(context),
-              icon: const Icon(Icons.add, color: Colors.white)),
-        ],
       ),
       body: FutureBuilder<DocumentSnapshot>(
         future: raceHandler.currentRace.get(),
