@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:marklin_bluetooth/firebase/race_handler.dart';
+import 'package:marklin_bluetooth/firebase/races.dart';
 import 'package:marklin_bluetooth/utils.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
 class RaceViewer extends StatelessWidget {
   RaceViewer({Key? key, required this.raceDoc}) : super(key: key);
 
-  final RaceHandler raceHandler = RaceHandler();
+  final Races raceHandler = Races();
   final DocumentSnapshot raceDoc;
 
   @override

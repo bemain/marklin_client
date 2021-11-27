@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:marklin_bluetooth/current_race_screen/dialogs.dart';
-import 'package:marklin_bluetooth/firebase/race_handler.dart';
+import 'package:marklin_bluetooth/firebase/race.dart';
+import 'package:marklin_bluetooth/firebase/races.dart';
 import 'package:marklin_bluetooth/race_viewer.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
@@ -14,8 +15,6 @@ class CurrentRaceScreen extends StatefulWidget {
 }
 
 class CurrentRaceScreenState extends State<CurrentRaceScreen> {
-  final RaceHandler raceHandler = RaceHandler();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,7 +22,7 @@ class CurrentRaceScreenState extends State<CurrentRaceScreen> {
         title: const Text("Current Race"),
       ),
       body: FutureBuilder<DocumentSnapshot>(
-        future: raceHandler.currentRace.get(),
+        future: Races.currentRaceDoc.get(),
         builder: niceAsyncBuilder(
           loadingText: "Determining number of cars...",
           activeBuilder: (BuildContext c, AsyncSnapshot snapshot) {
@@ -32,7 +31,7 @@ class CurrentRaceScreenState extends State<CurrentRaceScreen> {
         ),
       ),
       floatingActionButton: StreamBuilder<bool>(
-        stream: raceHandler.runningStream,
+        stream: Races.currentRaceRef.runningStream,
         builder: niceAsyncBuilder(
           activeBuilder: (c, snapshot) {
             bool running = snapshot.data;
@@ -45,7 +44,7 @@ class CurrentRaceScreenState extends State<CurrentRaceScreen> {
                     showNewDialog(context);
                   } else {
                     // Start race
-                    raceHandler.currentRace.update({
+                    Races.currentRaceDoc.update({
                       "date": Timestamp.now(),
                       "running": true,
                     });
@@ -65,20 +64,22 @@ class CurrentRaceScreenState extends State<CurrentRaceScreen> {
       context: context,
       builder: (c) => NewRaceDialog(
         onSave: (int nCars) async {
-          await raceHandler.saveCurrentRace();
+          await Races.saveCurrentRace();
           restartRace(nCars);
         },
         onDiscard: (int nCars) async {
-          await raceHandler.clearCurrentRace();
+          await Races.currentRaceRef.clear();
           restartRace(nCars);
         },
       ),
     );
   }
 
-  void restartRace(int nCars) {
-    raceHandler.running = false;
-    raceHandler.nCars = nCars;
+  void restartRace(int nCars) async {
+    await Races.currentRaceDoc.update({
+      "running": false,
+      "nCars": nCars,
+    });
     setState(() {});
   }
 }

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:marklin_bluetooth/firebase/race_handler.dart';
+import 'package:marklin_bluetooth/firebase/race.dart';
+import 'package:marklin_bluetooth/firebase/races.dart';
 import 'package:marklin_bluetooth/race_viewer.dart';
 import 'package:marklin_bluetooth/utils.dart';
 import 'package:marklin_bluetooth/widgets.dart';
@@ -17,7 +18,7 @@ class RaceBrowserScreen extends StatefulWidget {
 }
 
 class RaceBrowserScreenState extends State<RaceBrowserScreen> {
-  final RaceHandler raceHandler = RaceHandler();
+  final Races raceHandler = Races();
 
   @override
   Widget build(BuildContext context) {
@@ -26,12 +27,11 @@ class RaceBrowserScreenState extends State<RaceBrowserScreen> {
         title: const Text("Race Browser"),
       ),
       body: StreamBuilder<QuerySnapshot>(
-          stream:
-              raceHandler.races.orderBy("date", descending: true).snapshots(),
+          stream: Races.races.orderBy("date", descending: true).snapshots(),
           builder: niceAsyncBuilder(
             loadingText: "Getting races...",
             activeBuilder: (BuildContext c, AsyncSnapshot snapshot) {
-              List<DocumentSnapshot> docs = snapshot.data!.docs;
+              List<DocumentSnapshot<Race>> docs = snapshot.data!.docs;
 
               if (!widget.includeCurrentRace) {
                 // Remove current race
@@ -45,7 +45,7 @@ class RaceBrowserScreenState extends State<RaceBrowserScreen> {
     );
   }
 
-  Widget raceCard(DocumentSnapshot raceDoc) {
+  Widget raceCard(DocumentSnapshot<Race> raceDoc) {
     var title = raceString(raceDoc);
     return TextTile(
       title: title,
@@ -60,11 +60,11 @@ class RaceBrowserScreenState extends State<RaceBrowserScreen> {
 /// Widget for displaying lap times and other information about [raceDoc].
 /// TODO: Add button for deleting race
 class RaceViewerScreen extends StatelessWidget {
-  final RaceHandler raceHandler = RaceHandler();
+  final Races raceHandler = Races();
 
   RaceViewerScreen({Key? key, required this.raceDoc}) : super(key: key);
 
-  final DocumentSnapshot raceDoc;
+  final DocumentSnapshot<Race> raceDoc;
 
   @override
   Widget build(BuildContext context) {
@@ -78,8 +78,8 @@ class RaceViewerScreen extends StatelessWidget {
   }
 }
 
-String raceString(DocumentSnapshot raceDoc) {
-  Map<String, dynamic> data = raceDoc.data() as Map<String, dynamic>;
-  DateTime date = (data["date"] as Timestamp).toDate();
+String raceString(DocumentSnapshot<Race> raceDoc) {
+  Race race = raceDoc.data()!;
+  DateTime date = race.date.toDate();
   return (raceDoc.id == "current") ? "Current" : dateString(date);
 }
