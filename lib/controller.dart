@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:marklin_bluetooth/bluetooth.dart';
-import 'package:marklin_bluetooth/race_handler.dart';
+import 'package:marklin_bluetooth/firebase/race_handler.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
 /// Screen for controlling and receiving lap times from the cars.
