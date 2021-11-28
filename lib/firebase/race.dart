@@ -1,6 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Race {
+  /// When this race was started.
+  Timestamp date;
+
+  /// Whether this race is running or not.
+  bool running;
+
+  /// The number of cars in this race.
+  int nCars;
+
   Race({
     required this.date,
     required this.running,
@@ -13,10 +22,6 @@ class Race {
           running: json["running"],
           nCars: json["nCars"],
         );
-
-  Timestamp date;
-  bool running;
-  int nCars;
 
   Map<String, dynamic> toJson() => {
         "date": date,

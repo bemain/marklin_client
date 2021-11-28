@@ -19,14 +19,14 @@ class Races {
 
   /// Copy current race to a new race, then clear the current race.
   static Future<void> saveCurrentRace() async {
-    var race = (await currentRaceDoc.get()).data()!;
+    Race race = (await currentRaceDoc.get()).data()!;
     race.date = Timestamp.now();
-    var newRace = await races.add(race);
+    DocumentReference<Race> newRaceDocRef = await races.add(race);
 
     // Copy laps
     for (var carID = 0; carID < (await currentRaceRef.race).nCars; carID++) {
       for (var lap in (await currentRaceRef.carRef(carID).lapsRef.get()).docs) {
-        newRace.collection("$carID").doc(lap.id).set(lap.data().toJson());
+        newRaceDocRef.collection("$carID").doc(lap.id).set(lap.data().toJson());
       }
     }
     await RaceReference(docRef: currentRaceDoc).clear();
