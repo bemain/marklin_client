@@ -18,7 +18,7 @@ class Races {
   static RaceReference currentRaceRef = RaceReference(docRef: currentRaceDoc);
 
   /// Copy current race to a new race, then clear the current race.
-  static Future saveCurrentRace() async {
+  static Future<void> saveCurrentRace() async {
     var race = (await currentRaceDoc.get()).data()!;
     race.date = Timestamp.now();
     var newRace = await races.add(race);

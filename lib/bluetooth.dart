@@ -78,7 +78,7 @@ class SelectDeviceScreenState extends State<SelectDeviceScreen> {
     );
   }
 
-  Future _connectBT() async {
+  Future<void> _connectBT() async {
     // Don't connect if already connected
     if ((await FlutterBlue.instance.connectedDevices).isEmpty) {
       await selectedDevice!.connect();

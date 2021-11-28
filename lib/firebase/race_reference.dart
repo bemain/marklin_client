@@ -23,7 +23,7 @@ class RaceReference {
 
   /// Add time since last lap, or since the race was started if no laps have
   /// been run, to lap times of [carID] on the Race that [this] references.
-  Future addLap(int carID, {double? lapTime, int? lapN}) async {
+  Future<void> addLap(int carID, {double? lapTime, int? lapN}) async {
     if (carID >= (await this.race).nCars) {
       return; // Trying to add lap to car not in race
     }
@@ -50,7 +50,7 @@ class RaceReference {
   }
 
   /// Delete all laps on the Race that [this] references.
-  Future clear() async {
+  Future<void> clear() async {
     for (var carID = 0; carID < (await race).nCars; carID++) {
       for (var lap in (await carRef(carID).lapsRef.get()).docs) {
         await lap.reference.delete();
