@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:marklin_bluetooth/home.dart';
-import 'package:marklin_bluetooth/race_handler.dart';
+import 'package:marklin_bluetooth/firebase/init_firebase.dart';
 
 // TODO: Plot speed during the lap.
 // TODO: Fix Firestore rules

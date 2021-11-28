@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:marklin_bluetooth/race_handler.dart';
+import 'package:marklin_bluetooth/firebase/race.dart';
+import 'package:marklin_bluetooth/firebase/race_reference.dart';
+import 'package:marklin_bluetooth/firebase/races.dart';
 import 'package:marklin_bluetooth/race_viewer.dart';
 import 'package:marklin_bluetooth/utils.dart';
 import 'package:marklin_bluetooth/widgets.dart';
@@ -17,69 +19,64 @@ class RaceBrowserScreen extends StatefulWidget {
 }
 
 class RaceBrowserScreenState extends State<RaceBrowserScreen> {
-  final RaceHandler raceHandler = RaceHandler();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Race Browser"),
       ),
-      body: StreamBuilder<QuerySnapshot>(
-          stream:
-              raceHandler.races.orderBy("date", descending: true).snapshots(),
+      body: StreamBuilder<QuerySnapshot<Race>>(
+          stream: Races.races.orderBy("date", descending: true).snapshots(),
           builder: niceAsyncBuilder(
             loadingText: "Getting races...",
-            activeBuilder: (BuildContext c, AsyncSnapshot snapshot) {
-              List<DocumentSnapshot> docs = snapshot.data!.docs;
+            activeBuilder: (BuildContext c, snapshot) {
+              List<DocumentSnapshot<Race>> races = snapshot.data!.docs;
 
               if (!widget.includeCurrentRace) {
                 // Remove current race
-                docs.removeWhere((element) => element.id == "current");
+                races.removeWhere((raceSnap) => raceSnap.id == "current");
               }
 
               return ListView(
-                  children: docs.map((doc) => raceCard(doc)).toList());
+                  children:
+                      races.map((raceSnap) => raceCard(raceSnap)).toList());
             },
           )),
     );
   }
 
-  Widget raceCard(DocumentSnapshot raceDoc) {
-    var title = raceString(raceDoc);
+  Widget raceCard(DocumentSnapshot<Race> raceSnap) {
+    var title = raceString(raceSnap);
     return TextTile(
       title: title,
-      text: raceDoc.id,
+      text: raceSnap.id,
       onTap: () => Navigator.of(context).push(
-        MaterialPageRoute(builder: (c) => (RaceViewerScreen(raceDoc: raceDoc))),
+        MaterialPageRoute(
+            builder: (c) => (RaceViewerScreen(raceSnap: raceSnap))),
       ),
     );
   }
 }
 
-/// Widget for displaying lap times and other information about [raceDoc].
+/// Widget for displaying lap times and other information about [raceSnap].
 /// TODO: Add button for deleting race
 class RaceViewerScreen extends StatelessWidget {
-  final RaceHandler raceHandler = RaceHandler();
+  const RaceViewerScreen({Key? key, required this.raceSnap}) : super(key: key);
 
-  RaceViewerScreen({Key? key, required this.raceDoc}) : super(key: key);
-
-  final DocumentSnapshot raceDoc;
+  final DocumentSnapshot<Race> raceSnap;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("Viewing race: ${raceString(raceDoc)}"),
+          title: Text("Viewing race: ${raceString(raceSnap)}"),
         ),
-        body: RaceViewer(
-          raceDoc: raceDoc,
-        ));
+        body: RaceViewer(raceRef: RaceReference(docRef: raceSnap.reference)));
   }
 }
 
-String raceString(DocumentSnapshot raceDoc) {
-  Map<String, dynamic> data = raceDoc.data() as Map<String, dynamic>;
-  DateTime date = (data["date"] as Timestamp).toDate();
-  return (raceDoc.id == "current") ? "Current" : dateString(date);
+String raceString(DocumentSnapshot<Race> raceSnap) {
+  Race race = raceSnap.data()!;
+  DateTime date = race.date.toDate();
+  return (raceSnap.id == "current") ? "Current" : dateString(date);
 }

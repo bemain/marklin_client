@@ -30,12 +30,12 @@ class SelectDeviceScreenState extends State<SelectDeviceScreen> {
         title: const Text("Connect to Bluetooth Device"),
       ),
       body: (selectedDevice == null)
-          ? FutureBuilder(
+          ? FutureBuilder<bool>(
               future: flutterBlue.isAvailable,
               builder: niceAsyncBuilder(
                 loadingText: "Waiting for Bluetooth...",
                 errorText: "Bluetooth unavailable",
-                activeBuilder: (BuildContext c, AsyncSnapshot snapshot) {
+                activeBuilder: (BuildContext c, snapshot) {
                   return StreamBuilder<List<ScanResult>>(
                     stream: flutterBlue.scanResults,
                     initialData: const [],
@@ -55,7 +55,7 @@ class SelectDeviceScreenState extends State<SelectDeviceScreen> {
               future: _connectBT(),
               builder: niceAsyncBuilder(
                 loadingText: "Connecting to device...",
-                activeBuilder: (BuildContext c, AsyncSnapshot snapshot) {
+                activeBuilder: (BuildContext c, snapshot) {
                   return const InfoScreen(
                       icon: Icon(Icons.bluetooth_connected),
                       text: "Connected to device");
@@ -66,6 +66,7 @@ class SelectDeviceScreenState extends State<SelectDeviceScreen> {
         stream: flutterBlue.isScanning,
         initialData: false,
         builder: (c, AsyncSnapshot<bool> snapshot) => FloatingActionButton(
+          heroTag: "select_bt_device",
           child:
               Icon(snapshot.data! ? Icons.bluetooth_searching : Icons.search),
           onPressed: () {
@@ -78,7 +79,7 @@ class SelectDeviceScreenState extends State<SelectDeviceScreen> {
     );
   }
 
-  Future _connectBT() async {
+  Future<void> _connectBT() async {
     // Don't connect if already connected
     if ((await FlutterBlue.instance.connectedDevices).isEmpty) {
       await selectedDevice!.connect();
@@ -118,12 +119,12 @@ class CharacteristicSelectorScreenState
     assert(Bluetooth.device != null); // Needs connected BT device
 
     if (_service == null) {
-      return FutureBuilder(
+      return FutureBuilder<List<BluetoothService>>(
         future: Bluetooth.device!.discoverServices(),
         initialData: const [],
         builder: niceAsyncBuilder(
           loadingText: "Getting services...",
-          activeBuilder: (BuildContext c, AsyncSnapshot snapshot) {
+          activeBuilder: (BuildContext c, snapshot) {
             return ListView(
               children: snapshot.data!
                   .map(

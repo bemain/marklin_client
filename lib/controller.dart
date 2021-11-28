@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:marklin_bluetooth/bluetooth.dart';
-import 'package:marklin_bluetooth/race_handler.dart';
+import 'package:marklin_bluetooth/firebase/races.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
 /// Screen for controlling and receiving lap times from the cars.
@@ -16,8 +16,6 @@ class ControllerScreen extends StatefulWidget {
 }
 
 class _ControllerScreenState extends State<ControllerScreen> {
-  final RaceHandler raceHandler = RaceHandler();
-
   bool _enableSlowDown = true;
   int carID = 0;
 
@@ -41,8 +39,9 @@ class _ControllerScreenState extends State<ControllerScreen> {
                   IconButton(
                     icon: const Icon(Icons.plus_one),
                     onPressed: () async {
-                      if (await raceHandler.running) {
-                        raceHandler.addLap(carID); // Add lap to database
+                      if ((await Races.currentRaceRef.race).running) {
+                        Races.currentRaceRef
+                            .addLap(carID); // Add lap to database
                       }
                     },
                   ),
@@ -113,7 +112,7 @@ class SpeedSliderState extends State<SpeedSlider> {
       future: _futureChar,
       builder: niceAsyncBuilder(
         loadingText: "Getting characteristic...",
-        activeBuilder: (BuildContext c, AsyncSnapshot snapshot) {
+        activeBuilder: (BuildContext c, snapshot) {
           return (!snapshot.data!) // Characteristic not found
               ? CharacteristicSelectorScreen(
                   onCharSelected: (sid, cid) {
