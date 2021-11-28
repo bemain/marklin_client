@@ -10,28 +10,25 @@ class RaceReference {
   /// The Race Document on firebase that [this] references.
   final DocumentReference<Race> docRef;
 
-  Future<DocumentSnapshot<Race>> get() async => await docRef.get();
-
   /// The Race that [this] references.
-  Future<Race> get race async => (await get()).data()!;
+  Future<Race> get race async => (await docRef.get()).data()!;
 
-  /// The reference to the car with id [carID],
-  /// on the Race that [this] references.
+  /// The reference to the car with id [carID] on [race].
   CarReference carRef(int carID) =>
       CarReference(collRef: docRef.collection("$carID"));
 
-  /// Whether the Race that [this] references is running or not.
+  /// Whether [race] is running or not.
   Stream<bool> get runningStream =>
       docRef.snapshots().map((doc) => doc.get("running"));
 
   /// Add time since last lap, or since the race was started if no laps have
   /// been run, to lap times of [carID] on the Race that [this] references.
   Future addLap(int carID, {double? lapTime, int? lapN}) async {
-    if (carID >= (await get()).nCars) {
+    if (carID >= (await this.race).nCars) {
       return; // Trying to add lap to car not in race
     }
 
-    Race race = await get();
+    Race race = await this.race;
     CarReference car = carRef(carID);
     Lap? lastLap = await car.lastLap;
 
@@ -54,7 +51,7 @@ class RaceReference {
 
   /// Delete all laps on the Race that [this] references.
   Future clear() async {
-    for (var carID = 0; carID < (await get()).nCars; carID++) {
+    for (var carID = 0; carID < (await race).nCars; carID++) {
       for (var lap in (await carRef(carID).lapsRef.get()).docs) {
         await lap.reference.delete();
       }
