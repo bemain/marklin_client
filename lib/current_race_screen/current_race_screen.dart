@@ -27,6 +27,7 @@ class CurrentRaceScreenState extends State<CurrentRaceScreen> {
           activeBuilder: (c, snapshot) {
             bool running = snapshot.data!;
             return FloatingActionButton(
+              heroTag: "current_race",
               child: Icon(running ? Icons.pause : Icons.play_arrow),
               onPressed: () {
                 setState(() {

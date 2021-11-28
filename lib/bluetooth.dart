@@ -66,6 +66,7 @@ class SelectDeviceScreenState extends State<SelectDeviceScreen> {
         stream: flutterBlue.isScanning,
         initialData: false,
         builder: (c, AsyncSnapshot<bool> snapshot) => FloatingActionButton(
+          heroTag: "select_bt_device",
           child:
               Icon(snapshot.data! ? Icons.bluetooth_searching : Icons.search),
           onPressed: () {
