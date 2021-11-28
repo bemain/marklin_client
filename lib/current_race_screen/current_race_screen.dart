@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:marklin_bluetooth/current_race_screen/dialogs.dart';
-import 'package:marklin_bluetooth/firebase/race.dart';
 import 'package:marklin_bluetooth/firebase/races.dart';
 import 'package:marklin_bluetooth/race_viewer.dart';
 import 'package:marklin_bluetooth/widgets.dart';
@@ -21,15 +20,7 @@ class CurrentRaceScreenState extends State<CurrentRaceScreen> {
       appBar: AppBar(
         title: const Text("Current Race"),
       ),
-      body: FutureBuilder<DocumentSnapshot>(
-        future: Races.currentRaceDoc.get(),
-        builder: niceAsyncBuilder(
-          loadingText: "Determining number of cars...",
-          activeBuilder: (BuildContext c, AsyncSnapshot snapshot) {
-            return RaceViewer(raceDoc: snapshot.data);
-          },
-        ),
-      ),
+      body: RaceViewer(raceRef: Races.currentRaceRef),
       floatingActionButton: StreamBuilder<bool>(
         stream: Races.currentRaceRef.runningStream,
         builder: niceAsyncBuilder(

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:marklin_bluetooth/firebase/race.dart';
+import 'package:marklin_bluetooth/firebase/race_reference.dart';
 import 'package:marklin_bluetooth/firebase/races.dart';
 import 'package:marklin_bluetooth/race_viewer.dart';
 import 'package:marklin_bluetooth/utils.dart';
@@ -18,8 +19,6 @@ class RaceBrowserScreen extends StatefulWidget {
 }
 
 class RaceBrowserScreenState extends State<RaceBrowserScreen> {
-  final Races raceHandler = Races();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,55 +30,53 @@ class RaceBrowserScreenState extends State<RaceBrowserScreen> {
           builder: niceAsyncBuilder(
             loadingText: "Getting races...",
             activeBuilder: (BuildContext c, AsyncSnapshot snapshot) {
-              List<DocumentSnapshot<Race>> docs = snapshot.data!.docs;
+              List<DocumentSnapshot<Race>> races = snapshot.data!.docs;
 
               if (!widget.includeCurrentRace) {
                 // Remove current race
-                docs.removeWhere((element) => element.id == "current");
+                races.removeWhere((raceSnap) => raceSnap.id == "current");
               }
 
               return ListView(
-                  children: docs.map((doc) => raceCard(doc)).toList());
+                  children:
+                      races.map((raceSnap) => raceCard(raceSnap)).toList());
             },
           )),
     );
   }
 
-  Widget raceCard(DocumentSnapshot<Race> raceDoc) {
-    var title = raceString(raceDoc);
+  Widget raceCard(DocumentSnapshot<Race> raceSnap) {
+    var title = raceString(raceSnap);
     return TextTile(
       title: title,
-      text: raceDoc.id,
+      text: raceSnap.id,
       onTap: () => Navigator.of(context).push(
-        MaterialPageRoute(builder: (c) => (RaceViewerScreen(raceDoc: raceDoc))),
+        MaterialPageRoute(
+            builder: (c) => (RaceViewerScreen(raceSnap: raceSnap))),
       ),
     );
   }
 }
 
-/// Widget for displaying lap times and other information about [raceDoc].
+/// Widget for displaying lap times and other information about [raceSnap].
 /// TODO: Add button for deleting race
 class RaceViewerScreen extends StatelessWidget {
-  final Races raceHandler = Races();
+  const RaceViewerScreen({Key? key, required this.raceSnap}) : super(key: key);
 
-  RaceViewerScreen({Key? key, required this.raceDoc}) : super(key: key);
-
-  final DocumentSnapshot<Race> raceDoc;
+  final DocumentSnapshot<Race> raceSnap;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("Viewing race: ${raceString(raceDoc)}"),
+          title: Text("Viewing race: ${raceString(raceSnap)}"),
         ),
-        body: RaceViewer(
-          raceDoc: raceDoc,
-        ));
+        body: RaceViewer(raceRef: RaceReference(docRef: raceSnap.reference)));
   }
 }
 
-String raceString(DocumentSnapshot<Race> raceDoc) {
-  Race race = raceDoc.data()!;
+String raceString(DocumentSnapshot<Race> raceSnap) {
+  Race race = raceSnap.data()!;
   DateTime date = race.date.toDate();
-  return (raceDoc.id == "current") ? "Current" : dateString(date);
+  return (raceSnap.id == "current") ? "Current" : dateString(date);
 }

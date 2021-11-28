@@ -39,7 +39,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
                   IconButton(
                     icon: const Icon(Icons.plus_one),
                     onPressed: () async {
-                      if ((await Races.currentRaceRef.get()).running) {
+                      if ((await Races.currentRaceRef.race).running) {
                         Races.currentRaceRef
                             .addLap(carID); // Add lap to database
                       }
