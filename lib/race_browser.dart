@@ -25,11 +25,11 @@ class RaceBrowserScreenState extends State<RaceBrowserScreen> {
       appBar: AppBar(
         title: const Text("Race Browser"),
       ),
-      body: StreamBuilder<QuerySnapshot>(
+      body: StreamBuilder<QuerySnapshot<Race>>(
           stream: Races.races.orderBy("date", descending: true).snapshots(),
           builder: niceAsyncBuilder(
             loadingText: "Getting races...",
-            activeBuilder: (BuildContext c, AsyncSnapshot snapshot) {
+            activeBuilder: (BuildContext c, snapshot) {
               List<DocumentSnapshot<Race>> races = snapshot.data!.docs;
 
               if (!widget.includeCurrentRace) {

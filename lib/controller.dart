@@ -112,7 +112,7 @@ class SpeedSliderState extends State<SpeedSlider> {
       future: _futureChar,
       builder: niceAsyncBuilder(
         loadingText: "Getting characteristic...",
-        activeBuilder: (BuildContext c, AsyncSnapshot snapshot) {
+        activeBuilder: (BuildContext c, snapshot) {
           return (!snapshot.data!) // Characteristic not found
               ? CharacteristicSelectorScreen(
                   onCharSelected: (sid, cid) {

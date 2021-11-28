@@ -25,7 +25,7 @@ class CurrentRaceScreenState extends State<CurrentRaceScreen> {
         stream: Races.currentRaceRef.runningStream,
         builder: niceAsyncBuilder(
           activeBuilder: (c, snapshot) {
-            bool running = snapshot.data;
+            bool running = snapshot.data!;
             return FloatingActionButton(
               child: Icon(running ? Icons.pause : Icons.play_arrow),
               onPressed: () {

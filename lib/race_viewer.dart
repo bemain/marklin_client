@@ -16,8 +16,8 @@ class RaceViewer extends StatelessWidget {
       future: raceRef.race,
       builder: niceAsyncBuilder(
         loadingText: "Determining number of cars...",
-        activeBuilder: (BuildContext c, AsyncSnapshot snapshot) {
-          Race race = snapshot.data;
+        activeBuilder: (BuildContext c, AsyncSnapshot<Race> snapshot) {
+          Race race = snapshot.data!;
 
           return Row(
             children: List.generate(
@@ -40,7 +40,7 @@ class RaceViewer extends StatelessWidget {
           .snapshots(),
       builder: niceAsyncBuilder(
         loadingText: "Getting lap times...",
-        activeBuilder: (BuildContext c, AsyncSnapshot snapshot) {
+        activeBuilder: (BuildContext c, snapshot) {
           List<QueryDocumentSnapshot> docs = snapshot.data!.docs;
           return ListView(
             children: docs
