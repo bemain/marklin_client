@@ -24,38 +24,53 @@ class RaceReference {
   /// Add time since last lap, or since the race was started if no laps have
   /// been run, to lap times of [carID] on [this.race].
   Future<void> addLap(int carID, {double? lapTime, int? lapN}) async {
-    Race race = await this.race;
-
-    if (carID >= race.nCars) return; // Trying to add lap to car not in race
+    if (carID >= (await race).nCars)
+      return; // Trying to add lap to car not in race
 
     CarReference car = carRef(carID);
-    Lap? lastLap = await car.lastLap;
+    Lap currentLap = await car.currentLap;
 
     Timestamp timeNow = Timestamp.now();
-    Timestamp timePrev = lastLap?.date ?? // Time since last lap
-        race.date; // Time since race started
 
-    lapTime ??=
-        (timeNow.millisecondsSinceEpoch - timePrev.millisecondsSinceEpoch) ~/
-            10 /
-            100;
-    lapN = (lastLap?.lapNumber ?? 0) + 1;
+    lapTime ??= (timeNow.millisecondsSinceEpoch -
+            currentLap.date.millisecondsSinceEpoch) ~/
+        10 /
+        100;
+    lapN = currentLap.lapNumber + 1;
 
+    // Create new lap
     await car.lapsRef.add(Lap(
-      date: timeNow,
+      date: currentLap.date,
       lapTime: lapTime,
-      lapNumber: lapN,
+      lapNumber: currentLap.lapNumber,
+    ));
+
+    // Update current lap
+    await car.currentLapRef.set(Lap(
+      date: timeNow,
+      lapTime: 0,
+      lapNumber: currentLap.lapNumber + 1,
     ));
   }
 
   /// Delete all laps on [this.race].
   Future<void> clear() async {
+    Timestamp timeNow = Timestamp.now();
+
     for (var carID = 0; carID < (await race).nCars; carID++) {
-      for (var lap in (await carRef(carID).getLapDocs(includeCurrent: false))) {
+      CarReference car = carRef(carID);
+      // Delete laps
+      for (var lap in (await car.getLapDocs(includeCurrent: true))) {
         await lap.reference.delete();
       }
+      // Create current lap
+      await car.lapsRef.doc("current").set((Lap(
+            date: timeNow,
+            lapTime: 0,
+            lapNumber: 1,
+          )));
     }
 
-    await docRef.update({"date": Timestamp.now()});
+    await docRef.update({"date": timeNow});
   }
 }

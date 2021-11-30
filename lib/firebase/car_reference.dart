@@ -11,6 +11,12 @@ class CarReference {
           toFirestore: (lap, _) => lap.toJson(),
         );
 
+  // The reference to the current lap for the car that [this] references.
+  DocumentReference<Lap> get currentLapRef => lapsRef.doc("current");
+
+  /// The current lap for the car that [this] references.
+  Future<Lap?> get currentLap async => (await currentLapRef.get()).data();
+
   /// The snapshots of all the laps currently on the database.
   Future<List<DocumentSnapshot<Lap>>> getLapDocs(
       {includeCurrent = false}) async {
@@ -24,13 +30,5 @@ class CarReference {
   Future<List<Lap>> getLaps({includeCurrent = false}) async {
     var docSnaps = (await getLapDocs(includeCurrent: includeCurrent));
     return docSnaps.map((doc) => doc.data()!).toList();
-  }
-
-  /// The most recent lap for the car that [this] references,
-  /// or null if no laps have been completed.
-  Future<Lap?> get lastLap async {
-    var query =
-        await lapsRef.orderBy("lapNumber", descending: true).limit(1).get();
-    return query.docs.isNotEmpty ? query.docs[0].data() : null;
   }
 }
