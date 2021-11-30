@@ -51,7 +51,7 @@ class RaceReference {
   /// Delete all laps on [this.race].
   Future<void> clear() async {
     for (var carID = 0; carID < (await race).nCars; carID++) {
-      for (var lap in (await carRef(carID).lapsRef.get()).docs) {
+      for (var lap in (await carRef(carID).getLapDocs(includeCurrent: false))) {
         await lap.reference.delete();
       }
     }

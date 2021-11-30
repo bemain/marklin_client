@@ -25,8 +25,13 @@ class Races {
 
     // Copy laps
     for (var carID = 0; carID < (await currentRaceRef.race).nCars; carID++) {
-      for (var lap in (await currentRaceRef.carRef(carID).lapsRef.get()).docs) {
-        newRaceDocRef.collection("$carID").doc(lap.id).set(lap.data().toJson());
+      for (var lapSnap in await currentRaceRef
+          .carRef(carID)
+          .getLapDocs(includeCurrent: false)) {
+        newRaceDocRef
+            .collection("$carID")
+            .doc(lapSnap.id)
+            .set(lapSnap.data()!.toJson());
       }
     }
     await RaceReference(docRef: currentRaceDoc).clear();
