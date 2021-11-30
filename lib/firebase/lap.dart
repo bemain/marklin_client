@@ -12,7 +12,7 @@ class Lap {
   /// How the speed has varied during [this] lap
   /// The key is the time since [this] lap was started,
   /// and the value is the speed at that time.
-  Map<int, int> speedHistory;
+  Map<int, double> speedHistory;
 
   Lap({
     required this.date,
@@ -26,14 +26,15 @@ class Lap {
           date: json["date"],
           lapTime: json["lapTime"].toDouble(),
           lapNumber: json["lapNumber"],
-          speedHistory: Map.from(json["speed"] ?? {})
-              .map((k, v) => MapEntry<int, int>(int.parse(k), v)),
+          speedHistory: Map.from(json["speedHistory"] ?? {})
+              .map((k, v) => MapEntry<int, double>(int.parse(k), v)),
         );
 
   Map<String, dynamic> toJson() => {
         "date": date,
         "lapTime": lapTime,
         "lapNumber": lapNumber,
-        "speedHistory": speedHistory
+        "speedHistory": Map.from(speedHistory)
+            .map((k, v) => MapEntry<String, dynamic>("$k", v)),
       };
 }

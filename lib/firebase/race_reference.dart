@@ -31,6 +31,7 @@ class RaceReference {
     CarReference car = carRef(carID);
     Lap? currentLap = await car.currentLap;
     if (currentLap == null) return; // Car has no current lap
+    print(currentLap.speedHistory);
 
     Timestamp timeNow = Timestamp.now();
 
@@ -41,11 +42,8 @@ class RaceReference {
     lapN = currentLap.lapNumber + 1;
 
     // Create new lap
-    await car.lapsRef.add(Lap(
-      date: currentLap.date,
-      lapTime: lapTime,
-      lapNumber: currentLap.lapNumber,
-    ));
+    currentLap.lapTime = lapTime;
+    await car.lapsRef.add(currentLap);
 
     // Update current lap
     await car.currentLapRef.set(Lap(
