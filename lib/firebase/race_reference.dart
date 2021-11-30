@@ -21,14 +21,16 @@ class RaceReference {
   CarReference carRef(int carID) =>
       CarReference(collRef: docRef.collection("$carID"));
 
-  /// Add time since last lap, or since the race was started if no laps have
-  /// been run, to lap times of [carID] on [this.race].
+  /// Add time since current lap to lap times of [carID] on [this.race],
+  /// if current lap exists.
   Future<void> addLap(int carID, {double? lapTime, int? lapN}) async {
-    if (carID >= (await race).nCars)
-      return; // Trying to add lap to car not in race
+    Race race = await this.race;
+    if (!race.running) return; // Not running
+    if (carID >= race.nCars) return; // Trying to add lap to car not in race
 
     CarReference car = carRef(carID);
-    Lap currentLap = await car.currentLap;
+    Lap? currentLap = await car.currentLap;
+    if (currentLap == null) return; // Car has no current lap
 
     Timestamp timeNow = Timestamp.now();
 
@@ -51,6 +53,23 @@ class RaceReference {
       lapTime: 0,
       lapNumber: currentLap.lapNumber + 1,
     ));
+  }
+
+  /// Add [speed] to speed history of the current lap of car with id [carID]
+  /// on [this.race].
+  Future<void> addSpeedEntry(int carID, double speed) async {
+    Race race = (await this.race);
+    if (!race.running) return; // Not running
+    if (carID >= race.nCars) return; // Trying to add lap to car not in race
+
+    CarReference car = carRef(carID);
+    Lap? currentLap = await car.currentLap;
+    if (currentLap == null) return; // Car has no current lap
+
+    car.currentLapRef.update({
+      "speedHistory.${Timestamp.now().millisecondsSinceEpoch - currentLap.date.millisecondsSinceEpoch}":
+          speed,
+    });
   }
 
   /// Delete all laps on [this.race].

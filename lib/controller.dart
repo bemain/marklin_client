@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:marklin_bluetooth/bluetooth.dart';
+import 'package:marklin_bluetooth/firebase/car_reference.dart';
 import 'package:marklin_bluetooth/firebase/races.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
@@ -37,14 +38,10 @@ class _ControllerScreenState extends State<ControllerScreen> {
                 title: const Text("Märklin BLE Controller"),
                 actions: [
                   IconButton(
-                    icon: const Icon(Icons.plus_one),
-                    onPressed: () async {
-                      if ((await Races.currentRaceRef.race).running) {
-                        Races.currentRaceRef
-                            .addLap(carID); // Add lap to database
-                      }
-                    },
-                  ),
+                      icon: const Icon(Icons.plus_one),
+                      onPressed: () async => Races.currentRaceRef
+                          .addLap(carID) // Add lap to database
+                      ),
                   IconButton(
                       icon: Icon(_enableSlowDown
                           ? Icons.toggle_on
@@ -85,8 +82,8 @@ class SpeedSliderState extends State<SpeedSlider> {
   String serviceID = "0000181c-0000-1000-8000-00805f9b34fb";
   String charID = "0000181c-0000-1000-8000-00805f9b34fb";
 
-  double _speed = 0.0;
-  int _carID = 0;
+  double speed = 0.0;
+  int carID = 0;
 
   bool willSlowDown = false;
   Timer? slowDownLoop;
@@ -126,9 +123,9 @@ class SpeedSliderState extends State<SpeedSlider> {
               : PageView(
                   children: List.filled(4, _buildSlider()),
                   onPageChanged: (int i) => setState(() {
-                    _carID = i;
+                    carID = i;
                     sendNeeded = true;
-                    widget.onCarIDChange?.call(_carID);
+                    widget.onCarIDChange?.call(carID);
                   }),
                 );
         },
@@ -144,11 +141,11 @@ class SpeedSliderState extends State<SpeedSlider> {
       child: RotatedBox(
         quarterTurns: -1,
         child: Slider(
-          value: _speed,
+          value: speed,
           onChanged: (value) {
             sendNeeded = true;
             setState(() {
-              _speed = value;
+              speed = value;
             });
           },
           min: 0,
@@ -190,18 +187,19 @@ class SpeedSliderState extends State<SpeedSlider> {
   void sendSpeed(Timer timer) async {
     // Send speed to bluetooth device
     if (sendNeeded) {
+      Races.currentRaceRef.addSpeedEntry(carID, speed);
       await _speedChar
-          ?.write([_carID, 100 - _speed.toInt()], withoutResponse: true);
+          ?.write([carID, 100 - speed.toInt()], withoutResponse: true);
       sendNeeded = false;
     }
   }
 
   void slowDown(Timer timer) {
     // Slow down car
-    if (widget.enableSlowDown && willSlowDown && _speed != 0) {
+    if (widget.enableSlowDown && willSlowDown && speed != 0) {
       sendNeeded = true;
       setState(() {
-        _speed -= min(_speed, friction);
+        speed -= min(speed, friction);
       });
     }
   }
