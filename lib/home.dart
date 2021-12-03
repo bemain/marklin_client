@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:marklin_bluetooth/controller.dart';
 import 'package:marklin_bluetooth/current_race_screen/current_race_screen.dart';
-import 'package:marklin_bluetooth/race_browser.dart';
+import 'package:marklin_bluetooth/race_browser_screen/race_browser.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);

@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:marklin_bluetooth/current_race_screen/dialogs.dart';
 import 'package:marklin_bluetooth/firebase/races.dart';
-import 'package:marklin_bluetooth/race_viewer.dart';
+import 'package:marklin_bluetooth/race_browser_screen/race_viewer.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
 /// Screen for watching and restarting the current race.
