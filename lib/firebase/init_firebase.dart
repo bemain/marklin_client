@@ -13,18 +13,7 @@ class InitFirebase extends StatelessWidget {
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: _init(),
-      builder: (c, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-              body: LoadingScreen(text: "Initalizing Firebase..."));
-        }
-
-        if (snapshot.hasError) {
-          return Scaffold(body: ErrorScreen(text: "Error: ${snapshot.error}"));
-        }
-
-        return child;
-      },
+      builder: niceAsyncBuilder(activeBuilder: (c, snapshot) => child),
     );
   }
 
