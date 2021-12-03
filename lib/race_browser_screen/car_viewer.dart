@@ -5,11 +5,11 @@ import 'package:marklin_bluetooth/firebase/lap.dart';
 import 'package:marklin_bluetooth/utils.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
-class LapsViewer extends StatelessWidget {
+class CarViewer extends StatelessWidget {
   final CarReference carRef;
   final Function(DocumentReference<Lap> lapRef)? onLapSelected;
 
-  const LapsViewer({Key? key, required this.carRef, this.onLapSelected})
+  const CarViewer({Key? key, required this.carRef, this.onLapSelected})
       : super(key: key);
 
   @override
