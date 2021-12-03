@@ -1,24 +1,18 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
 /// Makes sure Firebase is initialized before [child] enters the tree.
-class InitFirebase extends StatefulWidget {
+class InitFirebase extends StatelessWidget {
   final Widget child;
 
   const InitFirebase({Key? key, required this.child}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => InitFirebaseState();
-}
-
-class InitFirebaseState extends State<InitFirebase> {
-  final Future<FirebaseApp> _initialization = Firebase.initializeApp();
-
-  @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: _initialization,
+      future: _init(),
       builder: (c, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
@@ -29,8 +23,13 @@ class InitFirebaseState extends State<InitFirebase> {
           return Scaffold(body: ErrorScreen(text: "Error: ${snapshot.error}"));
         }
 
-        return widget.child;
+        return child;
       },
     );
+  }
+
+  Future _init() async {
+    await Firebase.initializeApp();
+    UserCredential _ = await FirebaseAuth.instance.signInAnonymously();
   }
 }
