@@ -57,26 +57,3 @@ class RaceBrowserScreenState extends State<RaceBrowserScreen> {
     );
   }
 }
-
-/// Widget for displaying lap times and other information about [raceSnap].
-/// TODO: Add button for deleting race
-class RaceViewerScreen extends StatelessWidget {
-  const RaceViewerScreen({Key? key, required this.raceSnap}) : super(key: key);
-
-  final DocumentSnapshot<Race> raceSnap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Text("Viewing race: ${raceString(raceSnap)}"),
-        ),
-        body: RaceViewer(raceRef: RaceReference(docRef: raceSnap.reference)));
-  }
-}
-
-String raceString(DocumentSnapshot<Race> raceSnap) {
-  Race race = raceSnap.data()!;
-  DateTime date = race.date.toDate();
-  return (raceSnap.id == "current") ? "Current" : dateString(date);
-}
