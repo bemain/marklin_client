@@ -20,8 +20,9 @@ class CarViewer extends StatelessWidget {
       builder: niceAsyncBuilder(
         loadingText: "Getting lap times...",
         activeBuilder: (BuildContext c, snapshot) {
+          List<QueryDocumentSnapshot<Lap>> docs = snapshot.data!.docs;
           return ListView(
-            children: snapshot.data!.docs.map((lapSnap) {
+            children: docs.map((lapSnap) {
               Lap lap = lapSnap.data();
               return TextTile(
                   title: "${lap.lapNumber} | ${lap.lapTime}s",
