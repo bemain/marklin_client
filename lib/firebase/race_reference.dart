@@ -31,7 +31,6 @@ class RaceReference {
     CarReference car = carRef(carID);
     Lap? currentLap = await car.currentLap;
     if (currentLap == null) return; // Car has no current lap
-    print(currentLap.speedHistory);
 
     Timestamp timeNow = Timestamp.now();
 
