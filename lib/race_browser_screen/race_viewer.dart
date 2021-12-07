@@ -4,6 +4,7 @@ import 'package:marklin_bluetooth/firebase/lap.dart';
 import 'package:marklin_bluetooth/firebase/race.dart';
 import 'package:marklin_bluetooth/firebase/race_reference.dart';
 import 'package:marklin_bluetooth/race_browser_screen/car_viewer.dart';
+import 'package:marklin_bluetooth/race_browser_screen/lap_viewer_screen.dart';
 import 'package:marklin_bluetooth/utils.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 import 'package:stream_transform/stream_transform.dart';
@@ -30,7 +31,15 @@ class RaceViewerScreen extends StatelessWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: laps.entries
-                  .map((entry) => TextTile(title: "${entry.key}"))
+                  .map((entry) => TextTile(
+                        title: "${entry.key}",
+                        onTap: () =>
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (c) => LapViewerScreen(
+                                      lapNumber: entry.key,
+                                      laps: entry.value,
+                                    ))),
+                      ))
                   .toList(),
             );
           },

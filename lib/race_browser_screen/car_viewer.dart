@@ -29,7 +29,10 @@ class CarViewer extends StatelessWidget {
                   text: dateString((lap.date).toDate()),
                   onTap: () => Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (c) => (LapViewerScreen(lapSnap: lapSnap)),
+                          builder: (c) => (LapViewerScreen(
+                            lapNumber: lap.lapNumber,
+                            laps: {1: lap},
+                          )),
                         ),
                       ));
             }).toList(),
