@@ -22,15 +22,19 @@ class LapViewerScreen extends StatelessWidget {
         data: speedHist,
         domainFn: (lapEntry, index) => lapEntry.key,
         measureFn: (lapEntry, index) => lapEntry.value,
+        colorFn: (lapEntry, index) => charts.ColorUtil.fromDartColor([
+          Colors.green,
+          Colors.purple,
+          Colors.orange,
+          Colors.grey,
+        ][entry.key]),
       );
     }).toList();
     return Scaffold(
       appBar: AppBar(
         title: Text("Viewing lap : $lapNumber"),
       ),
-      body: Center(
-        child: charts.LineChart(series),
-      ),
+      body: Center(child: charts.LineChart(series)),
     );
   }
 }
