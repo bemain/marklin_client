@@ -10,7 +10,6 @@ import 'package:marklin_bluetooth/widgets.dart';
 import 'package:stream_transform/stream_transform.dart';
 
 /// Widget for displaying lap times and other information about [raceSnap].
-/// TODO: Add button for deleting race
 class RaceViewerScreen extends StatelessWidget {
   const RaceViewerScreen({Key? key, required this.raceSnap}) : super(key: key);
 

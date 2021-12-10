@@ -14,7 +14,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _pages = [
     const ControllerScreen(),
     const CurrentRaceScreen(),
-    const RaceBrowserScreen(),
+    const RaceBrowserScreen(includeCurrentRace: false),
   ];
   int _selectedIndex = 0;
 
