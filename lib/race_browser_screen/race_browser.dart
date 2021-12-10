@@ -38,20 +38,34 @@ class RaceBrowserScreenState extends State<RaceBrowserScreen> {
 
               return ListView(
                   children:
-                      races.map((raceSnap) => raceCard(raceSnap)).toList());
+                      races.map((raceSnap) => _raceCard(raceSnap)).toList());
             },
           )),
     );
   }
 
-  Widget raceCard(DocumentSnapshot<Race> raceSnap) {
-    var title = raceString(raceSnap);
-    return TextTile(
-      title: title,
-      text: raceSnap.id,
-      onTap: () => Navigator.of(context).push(
-        MaterialPageRoute(
-            builder: (c) => (RaceViewerScreen(raceSnap: raceSnap))),
+  Widget _raceCard(DocumentSnapshot<Race> raceSnap) {
+    return Card(
+      child: ListTile(
+        title: Text(raceString(raceSnap)),
+        subtitle: Text(raceSnap.id),
+        trailing: IconButton(
+          icon: const Icon(Icons.delete),
+          onPressed: () => showDialog(
+            context: context,
+            builder: (c) => ConfirmationDialog(
+              text:
+                  "Are you sure you want to delete this race? \nID: ${raceSnap.id}",
+              onConfirm: () => setState(() {
+                raceSnap.reference.delete();
+              }),
+            ),
+          ),
+        ),
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(
+              builder: (c) => (RaceViewerScreen(raceSnap: raceSnap))),
+        ),
       ),
     );
   }
