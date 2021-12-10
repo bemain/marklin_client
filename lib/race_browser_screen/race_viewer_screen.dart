@@ -10,9 +10,14 @@ import 'package:stream_transform/stream_transform.dart';
 
 /// Widget for displaying lap times and other information about [raceSnap].
 class RaceViewerScreen extends StatelessWidget {
-  const RaceViewerScreen({Key? key, required this.raceSnap}) : super(key: key);
+  const RaceViewerScreen({
+    Key? key,
+    required this.raceSnap,
+    this.sortDescending = false,
+  }) : super(key: key);
 
   final DocumentSnapshot<Race> raceSnap;
+  final bool sortDescending;
 
   @override
   Widget build(BuildContext context) {
@@ -25,10 +30,12 @@ class RaceViewerScreen extends StatelessWidget {
         builder: niceAsyncBuilder(
           loadingText: "Getting laps...",
           activeBuilder: (BuildContext c, snapshot) {
-            var laps = snapshot.data!;
+            var laps = snapshot.data!.entries.toList();
+            laps.sort(
+                (a, b) => (sortDescending ? -1 : 1) * b.key.compareTo(a.key));
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: laps.entries
+              children: laps
                   .map((entry) => TextTile(
                         title: "${entry.key}",
                         onTap: () =>
