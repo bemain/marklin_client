@@ -88,4 +88,9 @@ class RaceReference {
 
     await docRef.update({"date": timeNow});
   }
+
+  /// Delete [this.race] from the database.
+  Future<void> delete() async {
+    await docRef.delete();
+  }
 }
