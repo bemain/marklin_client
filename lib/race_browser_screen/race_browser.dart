@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:marklin_bluetooth/firebase/race.dart';
 import 'package:marklin_bluetooth/firebase/races.dart';
-import 'package:marklin_bluetooth/race_browser_screen/race_viewer.dart';
+import 'package:marklin_bluetooth/race_browser_screen/race_viewer_screen.dart';
 import 'package:marklin_bluetooth/utils.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
