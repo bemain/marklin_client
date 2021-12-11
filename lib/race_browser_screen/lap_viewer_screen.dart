@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:marklin_bluetooth/firebase/lap.dart';
 
-/// Widget for displaying laps in a chart.
+/// Widget for displaying speed history for laps as a chart.
 class LapViewerScreen extends StatelessWidget {
   final int lapNumber;
 

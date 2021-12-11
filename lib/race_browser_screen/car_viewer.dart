@@ -6,7 +6,7 @@ import 'package:marklin_bluetooth/race_browser_screen/lap_viewer_screen.dart';
 import 'package:marklin_bluetooth/utils.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
-/// Display all the laps for a car in a list.
+/// Widget for displaying all the laps for a car as a list.
 class CarViewer extends StatelessWidget {
   final CarReference carRef;
   final Function(DocumentReference<Lap> lapRef)? onLapSelected;
