@@ -25,31 +25,64 @@ class RaceViewerScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text("Viewing race: ${raceString(raceSnap)}"),
       ),
-      body: StreamBuilder<Map<int, Map<int, Lap>>>(
-        stream: lapsStream(),
-        builder: niceAsyncBuilder(
-          loadingText: "Getting laps...",
-          activeBuilder: (BuildContext c, snapshot) {
-            var laps = snapshot.data!.entries.toList();
-            laps.sort(
-                (a, b) => (sortDescending ? -1 : 1) * b.key.compareTo(a.key));
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: laps
-                  .map((entry) => TextTile(
-                        title: "${entry.key}",
-                        onTap: () =>
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (c) => LapViewerScreen(
-                                      lapNumber: entry.key,
-                                      laps: entry.value,
-                                    ))),
-                      ))
-                  .toList(),
-            );
-          },
-        ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Card(
+            child: ListTile(
+              title: const Text("Viewing race"),
+              subtitle: Text(dateString(raceSnap.data()!.date.toDate())),
+            ),
+          ),
+          Card(
+            child: Column(
+              children: [
+                const ListTile(
+                  title: Text("Laps:"),
+                ),
+                const Divider(),
+                _lapsList(context)
+              ],
+            ),
+          )
+        ],
       ),
+    );
+  }
+
+  Widget _lapsList(BuildContext context) {
+    return StreamBuilder<Map<int, Map<int, Lap>>>(
+      stream: lapsStream(),
+      builder: niceAsyncBuilder(
+        loadingText: "Getting laps...",
+        activeBuilder: (BuildContext c, snapshot) {
+          var laps = snapshot.data!.entries.toList();
+          laps.sort(
+              (a, b) => (sortDescending ? -1 : 1) * b.key.compareTo(a.key));
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: laps.map((entry) => _lapTile(context, entry)).toList(),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _lapTile(BuildContext context, MapEntry<int, Map<int, Lap>> entry) {
+    return ListTile(
+      leading: Text("${entry.key}."),
+      title: Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children:
+            entry.value.values.map((lap) => Text("${lap.lapTime}")).toList(),
+      ),
+      onTap: () => Navigator.of(context).push(MaterialPageRoute(
+          builder: (c) => LapViewerScreen(
+                lapNumber: entry.key,
+                laps: entry.value,
+              ))),
     );
   }
 

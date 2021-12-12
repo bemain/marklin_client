@@ -17,7 +17,27 @@ class LapViewerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var series = laps.entries.map((entry) {
+    var series = _getSeries();
+    return Scaffold(
+        appBar: AppBar(
+          title: Text("Viewing lap : $lapNumber"),
+        ),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Card(
+              child: ListTile(
+                title: Text("Viewing lap nr. $lapNumber"),
+                subtitle: const Text("Speed history:"),
+              ),
+            ),
+            Expanded(child: charts.LineChart(series))
+          ],
+        ));
+  }
+
+  List<charts.Series<MapEntry<int, double>, int>> _getSeries() {
+    return laps.entries.map((entry) {
       var speedHist = entry.value.speedHistory.entries.toList();
       speedHist.sort((a, b) => a.key.compareTo(b.key));
       return charts.Series<MapEntry<int, double>, int>(
@@ -33,11 +53,5 @@ class LapViewerScreen extends StatelessWidget {
         ][entry.key]),
       );
     }).toList();
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Viewing lap : $lapNumber"),
-      ),
-      body: Center(child: charts.LineChart(series)),
-    );
   }
 }
