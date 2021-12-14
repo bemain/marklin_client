@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:marklin_bluetooth/current_race_screen/dialogs.dart';
 import 'package:marklin_bluetooth/firebase/races.dart';
-import 'package:marklin_bluetooth/race_browser_screen/race_viewer.dart';
+import 'package:marklin_bluetooth/race_browser_screen/old_race_viewer.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
 /// Screen for watching and restarting the current race.
@@ -20,7 +20,7 @@ class CurrentRaceScreenState extends State<CurrentRaceScreen> {
       appBar: AppBar(
         title: const Text("Current Race"),
       ),
-      body: RaceViewer(raceRef: Races.currentRaceRef),
+      body: OldRaceViewer(raceRef: Races.currentRaceRef),
       floatingActionButton: StreamBuilder<bool>(
         stream: Races.currentRaceRef.runningStream,
         builder: niceAsyncBuilder(

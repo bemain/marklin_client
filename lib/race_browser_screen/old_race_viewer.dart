@@ -4,8 +4,9 @@ import 'package:marklin_bluetooth/firebase/race_reference.dart';
 import 'package:marklin_bluetooth/race_browser_screen/car_viewer.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
-class RaceViewer extends StatelessWidget {
-  const RaceViewer({Key? key, required this.raceRef}) : super(key: key);
+@Deprecated("Use new RaceViewer instead.")
+class OldRaceViewer extends StatelessWidget {
+  const OldRaceViewer({Key? key, required this.raceRef}) : super(key: key);
 
   final RaceReference raceRef;
 
