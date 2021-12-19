@@ -11,9 +11,14 @@ class InitFirebase extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: _init(),
-      builder: niceAsyncBuilder(activeBuilder: (c, snapshot) => child),
+    return Scaffold(
+      body: FutureBuilder(
+        future: _init(),
+        builder: niceAsyncBuilder(
+          loadingText: "Initializing Firebase...",
+          activeBuilder: (c, snapshot) => child,
+        ),
+      ),
     );
   }
 
