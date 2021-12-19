@@ -20,7 +20,7 @@ class LapViewerScreen extends StatelessWidget {
     var series = _getSeries();
     return Scaffold(
         appBar: AppBar(
-          title: Text("Viewing lap : $lapNumber"),
+          title: const Text("Race Browser"),
         ),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.center,

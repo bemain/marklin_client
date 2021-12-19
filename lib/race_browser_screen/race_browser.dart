@@ -20,31 +20,42 @@ class RaceBrowserScreen extends StatefulWidget {
 class RaceBrowserScreenState extends State<RaceBrowserScreen> {
   @override
   Widget build(BuildContext context) {
+    return Navigator(
+      onGenerateRoute: (settings) {
+        /// Will always return _racesList.
+        /// To push any other screen, use Navigator.push()
+        return MaterialPageRoute(builder: (c) => _racesList());
+      },
+    );
+  }
+
+  Widget _racesList() {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Race Browser"),
       ),
       body: StreamBuilder<QuerySnapshot<Race>>(
-          stream: Races.races.orderBy("date", descending: true).snapshots(),
-          builder: niceAsyncBuilder(
-            loadingText: "Getting races...",
-            activeBuilder: (BuildContext c, snapshot) {
-              List<DocumentSnapshot<Race>> races = snapshot.data!.docs;
+        stream: Races.races.orderBy("date", descending: true).snapshots(),
+        builder: niceAsyncBuilder(
+          loadingText: "Getting races...",
+          activeBuilder: (BuildContext c, snapshot) {
+            List<DocumentSnapshot<Race>> races = snapshot.data!.docs;
 
-              if (!widget.includeCurrentRace) {
-                // Remove current race
-                races.removeWhere((raceSnap) => raceSnap.id == "current");
-              }
+            if (!widget.includeCurrentRace) {
+              // Remove current race
+              races.removeWhere((raceSnap) => raceSnap.id == "current");
+            }
 
-              return ListView(
-                  children:
-                      races.map((raceSnap) => _raceCard(raceSnap)).toList());
-            },
-          )),
+            return ListView(
+                children:
+                    races.map((raceSnap) => _raceCard(c, raceSnap)).toList());
+          },
+        ),
+      ),
     );
   }
 
-  Widget _raceCard(DocumentSnapshot<Race> raceSnap) {
+  Widget _raceCard(BuildContext context, DocumentSnapshot<Race> raceSnap) {
     return Card(
       child: ListTile(
         title: Text(raceString(raceSnap)),

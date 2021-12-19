@@ -23,7 +23,7 @@ class RaceViewerScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Viewing race: ${raceString(raceSnap)}"),
+        title: const Text("Race Browser"),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
