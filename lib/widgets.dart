@@ -47,16 +47,21 @@ class LoadingScreen extends StatelessWidget {
   }
 }
 
-class QuitDialog extends StatelessWidget {
-  const QuitDialog({Key? key, this.onQuit}) : super(key: key);
+class ConfirmationDialog extends StatelessWidget {
+  const ConfirmationDialog({
+    Key? key,
+    required this.text,
+    this.onConfirm,
+  }) : super(key: key);
 
-  final Function? onQuit;
+  final String text;
+  final Function? onConfirm;
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text("Quit?"),
-      content: const Text("Are you sure you want to quit?"),
+      title: const Text("Continue?"),
+      content: Text(text),
       actions: <Widget>[
         TextButton(
           child: const Text("Cancel"),
@@ -65,10 +70,9 @@ class QuitDialog extends StatelessWidget {
           },
         ),
         TextButton(
-          child: const Text("Quit"),
+          child: const Text("Continue"),
           onPressed: () {
-            onQuit?.call();
-            Navigator.of(context).pop();
+            onConfirm?.call();
             Navigator.of(context).pop();
           },
         )

@@ -30,6 +30,8 @@ dependencies:
   flutter:
     sdk: flutter
 
+  stream_transform: ^2.0.0
+
   flutter_blue: ^0.8.0
 
   firebase_core: ^1.6.0

@@ -41,8 +41,7 @@ class RaceReference {
     lapN = currentLap.lapNumber + 1;
 
     // Create new lap
-    currentLap.lapTime = lapTime;
-    await car.lapsRef.add(currentLap);
+    await car.lapsRef.add(Lap.from(currentLap, lapTime: lapTime));
 
     // Update current lap
     await car.currentLapRef.set(Lap(
@@ -88,5 +87,10 @@ class RaceReference {
     }
 
     await docRef.update({"date": timeNow});
+  }
+
+  /// Delete [this.race] from the database.
+  Future<void> delete() async {
+    await docRef.delete();
   }
 }
