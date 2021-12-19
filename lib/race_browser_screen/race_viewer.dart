@@ -2,8 +2,26 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:marklin_bluetooth/firebase/race.dart';
 import 'package:marklin_bluetooth/firebase/race_reference.dart';
+import 'package:marklin_bluetooth/race_browser_screen/car_viewer.dart';
 import 'package:marklin_bluetooth/utils.dart';
 import 'package:marklin_bluetooth/widgets.dart';
+
+/// Widget for displaying lap times and other information about [raceSnap].
+/// TODO: Add button for deleting race
+class RaceViewerScreen extends StatelessWidget {
+  const RaceViewerScreen({Key? key, required this.raceSnap}) : super(key: key);
+
+  final DocumentSnapshot<Race> raceSnap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: Text("Viewing race: ${raceString(raceSnap)}"),
+        ),
+        body: RaceViewer(raceRef: RaceReference(docRef: raceSnap.reference)));
+  }
+}
 
 class RaceViewer extends StatelessWidget {
   const RaceViewer({Key? key, required this.raceRef}) : super(key: key);
@@ -23,34 +41,9 @@ class RaceViewer extends StatelessWidget {
             children: List.generate(
               race.nCars * 2 - 1,
               (i) => i.isEven
-                  ? Expanded(child: lapViewer(raceRef, i ~/ 2))
+                  ? Expanded(child: CarViewer(carRef: raceRef.carRef(i ~/ 2)))
                   : const VerticalDivider(thickness: 1.0),
             ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget lapViewer(RaceReference raceRef, int carID) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: raceRef.docRef
-          .collection("$carID")
-          .orderBy("date", descending: true)
-          .snapshots(),
-      builder: niceAsyncBuilder(
-        loadingText: "Getting lap times...",
-        activeBuilder: (BuildContext c, snapshot) {
-          List<QueryDocumentSnapshot> docs = snapshot.data!.docs;
-          return ListView(
-            children: docs
-                .map(
-                  (doc) => TextTile(
-                    title: "${doc.get("lapNumber")} | ${doc.get("lapTime")}s",
-                    text: dateString((doc.get("date") as Timestamp).toDate()),
-                  ),
-                )
-                .toList(),
           );
         },
       ),
