@@ -8,7 +8,7 @@ import 'package:marklin_bluetooth/widgets.dart';
 
 /// Widget for viewing the races currently on the database
 class RaceBrowserScreen extends StatefulWidget {
-  const RaceBrowserScreen({Key? key, this.includeCurrentRace = true})
+  const RaceBrowserScreen({Key? key, this.includeCurrentRace = false})
       : super(key: key);
 
   final bool includeCurrentRace;
@@ -55,6 +55,7 @@ class RaceBrowserScreenState extends State<RaceBrowserScreen> {
     );
   }
 
+  /// Widget for displaying basic information about a race as a Card.
   Widget _raceCard(BuildContext context, DocumentSnapshot<Race> raceSnap) {
     return Card(
       child: ListTile(

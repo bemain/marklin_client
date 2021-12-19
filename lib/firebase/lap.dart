@@ -30,7 +30,7 @@ class Lap {
               .map((k, v) => MapEntry<int, double>(int.parse(k), v)),
         );
 
-  /// Create a copy of [other], but with some paramaters set (optional).
+  /// Create a copy of [other], but with (optionally) some paramaters set.
   Lap.from(
     Lap other, {
     Timestamp? date,
