@@ -208,7 +208,9 @@ class SpeedSliderState extends State<SpeedSlider> {
 
   void valueReceived(List<int> event) {
     debugPrint("BLUETOOTH: Value received: $event");
-    if (event[0] == carID) Races.currentRaceRef.addLap(carID);
+    if (event.isNotEmpty && event[0] == carID) {
+      Races.currentRaceRef.addLap(event[0] % 2);
+    }
   }
 
   void slowDown(Timer timer) {
