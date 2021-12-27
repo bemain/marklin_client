@@ -41,7 +41,8 @@ class RaceReference {
     lapN = currentLap.lapNumber + 1;
 
     // Create new lap
-    await car.lapsRef.add(Lap.from(currentLap, lapTime: lapTime));
+    currentLap.lapTime = lapTime;
+    await car.lapsRef.add(currentLap);
 
     // Update current lap
     await car.currentLapRef.set(Lap(
