@@ -25,8 +25,7 @@ class RaceViewerScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Race Browser"),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      body: ListView(
         children: [
           Card(
             child: ListTile(
