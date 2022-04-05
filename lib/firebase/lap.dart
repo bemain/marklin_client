@@ -18,8 +18,8 @@ class Lap {
     required this.date,
     required this.lapTime,
     required this.lapNumber,
-    this.speedHistory = const {},
-  });
+    speedHistory,
+  }) : speedHistory = speedHistory ?? {};
 
   Lap.fromJson(Map<String, dynamic> json)
       : this(
