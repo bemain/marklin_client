@@ -9,7 +9,9 @@ import 'package:marklin_bluetooth/widgets.dart';
 
 /// Screen for controlling and receiving lap times from the cars.
 class ControllerScreen extends StatefulWidget {
-  const ControllerScreen({Key? key}) : super(key: key);
+  final bool debugMode;
+
+  const ControllerScreen({Key? key, this.debugMode = false}) : super(key: key);
 
   @override
   _ControllerScreenState createState() => _ControllerScreenState();
@@ -21,7 +23,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return (Bluetooth.device == null)
+    return (!widget.debugMode && Bluetooth.device == null)
         ? SelectDeviceScreen(onDeviceConnected: (device) => setState(() {}))
         : Theme(
             data: ThemeData(
@@ -34,7 +36,8 @@ class _ControllerScreenState extends State<ControllerScreen> {
             ),
             child: Scaffold(
               appBar: AppBar(
-                title: const Text("Märklin BLE Controller"),
+                title: Text("Märklin BLE Controller" +
+                    (widget.debugMode ? "(Debug)" : "")),
                 actions: [
                   IconButton(
                       icon: const Icon(Icons.plus_one),
@@ -53,6 +56,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
                 ],
               ),
               body: SpeedSlider(
+                debugMode: widget.debugMode,
                 enableSlowDown: _enableSlowDown,
                 onCarIDChange: (id) {
                   setState(() {
@@ -65,11 +69,16 @@ class _ControllerScreenState extends State<ControllerScreen> {
 }
 
 class SpeedSlider extends StatefulWidget {
-  const SpeedSlider({Key? key, this.enableSlowDown = false, this.onCarIDChange})
-      : super(key: key);
-
   final bool enableSlowDown;
   final Function(int newID)? onCarIDChange;
+  final bool debugMode;
+
+  const SpeedSlider(
+      {Key? key,
+      this.enableSlowDown = false,
+      this.onCarIDChange,
+      this.debugMode = false})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => SpeedSliderState();
@@ -166,6 +175,7 @@ class SpeedSliderState extends State<SpeedSlider> {
   /// Requires [Bluetooth.device] to be a connected BluetoothDevice
   /// Returns true if successful, false otherwise
   Future<bool> getCharacteristic() async {
+    if (widget.debugMode) return true;
     assert(Bluetooth.device != null); // Needs connected BT device
 
     List<BluetoothService> services =
@@ -187,8 +197,12 @@ class SpeedSliderState extends State<SpeedSlider> {
     // Send speed to bluetooth device
     if (sendNeeded) {
       Races.currentRaceRef.addSpeedEntry(carID, speed);
-      await _speedChar
-          ?.write([carID, 100 - speed.toInt()], withoutResponse: true);
+      if (!widget.debugMode) {
+        await _speedChar?.write(
+          [carID, 100 - speed.toInt()],
+          withoutResponse: true,
+        );
+      }
       sendNeeded = false;
     }
   }
