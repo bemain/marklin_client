@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:marklin_bluetooth/current_race_screen/dialogs.dart';
+import 'package:marklin_bluetooth/firebase/car_reference.dart';
 import 'package:marklin_bluetooth/firebase/races.dart';
 import 'package:marklin_bluetooth/race_browser_screen/old_race_viewer.dart';
 import 'package:marklin_bluetooth/widgets.dart';
@@ -41,10 +42,8 @@ class CurrentRaceScreenState extends State<CurrentRaceScreen> {
                       "date": timeNow,
                       "running": true,
                     });
-                    for (int carID = 0; carID < 4; carID++) {
-                      Races.currentRaceRef.carRef(carID).currentLapRef.update({
-                        "date": timeNow,
-                      });
+                    for (CarReference car in Races.currentRaceRef.carRefs) {
+                      car.currentLap.date = timeNow;
                     }
                   }
                 });
