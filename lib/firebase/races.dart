@@ -8,14 +8,15 @@ import 'package:marklin_bluetooth/firebase/race_reference.dart';
 /// Requires Firebase to be initalized (Firebase.initializeApp()).
 class Races {
   /// All the races on the database
-  static CollectionReference<Race> races =
+  static final CollectionReference<Race> races =
       FirebaseFirestore.instance.collection("races").withConverter<Race>(
             fromFirestore: (snapshot, _) => Race.fromJson(snapshot.data()!),
             toFirestore: (race, _) => race.toJson(),
           );
 
-  static DocumentReference<Race> currentRaceDoc = races.doc("current");
-  static RaceReference currentRaceRef = RaceReference(docRef: currentRaceDoc);
+  static final DocumentReference<Race> currentRaceDoc = races.doc("current");
+  static final RaceReference currentRaceRef =
+      RaceReference(docRef: currentRaceDoc);
 
   /// Copy current race to a new race, then clear the current race.
   static Future<void> saveCurrentRace() async {
@@ -25,9 +26,7 @@ class Races {
 
     // Copy laps
     for (var carID = 0; carID < (await currentRaceRef.race).nCars; carID++) {
-      for (var lapSnap in await currentRaceRef
-          .carRef(carID)
-          .getLapDocs(includeCurrent: false)) {
+      for (var lapSnap in await currentRaceRef.carRef(carID).getLapDocs()) {
         newRaceDocRef
             .collection("$carID")
             .doc(lapSnap.id)

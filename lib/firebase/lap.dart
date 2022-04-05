@@ -2,24 +2,24 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Lap {
   /// When this lap was started.
-  final Timestamp date;
+  Timestamp date;
 
   /// The time this lap took to complete, in seconds.
-  final double lapTime;
+  double lapTime;
 
-  final int lapNumber;
+  int lapNumber;
 
   /// How the speed has varied during [this] lap
   /// The key is the time since [this] lap was started,
   /// and the value is the speed at that time.
-  final Map<int, double> speedHistory;
+  Map<int, double> speedHistory;
 
-  const Lap({
+  Lap({
     required this.date,
     required this.lapTime,
     required this.lapNumber,
-    this.speedHistory = const {},
-  });
+    speedHistory,
+  }) : speedHistory = speedHistory ?? {};
 
   Lap.fromJson(Map<String, dynamic> json)
       : this(
@@ -28,20 +28,6 @@ class Lap {
           lapNumber: json["lapNumber"],
           speedHistory: Map.from(json["speedHistory"] ?? {})
               .map((k, v) => MapEntry<int, double>(int.parse(k), v)),
-        );
-
-  /// Create a copy of [other], but with (optionally) some paramaters set.
-  Lap.from(
-    Lap other, {
-    Timestamp? date,
-    double? lapTime,
-    int? lapNumber,
-    Map<int, double>? speedHistory,
-  }) : this(
-          date: date ?? other.date,
-          lapTime: lapTime ?? other.lapTime,
-          lapNumber: lapNumber ?? other.lapNumber,
-          speedHistory: speedHistory ?? other.speedHistory,
         );
 
   Map<String, dynamic> toJson() => {
