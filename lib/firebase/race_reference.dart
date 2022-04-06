@@ -16,7 +16,11 @@ class RaceReference {
 
   RaceReference({required this.docRef})
       : carRefs = List.generate(
-            4, (carID) => CarReference(collRef: docRef.collection("$carID")));
+            4,
+            (carID) => CarReference(
+                  carID: carID,
+                  collRef: docRef.collection("$carID"),
+                ));
 
   final List<CarReference> carRefs;
 

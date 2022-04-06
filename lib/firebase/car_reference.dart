@@ -2,10 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:marklin_bluetooth/firebase/lap.dart';
 
 class CarReference {
+  final int carID;
+
   final CollectionReference<Map<String, dynamic>> collRef;
   final CollectionReference<Lap> lapsRef;
 
-  CarReference({required this.collRef})
+  CarReference({required this.carID, required this.collRef})
       : lapsRef = collRef.withConverter<Lap>(
           fromFirestore: (snapshot, _) => Lap.fromJson(snapshot.data()!),
           toFirestore: (lap, _) => lap.toJson(),
