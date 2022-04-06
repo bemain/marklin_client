@@ -26,4 +26,13 @@ class CarReference {
     var docSnaps = await getLapDocs();
     return docSnaps.map((doc) => doc.data()!).toList();
   }
+
+  Future<void> clear() async {
+    // Delete laps
+    for (var lap in (await getLapDocs())) {
+      await lap.reference.delete();
+    }
+    // Reset current lap
+    currentLap = Lap(date: Timestamp.now(), lapNumber: 0, lapTime: 0);
+  }
 }
