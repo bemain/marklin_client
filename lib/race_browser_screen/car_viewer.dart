@@ -9,10 +9,8 @@ import 'package:marklin_bluetooth/widgets.dart';
 /// Widget for displaying all the laps for a car as a list.
 class CarViewer extends StatelessWidget {
   final CarReference carRef;
-  final Function(DocumentReference<Lap> lapRef)? onLapSelected;
 
-  const CarViewer({Key? key, required this.carRef, this.onLapSelected})
-      : super(key: key);
+  const CarViewer({Key? key, required this.carRef}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
