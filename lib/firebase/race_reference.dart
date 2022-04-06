@@ -15,13 +15,13 @@ class RaceReference {
       docRef.snapshots().map((doc) => doc.get("running"));
 
   RaceReference({required this.docRef})
-      : _carRefs = List.generate(
+      : carRefs = List.generate(
             4, (carID) => CarReference(collRef: docRef.collection("$carID")));
 
-  final List<CarReference> _carRefs;
+  final List<CarReference> carRefs;
 
   /// The reference to the car with id [carID] on [this.race].
-  CarReference carRef(int carID) => _carRefs[carID];
+  CarReference carRef(int carID) => carRefs[carID];
 
   /// Add time since current lap to lap times of [carID] on [this.race],
   /// if current lap exists.
