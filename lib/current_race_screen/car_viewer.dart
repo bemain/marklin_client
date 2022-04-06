@@ -30,7 +30,7 @@ class CarViewer extends StatelessWidget {
                         MaterialPageRoute(
                           builder: (c) => (LapViewerScreen(
                             lapNumber: lap.lapNumber,
-                            laps: {1: lap},
+                            laps: {carRef.carID: lap},
                           )),
                         ),
                       ));
