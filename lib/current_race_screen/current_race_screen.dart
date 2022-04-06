@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:marklin_bluetooth/current_race_screen/dialogs.dart';
+import 'package:marklin_bluetooth/current_race_screen/new_race_dialog.dart';
 import 'package:marklin_bluetooth/firebase/car_reference.dart';
 import 'package:marklin_bluetooth/firebase/races.dart';
 import 'package:marklin_bluetooth/current_race_screen/current_laps_viewer.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:marklin_bluetooth/firebase/race.dart';
 import 'package:marklin_bluetooth/firebase/races.dart';
-import 'package:marklin_bluetooth/race_browser_screen/car_viewer.dart';
+import 'package:marklin_bluetooth/current_race_screen/car_viewer.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
 /// A widget that displays the laps for the current race, seperated per car.
