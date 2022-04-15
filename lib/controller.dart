@@ -87,10 +87,6 @@ class SpeedSlider extends StatefulWidget {
 class SpeedSliderState extends State<SpeedSlider> {
   final friction = 10;
 
-  String serviceID = "0000181c-0000-1000-8000-00805f9b34fb";
-  String speedCharID = "0000180c-0000-1000-8000-00805f9b34fb";
-  String lapCharID = "0000181c-0000-1000-8000-00805f9b34fb";
-
   double speed = 0.0;
   int carID = 0;
 
@@ -123,8 +119,8 @@ class SpeedSliderState extends State<SpeedSlider> {
               ? CharacteristicSelectorScreen(
                   onCharSelected: (sid, cid) {
                     setState(() {
-                      serviceID = sid;
-                      speedCharID = cid;
+                      Bluetooth.serviceID = sid;
+                      Bluetooth.speedCharID = cid;
                       _futureChar = getCharacteristic();
                     });
                   },
@@ -182,13 +178,14 @@ class SpeedSliderState extends State<SpeedSlider> {
     // Discover services
     List<BluetoothService> services =
         await Bluetooth.device!.discoverServices();
-    var sers = services.where((s) => s.uuid == Guid(serviceID)).toList();
+    var sers =
+        services.where((s) => s.uuid == Guid(Bluetooth.serviceID)).toList();
     if (sers.isEmpty) return false; // Service not found
 
     // Speed char
     var _speedChars = sers[0]
         .characteristics
-        .where((c) => c.uuid == Guid(speedCharID))
+        .where((c) => c.uuid == Guid(Bluetooth.speedCharID))
         .toList();
     if (_speedChars.isEmpty) return false; // Characteristic not found
     _speedChar = _speedChars[0];
@@ -196,7 +193,7 @@ class SpeedSliderState extends State<SpeedSlider> {
     // Lap char
     var _lapChars = sers[0]
         .characteristics
-        .where((c) => c.uuid == Guid(lapCharID))
+        .where((c) => c.uuid == Guid(Bluetooth.lapCharID))
         .toList();
     if (_lapChars.isEmpty) return false; // Characteristic not found
     // Listen to changes

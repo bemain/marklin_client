@@ -6,6 +6,11 @@ import 'package:marklin_bluetooth/widgets.dart';
 
 class Bluetooth {
   static BluetoothDevice? device;
+
+  static String serviceID = "0000181c-0000-1000-8000-00805f9b34fb";
+
+  static String speedCharID = "0000180c-0000-1000-8000-00805f9b34fb";
+  static String lapCharID = "0000181c-0000-1000-8000-00805f9b34fb";
 }
 
 class SelectDeviceScreen extends StatefulWidget {
