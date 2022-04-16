@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "686308175049",
+    "firebase_url": "https://marklin-bluetooth-default-rtdb.firebaseio.com",
     "project_id": "marklin-bluetooth",
     "storage_bucket": "marklin-bluetooth.appspot.com"
   },
