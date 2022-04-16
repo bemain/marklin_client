@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_blue/flutter_blue.dart';
 import 'package:marklin_bluetooth/bluetooth/bluetooth.dart';
 import 'package:marklin_bluetooth/bluetooth/setup_bluetooth_screen.dart';
 import 'package:marklin_bluetooth/firebase/races.dart';
@@ -153,40 +152,6 @@ class SpeedSliderState extends State<SpeedSlider> {
 
     sendLoop?.cancel();
     slowDownLoop?.cancel();
-  }
-
-  /// Tries to get the given characteristic from [Bluetooth.device].
-  /// Requires [Bluetooth.device] to be a connected BluetoothDevice
-  /// Returns true if successful, false otherwise
-  Future<bool> getCharacteristic() async {
-    if (widget.debugMode) return true;
-    assert(Bluetooth.device != null); // Needs connected BT device
-
-    // Discover services
-    List<BluetoothService> services =
-        await Bluetooth.device!.discoverServices();
-    var sers =
-        services.where((s) => s.uuid == Guid(Bluetooth.serviceID)).toList();
-    if (sers.isEmpty) return false; // Service not found
-
-    // Speed char
-    var _speedChars = sers[0]
-        .characteristics
-        .where((c) => c.uuid == Guid(Bluetooth.speedCharID))
-        .toList();
-    if (_speedChars.isEmpty) return false; // Characteristic not found
-
-    // Lap char
-    var _lapChars = sers[0]
-        .characteristics
-        .where((c) => c.uuid == Guid(Bluetooth.lapCharID))
-        .toList();
-    if (_lapChars.isEmpty) return false; // Characteristic not found
-    // Listen to changes
-    await _lapChars[0].setNotifyValue(true);
-    _lapChars[0].value.listen(valueReceived);
-
-    return true;
   }
 
   void sendSpeed(Timer timer) async {
