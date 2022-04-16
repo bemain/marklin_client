@@ -16,7 +16,11 @@ class RaceReference {
 
   RaceReference({required this.docRef})
       : carRefs = List.generate(
-            4, (carID) => CarReference(collRef: docRef.collection("$carID")));
+            4,
+            (carID) => CarReference(
+                  carID: carID,
+                  collRef: docRef.collection("$carID"),
+                ));
 
   final List<CarReference> carRefs;
 
@@ -67,14 +71,12 @@ class RaceReference {
   Future<void> clear() async {
     Timestamp timeNow = Timestamp.now();
 
-    for (var carID = 0; carID < (await race).nCars; carID++) {
-      CarReference car = carRef(carID);
-      // Delete laps
-      for (var lap in (await car.getLapDocs())) {
-        await lap.reference.delete();
-      }
+    // Reset cars
+    for (CarReference car in carRefs) {
+      car.clear();
     }
 
+    // Reset date
     await docRef.update({"date": timeNow});
   }
 
