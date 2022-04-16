@@ -6,7 +6,6 @@ import 'package:flutter_blue/flutter_blue.dart';
 import 'package:marklin_bluetooth/bluetooth/bluetooth.dart';
 import 'package:marklin_bluetooth/bluetooth/setup_bluetooth_screen.dart';
 import 'package:marklin_bluetooth/firebase/races.dart';
-import 'package:marklin_bluetooth/widgets.dart';
 
 /// Screen for controlling and receiving lap times from the cars.
 class ControllerScreen extends StatefulWidget {
@@ -97,13 +96,18 @@ class SpeedSliderState extends State<SpeedSlider> {
   bool sendNeeded = false;
   Timer? sendLoop;
 
-  Future<bool>? _futureChar;
-  BluetoothCharacteristic? _speedChar;
-
   @override
   void initState() {
     super.initState();
-    _futureChar = getCharacteristic();
+
+    // Listen for lap notifies
+    assert(
+      Bluetooth.lapChar != null,
+      "No BT Lap Characteristic has been selected",
+    );
+    Bluetooth.lapChar?.setNotifyValue(true).then((value) {
+      Bluetooth.lapChar?.value.listen(valueReceived);
+    });
 
     sendLoop = Timer.periodic(const Duration(milliseconds: 100), sendSpeed);
     slowDownLoop = Timer.periodic(const Duration(milliseconds: 10), slowDown);
@@ -111,31 +115,13 @@ class SpeedSliderState extends State<SpeedSlider> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<bool>(
-      future: _futureChar,
-      builder: niceAsyncBuilder(
-        loadingText: "Getting characteristic...",
-        activeBuilder: (BuildContext c, snapshot) {
-          return (!snapshot.data!) // Characteristic not found
-              ? CharacteristicSelectorScreen(
-                  onCharSelected: (sid, cid) {
-                    setState(() {
-                      Bluetooth.serviceID = sid;
-                      Bluetooth.speedCharID = cid;
-                      _futureChar = getCharacteristic();
-                    });
-                  },
-                )
-              : PageView(
-                  children: List.filled(4, _buildSlider()),
-                  onPageChanged: (int i) => setState(() {
-                    carID = i;
-                    sendNeeded = true;
-                    widget.onCarIDChange?.call(carID);
-                  }),
-                );
-        },
-      ),
+    return PageView(
+      children: List.filled(4, _buildSlider()),
+      onPageChanged: (int i) => setState(() {
+        carID = i;
+        sendNeeded = true;
+        widget.onCarIDChange?.call(carID);
+      }),
     );
   }
 
@@ -189,7 +175,6 @@ class SpeedSliderState extends State<SpeedSlider> {
         .where((c) => c.uuid == Guid(Bluetooth.speedCharID))
         .toList();
     if (_speedChars.isEmpty) return false; // Characteristic not found
-    _speedChar = _speedChars[0];
 
     // Lap char
     var _lapChars = sers[0]
@@ -205,11 +190,16 @@ class SpeedSliderState extends State<SpeedSlider> {
   }
 
   void sendSpeed(Timer timer) async {
+    assert(
+      Bluetooth.speedChar != null,
+      "No BT Speed Characteristic has been selected",
+    );
+
     // Send speed to bluetooth device
     if (sendNeeded) {
       Races.currentRaceRef.addSpeedEntry(carID, speed);
       if (!widget.debugMode) {
-        await _speedChar?.write(
+        await Bluetooth.speedChar?.write(
           [carID, 100 - speed.toInt()],
           withoutResponse: true,
         );
