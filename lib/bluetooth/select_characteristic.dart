@@ -4,6 +4,10 @@ import 'package:marklin_bluetooth/bluetooth/bluetooth.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
 class SelectCharacteristicScreen extends StatelessWidget {
+  /// Widget for selecting a Bluetooth Characteristic for [Bluetooth.service].
+  ///
+  /// Tries to get characteristic automatically using [autoconnectID].
+  /// If this fails or id not given, lets user select characteristic from list.
   const SelectCharacteristicScreen({
     Key? key,
     this.title = const Text("Select Bluetooth Characteristic"),

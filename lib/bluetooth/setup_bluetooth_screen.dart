@@ -8,13 +8,13 @@ import 'package:marklin_bluetooth/bluetooth/select_device.dart';
 import 'package:marklin_bluetooth/bluetooth/select_service.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
-/// Setups Bluetooth; this includes 4 steps:
-/// 1) Inits Blutooth
-/// 2) Lets user select BT Device, then connects
-/// 3) Lets user select BT Service
-/// 4) Lets user select BT Characterstic for both speed and lap
-/// Then runs [onSetupComplete]
 class SetupBTScreen extends StatefulWidget {
+  /// Setups Bluetooth; this includes 4 steps:
+  /// 1) Inits Blutooth
+  /// 2) Lets user select BT Device, then connects
+  /// 3) Lets user select BT Service
+  /// 4) Lets user select BT Characterstic for both speed and lap
+  /// Then runs [onSetupComplete]
   const SetupBTScreen({Key? key, required this.onSetupComplete})
       : super(key: key);
 
