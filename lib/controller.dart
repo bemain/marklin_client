@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:marklin_bluetooth/bluetooth.dart';
+import 'package:marklin_bluetooth/setup_bt_screen.dart';
 import 'package:marklin_bluetooth/firebase/races.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
@@ -24,7 +25,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
   @override
   Widget build(BuildContext context) {
     return (!widget.debugMode && Bluetooth.device == null)
-        ? SelectDeviceScreen(onDeviceConnected: (device) => setState(() {}))
+        ? SetupBTScreen(onSetupComplete: () => setState(() {}))
         : Theme(
             data: ThemeData(
               primarySwatch: [
