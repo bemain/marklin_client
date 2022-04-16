@@ -60,6 +60,7 @@ class _SetupBTScreenState extends State<SetupBTScreen> {
         );
       case 3: // Select Bluetooth Service
         return SelectServiceScreen(
+          autoconnectID: Bluetooth.serviceID,
           onServiceSelected: (String serviceID, BluetoothService service) {
             //Bluetooth.serviceID = serviceID;
             Bluetooth.service = service;
@@ -70,6 +71,7 @@ class _SetupBTScreenState extends State<SetupBTScreen> {
       case 4: // Select speed char
         return SelectCharacteristicScreen(
           title: const Text("Select Speed Characteristic"),
+          autoconnectID: Bluetooth.speedCharID,
           onCharSelected: (String charID, BluetoothCharacteristic char) {
             Bluetooth.speedChar = char;
             queueNextStage();
@@ -78,6 +80,7 @@ class _SetupBTScreenState extends State<SetupBTScreen> {
       case 5: // Select lap char
         return SelectCharacteristicScreen(
           title: const Text("Select Lap Characteristic"),
+          autoconnectID: Bluetooth.lapCharID,
           onCharSelected: (String charID, BluetoothCharacteristic char) {
             Bluetooth.lapChar = char;
             queueNextStage();

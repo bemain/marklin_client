@@ -4,9 +4,11 @@ import 'package:marklin_bluetooth/bluetooth/bluetooth.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
 class SelectServiceScreen extends StatelessWidget {
-  const SelectServiceScreen({Key? key, this.onServiceSelected})
+  const SelectServiceScreen(
+      {Key? key, this.autoconnectID, this.onServiceSelected})
       : super(key: key);
 
+  final String? autoconnectID;
   final Function(String serviceID, BluetoothService service)? onServiceSelected;
 
   @override
@@ -23,8 +25,24 @@ class SelectServiceScreen extends StatelessWidget {
         builder: niceAsyncBuilder(
           loadingText: "Getting services...",
           activeBuilder: (BuildContext c, snapshot) {
+            List<BluetoothService> services = snapshot.data!;
+            if (autoconnectID != null) {
+              // Try using Bluetooth.serviceID to get service automatically
+              var sers = services
+                  .where((s) => s.uuid == Guid(autoconnectID!))
+                  .toList();
+              if (sers.isNotEmpty) {
+                onServiceSelected?.call(sers[0].uuid.toString(), sers[0]);
+                return const InfoScreen(
+                  icon: Icon(Icons.select_all),
+                  text: "Service automatically selected",
+                );
+              }
+            }
+
+            // Otherwise, let user select service from list
             return ListView(
-              children: snapshot.data!
+              children: services
                   .map((serv) => TextTile(
                         title: serv.uuid.toString(),
                         onTap: () {
