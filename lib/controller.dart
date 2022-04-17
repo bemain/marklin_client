@@ -22,48 +22,76 @@ class ControllerScreenState extends State<ControllerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return (!widget.debugMode && Bluetooth.device == null)
-        ? SetupBTScreen(onSetupComplete: () => setState(() {}))
-        : Theme(
-            data: ThemeData(
-              primarySwatch: [
-                Colors.green,
-                Colors.purple,
-                Colors.orange,
-                Colors.grey,
-              ][carID],
-            ),
-            child: Scaffold(
-              appBar: AppBar(
-                title:
-                    Text("BLE Controller ${widget.debugMode ? "(Debug)" : ""}"),
-                actions: [
-                  IconButton(
-                      icon: const Icon(Icons.plus_one),
-                      onPressed: () async => Races.currentRaceRef
-                          .addLap(carID) // Add lap to database
-                      ),
-                  IconButton(
-                      icon: Icon(enableSlowDown
-                          ? Icons.toggle_on
-                          : Icons.toggle_off_outlined),
-                      onPressed: () {
-                        setState(() {
-                          enableSlowDown = !enableSlowDown; // Toggle slowdown
-                        });
-                      })
-                ],
-              ),
-              body: SpeedSlider(
-                debugMode: widget.debugMode,
-                enableSlowDown: enableSlowDown,
-                onCarIDChange: (id) {
+    if (widget.debugMode) return buildDebug(context); // Debug mode
+
+    if (Bluetooth.device == null) {
+      // Setup Bluetooth
+      return SetupBTScreen(onSetupComplete: () => setState(() {}));
+    }
+
+    return Theme(
+      data: ThemeData(
+        primarySwatch: [
+          Colors.green,
+          Colors.purple,
+          Colors.orange,
+          Colors.grey,
+        ][carID],
+      ),
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text("BLE Controller"),
+        ),
+        body: buildSlider(),
+      ),
+    );
+  }
+
+  Widget buildSlider() {
+    return SpeedSlider(
+      debugMode: widget.debugMode,
+      enableSlowDown: enableSlowDown,
+      onCarIDChange: (id) {
+        setState(() {
+          carID = id;
+        });
+      },
+    );
+  }
+
+  Widget buildDebug(BuildContext context) {
+    return Theme(
+      data: ThemeData(
+        primarySwatch: [
+          Colors.green,
+          Colors.purple,
+          Colors.orange,
+          Colors.grey,
+        ][carID],
+      ),
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text("BLE Controller (Debug)"),
+          actions: [
+            IconButton(
+                icon: const Icon(Icons.plus_one),
+                onPressed: () async =>
+                    Races.currentRaceRef.addLap(carID) // Add lap to database
+                ),
+            IconButton(
+                icon: Icon(enableSlowDown
+                    ? Icons.toggle_on
+                    : Icons.toggle_off_outlined),
+                onPressed: () {
                   setState(() {
-                    carID = id;
+                    enableSlowDown = !enableSlowDown; // Toggle slowdown
                   });
-                },
-              ),
-            ));
+                })
+          ],
+        ),
+        body: buildSlider(),
+      ),
+    );
   }
 }
 
@@ -99,14 +127,16 @@ class SpeedSliderState extends State<SpeedSlider> {
   void initState() {
     super.initState();
 
-    // Listen for lap notifies
-    assert(
-      Bluetooth.lapChar != null,
-      "No BT Lap Characteristic has been selected",
-    );
-    Bluetooth.lapChar?.setNotifyValue(true).then((value) {
-      Bluetooth.lapChar?.value.listen(valueReceived);
-    });
+    if (!widget.debugMode) {
+      // Listen for lap notifies
+      assert(
+        Bluetooth.lapChar != null,
+        "No BT Lap Characteristic has been selected",
+      );
+      Bluetooth.lapChar?.setNotifyValue(true).then((value) {
+        Bluetooth.lapChar?.value.listen(valueReceived);
+      });
+    }
 
     sendLoop = Timer.periodic(const Duration(milliseconds: 100), sendSpeed);
     slowDownLoop = Timer.periodic(const Duration(milliseconds: 10), slowDown);
@@ -155,22 +185,21 @@ class SpeedSliderState extends State<SpeedSlider> {
   }
 
   void sendSpeed(Timer timer) async {
-    assert(
-      Bluetooth.speedChar != null,
-      "No BT Speed Characteristic has been selected",
-    );
-
-    // Send speed to bluetooth device
     if (sendNeeded) {
-      Races.currentRaceRef.addSpeedEntry(carID, speed);
+      Races.currentRaceRef.addSpeedEntry(carID, speed); // Record speed
       if (!widget.debugMode) {
+        // Send speed to bluetooth device
+        assert(
+          Bluetooth.speedChar != null,
+          "No BT Speed Characteristic has been selected",
+        );
         await Bluetooth.speedChar?.write(
           [carID, 100 - speed.toInt()],
           withoutResponse: true,
         );
       }
-      sendNeeded = false;
     }
+    sendNeeded = false;
   }
 
   void valueReceived(List<int> event) {
