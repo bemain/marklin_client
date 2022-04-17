@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:marklin_bluetooth/bluetooth/bluetooth.dart';
 import 'package:marklin_bluetooth/bluetooth/select_characteristic.dart';
@@ -101,8 +102,8 @@ class _SetupBTScreenState extends State<SetupBTScreen> {
   }
 
   void queueNextStage() {
-    // Wait 1 sec before moving to next stage
-    Timer(const Duration(seconds: 0), () {
+    // Wait until end of frame before changing stage
+    SchedulerBinding.instance.addPostFrameCallback((_) {
       setState(() {
         setupStage++;
       });
