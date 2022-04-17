@@ -35,8 +35,8 @@ class _ControllerScreenState extends State<ControllerScreen> {
             ),
             child: Scaffold(
               appBar: AppBar(
-                title: Text("Märklin BLE Controller" +
-                    (widget.debugMode ? "(Debug)" : "")),
+                title:
+                    Text("BLE Controller ${widget.debugMode ? "(Debug)" : ""}"),
                 actions: [
                   IconButton(
                       icon: const Icon(Icons.plus_one),
