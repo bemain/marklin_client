@@ -13,11 +13,11 @@ class ControllerScreen extends StatefulWidget {
   const ControllerScreen({Key? key, this.debugMode = false}) : super(key: key);
 
   @override
-  _ControllerScreenState createState() => _ControllerScreenState();
+  ControllerScreenState createState() => ControllerScreenState();
 }
 
-class _ControllerScreenState extends State<ControllerScreen> {
-  bool _enableSlowDown = true;
+class ControllerScreenState extends State<ControllerScreen> {
+  bool enableSlowDown = true;
   int carID = 0;
 
   @override
@@ -44,19 +44,19 @@ class _ControllerScreenState extends State<ControllerScreen> {
                           .addLap(carID) // Add lap to database
                       ),
                   IconButton(
-                      icon: Icon(_enableSlowDown
+                      icon: Icon(enableSlowDown
                           ? Icons.toggle_on
                           : Icons.toggle_off_outlined),
                       onPressed: () {
                         setState(() {
-                          _enableSlowDown = !_enableSlowDown; // Toggle slowdown
+                          enableSlowDown = !enableSlowDown; // Toggle slowdown
                         });
                       })
                 ],
               ),
               body: SpeedSlider(
                 debugMode: widget.debugMode,
-                enableSlowDown: _enableSlowDown,
+                enableSlowDown: enableSlowDown,
                 onCarIDChange: (id) {
                   setState(() {
                     carID = id;
