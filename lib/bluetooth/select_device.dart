@@ -6,11 +6,13 @@ import 'package:marklin_bluetooth/widgets.dart';
 /// Widget for selecting a Bluetooth Device from list, and connecting to it.
 class SelectDeviceScreen extends StatefulWidget {
   final Function(BluetoothDevice device)? onDeviceConnected;
+  final Function? onDebugModeSelected;
   final DeviceIdentifier? autoconnectID;
 
   const SelectDeviceScreen({
     Key? key,
     this.onDeviceConnected,
+    this.onDebugModeSelected,
     this.autoconnectID,
   }) : super(key: key);
 
@@ -28,6 +30,12 @@ class SelectDeviceScreenState extends State<SelectDeviceScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Select Bluetooth Device"),
+        actions: [
+          IconButton(
+            onPressed: (() => widget.onDebugModeSelected?.call()),
+            icon: const Icon(Icons.developer_mode),
+          )
+        ],
       ),
       body: (selectedDevice == null)
           ? StreamBuilder<List<ScanResult>>(

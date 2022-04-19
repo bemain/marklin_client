@@ -19,7 +19,7 @@ class SetupBTScreen extends StatefulWidget {
   const SetupBTScreen({Key? key, required this.onSetupComplete})
       : super(key: key);
 
-  final Function onSetupComplete;
+  final Function(bool debugMode) onSetupComplete;
 
   @override
   State<StatefulWidget> createState() => _SetupBTScreenState();
@@ -29,6 +29,7 @@ class _SetupBTScreenState extends State<SetupBTScreen> {
   final FlutterBlue flutterBlue = FlutterBlue.instance;
 
   int setupStage = 1;
+  bool debugMode = false;
 
   @override
   Widget build(BuildContext context) {
@@ -58,6 +59,14 @@ class _SetupBTScreenState extends State<SetupBTScreen> {
           onDeviceConnected: (BluetoothDevice device) {
             Bluetooth.device = device;
             queueNextStage();
+          },
+          onDebugModeSelected: () {
+            debugMode = true;
+            SchedulerBinding.instance.addPostFrameCallback((_) {
+              setState(() {
+                setupStage = -1;
+              });
+            });
           },
         );
       case 3: // Select Bluetooth Service
@@ -92,7 +101,7 @@ class _SetupBTScreenState extends State<SetupBTScreen> {
       default:
         // Wait 1 sec before triggering callback
         Timer(const Duration(seconds: 1), () {
-          widget.onSetupComplete.call();
+          widget.onSetupComplete.call(debugMode);
         });
 
         return const InfoScreen(

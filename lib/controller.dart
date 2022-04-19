@@ -8,25 +8,28 @@ import 'package:marklin_bluetooth/firebase/races.dart';
 
 /// Screen for controlling and receiving lap times from the cars.
 class ControllerScreen extends StatefulWidget {
-  final bool debugMode;
-
-  const ControllerScreen({Key? key, this.debugMode = false}) : super(key: key);
+  const ControllerScreen({Key? key}) : super(key: key);
 
   @override
   ControllerScreenState createState() => ControllerScreenState();
 }
 
 class ControllerScreenState extends State<ControllerScreen> {
+  bool debugMode = false;
   bool enableSlowDown = true;
   int carID = 0;
 
   @override
   Widget build(BuildContext context) {
-    if (widget.debugMode) return buildDebug(context); // Debug mode
+    if (debugMode) return buildDebug(context); // Debug mode
 
     if (Bluetooth.device == null) {
       // Setup Bluetooth
-      return SetupBTScreen(onSetupComplete: () => setState(() {}));
+      return SetupBTScreen(
+        onSetupComplete: (bool useDebug) => setState(() {
+          debugMode = useDebug;
+        }),
+      );
     }
 
     return Theme(
@@ -49,7 +52,7 @@ class ControllerScreenState extends State<ControllerScreen> {
 
   Widget buildSlider() {
     return SpeedSlider(
-      debugMode: widget.debugMode,
+      debugMode: debugMode,
       enableSlowDown: enableSlowDown,
       onCarIDChange: (id) {
         setState(() {

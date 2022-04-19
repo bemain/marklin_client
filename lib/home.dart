@@ -12,7 +12,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _pages = [
-    const ControllerScreen(debugMode: false),
+    const ControllerScreen(),
     const CurrentRaceScreen(),
     const RaceBrowserScreen(),
   ];
