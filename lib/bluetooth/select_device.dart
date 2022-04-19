@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
 /// Widget for selecting a Bluetooth Device from list, and connecting to it.
 class SelectDeviceScreen extends StatefulWidget {
   final Function(BluetoothDevice device)? onDeviceConnected;
+  final DeviceIdentifier? autoconnectID;
 
-  const SelectDeviceScreen({Key? key, this.onDeviceConnected})
-      : super(key: key);
+  const SelectDeviceScreen({
+    Key? key,
+    this.onDeviceConnected,
+    this.autoconnectID,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => SelectDeviceScreenState();
@@ -28,16 +33,35 @@ class SelectDeviceScreenState extends State<SelectDeviceScreen> {
           ? StreamBuilder<List<ScanResult>>(
               stream: flutterBlue.scanResults,
               initialData: const [],
-              builder: (c, snapshot) => ListView(
-                  children: snapshot.data!
-                      .map((result) => TextTile(
-                          title: result.device.name,
-                          text: result.device.id.toString(),
-                          onTap: () {
-                            setState(() => selectedDevice = result.device);
-                          }))
-                      .toList()),
-            )
+              builder: (c, snapshot) {
+                var results = snapshot.data!;
+                // Try using autoconnectID to get service automatically
+                results = results
+                    .where((s) => s.device.id == widget.autoconnectID)
+                    .toList();
+                if (results.isNotEmpty) {
+                  SchedulerBinding.instance.addPostFrameCallback((_) {
+                    setState(() {
+                      selectedDevice = results[0].device;
+                    });
+                  });
+                  return const InfoScreen(
+                    icon: Icon(Icons.select_all),
+                    text: "Device automatically selected",
+                  );
+                }
+
+                // Otherwise, let user select device from list
+                return ListView(
+                    children: snapshot.data!
+                        .map((result) => TextTile(
+                            title: result.device.name,
+                            text: result.device.id.toString(),
+                            onTap: () {
+                              setState(() => selectedDevice = result.device);
+                            }))
+                        .toList());
+              })
           : FutureBuilder(
               future: _connectBT(),
               builder: niceAsyncBuilder(

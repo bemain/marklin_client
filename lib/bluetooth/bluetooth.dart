@@ -1,6 +1,10 @@
 import 'package:flutter_blue/flutter_blue.dart';
 
 class Bluetooth {
+  // DeviceIdentifier for most recently connected [device],
+  static DeviceIdentifier deviceID =
+      const DeviceIdentifier("CB:C8:C8:C4:B2:C7");
+
   /// The current Bluetooth Device.
   /// Should always be connected if not null.
   static BluetoothDevice? device;

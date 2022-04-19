@@ -54,6 +54,7 @@ class _SetupBTScreenState extends State<SetupBTScreen> {
         );
       case 2: // Select + connect to Bluetooth Device
         return SelectDeviceScreen(
+          autoconnectID: Bluetooth.deviceID,
           onDeviceConnected: (BluetoothDevice device) {
             Bluetooth.device = device;
             queueNextStage();
