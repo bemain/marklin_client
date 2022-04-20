@@ -6,16 +6,19 @@ import 'package:marklin_bluetooth/widgets.dart';
 class SelectServiceScreen extends StatelessWidget {
   /// Widget for selecting a Bluetooth Service for [Bluetooth.device].
   ///
-  /// Tries to get service automatically using [autoconnectID].
-  /// If this fails or id not given, lets user select service from list.
+  /// Tries to get service automatically using [autoconnectID], if given.
+  /// Otherwise, lets user select service from list.
   const SelectServiceScreen({
     Key? key,
-    this.autoconnectID,
     this.onServiceSelected,
+    this.autoconnectID,
   }) : super(key: key);
 
-  final String? autoconnectID;
+  /// Called when a service has been selected.
   final Function(String serviceID, BluetoothService service)? onServiceSelected;
+
+  /// Is set, tries to automatically get service using this as id.
+  final String? autoconnectID;
 
   @override
   Widget build(BuildContext context) {

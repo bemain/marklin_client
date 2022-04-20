@@ -3,18 +3,29 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
-/// Widget for selecting a Bluetooth Device from list, and connecting to it.
 class SelectDeviceScreen extends StatefulWidget {
-  final Function(BluetoothDevice device)? onDeviceConnected;
-  final Function? onDebugModeSelected;
-  final DeviceIdentifier? autoconnectID;
-
+  /// Widget for selecting and connecting to a Bluetooth Device
+  ///
+  /// Tries to get device automatically using [autoconnectID], if given.
+  /// Otherwise, lets user select device from list.
+  ///
+  /// Also features button for entering debug mode.
   const SelectDeviceScreen({
     Key? key,
     this.onDeviceConnected,
     this.onDebugModeSelected,
     this.autoconnectID,
   }) : super(key: key);
+
+  /// Default callback, called when a device has been selected and connected to.
+  final Function(BluetoothDevice device)? onDeviceConnected;
+
+  /// Called when the button for entering debug mode is pressed. In this case,
+  /// [onDeviceConnected] is not triggered.
+  final Function? onDebugModeSelected;
+
+  /// Is set, tries to automatically connect to device using this as id.
+  final DeviceIdentifier? autoconnectID;
 
   @override
   State<StatefulWidget> createState() => SelectDeviceScreenState();

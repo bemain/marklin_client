@@ -15,10 +15,20 @@ class SetupBTScreen extends StatefulWidget {
   /// 2) Lets user select BT Device, then connects
   /// 3) Lets user select BT Service
   /// 4) Lets user select BT Characterstic for both speed and lap
-  /// Then runs [onSetupComplete]
+  /// Then runs [onSetupComplete].
+  ///
+  /// Tries to complete steps automatically, using IDs provided by [Bluetooth]
+  /// singleton.
   const SetupBTScreen({Key? key, required this.onSetupComplete})
       : super(key: key);
 
+  /// Called when all steps have been completed.
+  /// Unless [debugMode] (the first argument) is true, Bluetooth is then fully
+  /// configured and device, service and characteristics for both speed and lap
+  /// have been determined and registered to [Bluetooth] singleton.
+  ///
+  /// If [debugMode] is true, no device has been connected, and ControllerScreen
+  /// should instead enter debug mode.
   final Function(bool debugMode) onSetupComplete;
 
   @override
@@ -34,7 +44,7 @@ class _SetupBTScreenState extends State<SetupBTScreen> {
   @override
   Widget build(BuildContext context) {
     switch (setupStage) {
-      case 1: // Init Bluetooth
+      case 1: // Check if Bluetooth is available
         return FutureBuilder(
           future: flutterBlue.isAvailable,
           builder: niceAsyncBuilder<bool>(
@@ -64,6 +74,7 @@ class _SetupBTScreenState extends State<SetupBTScreen> {
             debugMode = true;
             SchedulerBinding.instance.addPostFrameCallback((_) {
               setState(() {
+                // Skip rest of setup
                 setupStage = -1;
               });
             });

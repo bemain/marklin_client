@@ -1,7 +1,10 @@
 import 'package:flutter_blue/flutter_blue.dart';
 
+/// Singleton for storing Bluetooth device, service, and characteristics and
+/// making them globally accessible.
+/// Also stores IDs for these, making it possible to fetch them automatically.
 class Bluetooth {
-  // DeviceIdentifier for most recently connected [device],
+  /// DeviceIdentifier for most recently connected [device],
   static DeviceIdentifier deviceID =
       const DeviceIdentifier("CB:C8:C8:C4:B2:C7");
 
