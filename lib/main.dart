@@ -2,12 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:marklin_bluetooth/home.dart';
 import 'package:marklin_bluetooth/firebase/init_firebase.dart';
 
-// TODO: Store speed history locally
-// TODO: Fix BT Connection, auto connect
 // TODO: Average speed during a few seconds when plotting
-// TODO: Set running false when starting new race
 // TODO: Lock auto rotation
-// TODO: Fix first lap logging
 // TODO: Race browser: fix back button navigation
 // TODO: Add option to disable lap reporting
 // TODO: Start speed at 0
