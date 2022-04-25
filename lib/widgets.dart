@@ -93,8 +93,8 @@ class TextTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: TextButton(
-        child: _buildTitle(context),
         onPressed: onTap,
+        child: _buildTitle(context),
       ),
     );
   }

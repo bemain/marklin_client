@@ -24,6 +24,6 @@ class InitFirebase extends StatelessWidget {
 
   Future _init() async {
     await Firebase.initializeApp();
-    UserCredential _ = await FirebaseAuth.instance.signInAnonymously();
+    await FirebaseAuth.instance.signInAnonymously();
   }
 }

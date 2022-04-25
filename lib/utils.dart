@@ -7,7 +7,7 @@ String dateString(
   String separator = " | ",
 }) {
   String day = "${date.day}/${date.month}-${date.year}";
-  String hour = ((date.hour < 10) ? "0" : "") + "${date.hour}";
+  String hour = "${(date.hour < 10) ? "0" : ""}${date.hour}";
   String time = "$hour:${date.minute}";
 
   if (includeSecond) {

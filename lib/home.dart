@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:marklin_bluetooth/controller.dart';
+import 'package:marklin_bluetooth/controller_screen/controller.dart';
 import 'package:marklin_bluetooth/current_race_screen/current_race_screen.dart';
 import 'package:marklin_bluetooth/race_browser_screen/race_browser.dart';
 
@@ -12,7 +12,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _pages = [
-    const ControllerScreen(debugMode: true),
+    const ControllerScreen(),
     const CurrentRaceScreen(),
     const RaceBrowserScreen(),
   ];

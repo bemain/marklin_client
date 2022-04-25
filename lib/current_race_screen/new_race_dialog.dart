@@ -54,7 +54,6 @@ class NewRaceDialogState extends State<NewRaceDialog> {
           },
         ),
         TextButton(
-          child: const Text("Save", style: TextStyle(color: Colors.white)),
           style: ButtonStyle(
             backgroundColor:
                 MaterialStateProperty.all(Theme.of(context).primaryColor),
@@ -63,6 +62,7 @@ class NewRaceDialogState extends State<NewRaceDialog> {
             Navigator.of(context).pop();
             widget.onSave?.call(nCars);
           },
+          child: const Text("Save", style: TextStyle(color: Colors.white)),
         ),
       ],
     );
