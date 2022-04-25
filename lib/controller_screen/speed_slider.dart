@@ -6,10 +6,8 @@ import 'package:marklin_bluetooth/bluetooth/bluetooth.dart';
 import 'package:marklin_bluetooth/firebase/races.dart';
 
 class SpeedSlider extends StatefulWidget {
-  final bool enableSlowDown;
-  final Function(int newID)? onCarIDChange;
-  final bool debugMode;
-
+  /// Slider for controlling the speed of a car.
+  /// Also receives lap times from the server for the currently selected car.
   const SpeedSlider(
       {Key? key,
       this.enableSlowDown = false,
@@ -17,6 +15,17 @@ class SpeedSlider extends StatefulWidget {
       this.debugMode = false})
       : super(key: key);
 
+  /// If true, will automatically decrease speed if slider is let go of.
+  final bool enableSlowDown;
+
+  /// Callback for when the currently selected car changes.
+  final Function(int newID)? onCarIDChange;
+
+  /// If true, will not send speed to or receive lap times from the server.
+  /// Will still log speed history.
+  final bool debugMode;
+
+  
   @override
   State<StatefulWidget> createState() => SpeedSliderState();
 }

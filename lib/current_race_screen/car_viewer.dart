@@ -10,6 +10,7 @@ class CarViewer extends StatelessWidget {
   /// Widget for displaying all the laps for a car as a list.
   const CarViewer({Key? key, required this.carRef}) : super(key: key);
 
+  /// Reference to the car for which to display laps.
   final CarReference carRef;
 
   @override

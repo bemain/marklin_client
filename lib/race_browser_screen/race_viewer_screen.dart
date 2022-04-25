@@ -16,7 +16,10 @@ class RaceViewerScreen extends StatelessWidget {
     this.sortDescending = false,
   }) : super(key: key);
 
+  /// The race to display information about.
   final DocumentSnapshot<Race> raceSnap;
+
+  /// If true, will sort laps in descending order.
   final bool sortDescending;
 
   @override

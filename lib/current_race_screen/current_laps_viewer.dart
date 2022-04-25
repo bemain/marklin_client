@@ -5,7 +5,7 @@ import 'package:marklin_bluetooth/current_race_screen/car_viewer.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
 class CurrentLapsViewer extends StatelessWidget {
-  /// A widget that displays the laps for the current race, seperated per car.
+  /// Widget for displaying the laps for the current race, seperated per car.
   /// The list is automatically updated as laps are added to Firebase
   const CurrentLapsViewer({Key? key}) : super(key: key);
 

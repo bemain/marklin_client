@@ -7,6 +7,7 @@ class InitFirebase extends StatelessWidget {
   /// Makes sure Firebase is initialized before [child] enters the tree.
   const InitFirebase({Key? key, required this.child}) : super(key: key);
 
+  /// Widget to display when Firebase is initalized.
   final Widget child;
 
   @override

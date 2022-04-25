@@ -7,10 +7,11 @@ import 'package:marklin_bluetooth/utils.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
 class RaceBrowserScreen extends StatefulWidget {
-  /// Widget for viewing the races currently on the database
+  /// Widget for viewing the races currently on the database.
   const RaceBrowserScreen({Key? key, this.includeCurrentRace = false})
       : super(key: key);
 
+  /// If true, will include "current" race in the list.
   final bool includeCurrentRace;
 
   @override
