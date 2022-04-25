@@ -6,8 +6,8 @@ import 'package:marklin_bluetooth/race_browser_screen/race_viewer_screen.dart';
 import 'package:marklin_bluetooth/utils.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
-/// Widget for viewing the races currently on the database
 class RaceBrowserScreen extends StatefulWidget {
+  /// Widget for viewing the races currently on the database
   const RaceBrowserScreen({Key? key, this.includeCurrentRace = false})
       : super(key: key);
 

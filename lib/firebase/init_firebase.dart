@@ -3,11 +3,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
-/// Makes sure Firebase is initialized before [child] enters the tree.
 class InitFirebase extends StatelessWidget {
-  final Widget child;
-
+  /// Makes sure Firebase is initialized before [child] enters the tree.
   const InitFirebase({Key? key, required this.child}) : super(key: key);
+
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {

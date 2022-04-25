@@ -8,8 +8,8 @@ import 'package:marklin_bluetooth/utils.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 import 'package:stream_transform/stream_transform.dart';
 
-/// Widget for displaying lap times and other information about [raceSnap].
 class RaceViewerScreen extends StatelessWidget {
+  /// Widget for displaying lap times and other information about [raceSnap].
   const RaceViewerScreen({
     Key? key,
     required this.raceSnap,

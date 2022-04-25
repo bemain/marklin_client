@@ -4,8 +4,8 @@ import 'package:marklin_bluetooth/bluetooth/setup_bluetooth_screen.dart';
 import 'package:marklin_bluetooth/controller_screen/speed_slider.dart';
 import 'package:marklin_bluetooth/firebase/races.dart';
 
-/// Screen for controlling and receiving lap times from the cars.
 class ControllerScreen extends StatefulWidget {
+  /// Screen for controlling and receiving lap times from the cars.
   const ControllerScreen({Key? key}) : super(key: key);
 
   @override
