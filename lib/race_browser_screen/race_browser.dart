@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:marklin_bluetooth/firebase/lap.dart';
 import 'package:marklin_bluetooth/firebase/race.dart';
 import 'package:marklin_bluetooth/firebase/races.dart';
+import 'package:marklin_bluetooth/race_browser_screen/lap_viewer_screen.dart';
 import 'package:marklin_bluetooth/race_browser_screen/race_viewer_screen.dart';
 import 'package:marklin_bluetooth/utils.dart';
 import 'package:marklin_bluetooth/widgets.dart';
@@ -18,14 +20,53 @@ class RaceBrowserScreen extends StatefulWidget {
 }
 
 class RaceBrowserScreenState extends State<RaceBrowserScreen> {
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
   @override
   Widget build(BuildContext context) {
-    return Navigator(
-      onGenerateRoute: (settings) {
-        /// Will always return _racesList.
-        /// To push any other screen, use Navigator.push()
-        return MaterialPageRoute(builder: (c) => _racesList());
+    return WillPopScope(
+      onWillPop: () async {
+        bool popHandled = await navigatorKey.currentState?.maybePop() ?? false;
+        return !popHandled;
       },
+      child: Navigator(
+        key: navigatorKey,
+        initialRoute: "/",
+        onGenerateRoute: (settings) {
+          return MaterialPageRoute(builder: (c) {
+            switch (settings.name) {
+              case "/":
+                return _racesList();
+
+              case "/race":
+                assert(
+                  settings.arguments is DocumentSnapshot<Race>,
+                  "Invalid raceSnap given for route to RaceViewerScreen",
+                );
+
+                return RaceViewerScreen(
+                  raceSnap: settings.arguments as DocumentSnapshot<Race>,
+                );
+
+              case "/lap":
+                assert(
+                  settings.arguments is MapEntry<int, Map<int, Lap>>,
+                  "Invalid lapEntry given for route to LapViewerScreen",
+                );
+
+                MapEntry<int, Map<int, Lap>> lapEntry =
+                    settings.arguments as MapEntry<int, Map<int, Lap>>;
+                return LapViewerScreen(
+                  lapNumber: lapEntry.key,
+                  laps: lapEntry.value,
+                );
+
+              default:
+                throw (Exception("Unknown route: ${settings.name}"));
+            }
+          });
+        },
+      ),
     );
   }
 
@@ -59,26 +100,24 @@ class RaceBrowserScreenState extends State<RaceBrowserScreen> {
   Widget _raceCard(BuildContext context, DocumentSnapshot<Race> raceSnap) {
     return Card(
       child: ListTile(
-        title: Text(raceString(raceSnap)),
-        subtitle: Text(raceSnap.id),
-        trailing: IconButton(
-          icon: const Icon(Icons.delete),
-          onPressed: () => showDialog(
-            context: context,
-            builder: (c) => ConfirmationDialog(
-              text:
-                  "Are you sure you want to delete this race? \nID: ${raceSnap.id}",
-              onConfirm: () => setState(() {
-                raceSnap.reference.delete();
-              }),
+          title: Text(raceString(raceSnap)),
+          subtitle: Text(raceSnap.id),
+          trailing: IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: () => showDialog(
+              context: context,
+              builder: (c) => ConfirmationDialog(
+                text:
+                    "Are you sure you want to delete this race? \nID: ${raceSnap.id}",
+                onConfirm: () => setState(() {
+                  raceSnap.reference.delete();
+                }),
+              ),
             ),
           ),
-        ),
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(
-              builder: (c) => (RaceViewerScreen(raceSnap: raceSnap))),
-        ),
-      ),
+          onTap: () {
+            Navigator.of(context).pushNamed("/race", arguments: raceSnap);
+          }),
     );
   }
 }

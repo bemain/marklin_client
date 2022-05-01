@@ -70,19 +70,16 @@ class RaceViewerScreen extends StatelessWidget {
 
   Widget _lapTile(BuildContext context, MapEntry<int, Map<int, Lap>> entry) {
     return ListTile(
-      leading: Text("${entry.key}."),
-      title: Row(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children:
-            entry.value.values.map((lap) => Text("${lap.lapTime}")).toList(),
-      ),
-      onTap: () => Navigator.of(context).push(MaterialPageRoute(
-          builder: (c) => LapViewerScreen(
-                lapNumber: entry.key,
-                laps: entry.value,
-              ))),
-    );
+        leading: Text("${entry.key}."),
+        title: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children:
+              entry.value.values.map((lap) => Text("${lap.lapTime}")).toList(),
+        ),
+        onTap: () {
+          Navigator.of(context).pushNamed("/lap", arguments: entry);
+        });
   }
 
   Stream<Map<int, Map<int, Lap>>> lapsStream() {
