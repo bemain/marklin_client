@@ -18,14 +18,30 @@ class RaceBrowserScreen extends StatefulWidget {
 }
 
 class RaceBrowserScreenState extends State<RaceBrowserScreen> {
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
   @override
   Widget build(BuildContext context) {
-    return Navigator(
-      onGenerateRoute: (settings) {
-        /// Will always return _racesList.
-        /// To push any other screen, use Navigator.push()
-        return MaterialPageRoute(builder: (c) => _racesList());
+    return WillPopScope(
+      onWillPop: () async {
+        bool popHandled = await navigatorKey.currentState?.maybePop() ?? false;
+        return !popHandled;
       },
+      child: Navigator(
+        key: navigatorKey,
+        initialRoute: "/",
+        onGenerateRoute: (settings) {
+          if (settings.name == "/") {
+            return MaterialPageRoute(builder: (c) => _racesList());
+          }
+          return MaterialPageRoute(
+            builder: (c) => const InfoScreen(
+              icon: Icon(Icons.device_unknown),
+              text: "Unknown route",
+            ),
+          );
+        },
+      ),
     );
   }
 
