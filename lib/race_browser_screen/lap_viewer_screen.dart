@@ -53,26 +53,48 @@ class LapViewerScreen extends StatelessWidget {
   }
 
   List<LineChartBarData> getChartData() {
+    int averageN = 10;
+
     return laps.entries.map((car) {
       var speedHist = car.value.speedHistory.entries.toList();
       speedHist.sort((a, b) => a.key.compareTo(b.key)); // Sort speed entries
 
-      return LineChartBarData(
-        isCurved: true,
-        dotData: FlDotData(show: false),
-        color: [
-          Colors.green,
-          Colors.purple,
-          Colors.orange,
-          Colors.grey,
-        ][car.key],
-        spots: speedHist.map((speedEntry) {
-          return FlSpot(
-            speedEntry.key.toDouble() / 1000,
-            speedEntry.value,
+      List<FlSpot> spots = []; // Points to plot for this car
+
+      int timeSum = 0;
+      double speedSum = 0;
+
+      /// How many entries have been summed for this point
+      /// Can't just assume [averageN] entries have been summed, since that doesn't apply to the first point
+      int entriesAdded = 0;
+      speedHist.asMap().forEach((index, speedEntry) {
+        speedSum += speedEntry.value;
+        timeSum += speedEntry.key;
+        entriesAdded++;
+        if (index % averageN == 0) {
+          spots.add(
+            FlSpot(
+              timeSum / entriesAdded / 1000,
+              speedSum / entriesAdded,
+            ),
           );
-        }).toList(),
-      );
+          // Reset variables
+          speedSum = 0;
+          timeSum = 0;
+          entriesAdded = 0;
+        }
+      });
+
+      return LineChartBarData(
+          isCurved: true,
+          dotData: FlDotData(show: true),
+          color: [
+            Colors.green,
+            Colors.purple,
+            Colors.orange,
+            Colors.grey,
+          ][car.key],
+          spots: spots);
     }).toList();
   }
 }
