@@ -15,23 +15,60 @@ class SpeedPlot extends StatefulWidget {
 }
 
 class SpeedPlotState extends State<SpeedPlot> {
+  /// How many speed entries to average into each point on the plot.
+  int averageN = 10;
+
   @override
   Widget build(BuildContext context) {
-    return LineChart(
-      LineChartData(
-        lineBarsData: getChartData(),
-        minX: 0,
-        minY: 0,
-        maxY: 100,
-        borderData: FlBorderData(show: false),
-        titlesData: FlTitlesData(show: false),
-      ),
+    return Column(
+      children: [
+        Expanded(
+          child: LineChart(
+            LineChartData(
+              lineBarsData: getChartData(),
+              minX: 0,
+              minY: 0,
+              maxY: 100,
+              borderData: FlBorderData(show: false),
+              titlesData: FlTitlesData(show: false),
+            ),
+          ),
+        ),
+        const Divider(),
+        Row(
+          children: [
+            Expanded(
+              child: Slider(
+                value: averageN.toDouble(),
+                min: 1,
+                max: 25,
+                divisions: 24,
+                label: "$averageN",
+                onChanged: (value) => setState(() {
+                  averageN = value.toInt();
+                }),
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.only(right: 10),
+              child: Tooltip(
+                triggerMode: TooltipTriggerMode.tap,
+                showDuration: Duration(seconds: 3),
+                preferBelow: false,
+                padding: EdgeInsets.all(10),
+                margin: EdgeInsets.all(10),
+                message:
+                    "How many speed entries to average into each point on the plot",
+                child: Icon(Icons.info_outline),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
   List<LineChartBarData> getChartData() {
-    int averageN = 10;
-
     return widget.laps.entries.map((car) {
       var speedHist = car.value.speedHistory.entries.toList();
       speedHist.sort((a, b) => a.key.compareTo(b.key)); // Sort speed entries
@@ -64,7 +101,7 @@ class SpeedPlotState extends State<SpeedPlot> {
 
       return LineChartBarData(
           isCurved: true,
-          dotData: FlDotData(show: true),
+          dotData: FlDotData(show: false),
           color: [
             Colors.green,
             Colors.purple,
