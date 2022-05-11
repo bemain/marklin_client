@@ -30,19 +30,16 @@ class RaceReference {
 
   /// Add time since current lap to lap times of [carID] on [this.race],
   /// if current lap exists.
-  Future<void> addLap(int carID, {double? lapTime, int? lapN}) async {
+  Future<void> addLap(int carID, {Duration? lapTime, int? lapN}) async {
     Race race = await this.race;
     if (!race.running) return; // Not running
     if (carID >= race.nCars) return; // Trying to add lap to car not in race
 
     CarReference car = carRef(carID);
 
-    Timestamp timeNow = Timestamp.now();
+    DateTime timeNow = DateTime.now();
 
-    lapTime ??= (timeNow.millisecondsSinceEpoch -
-            car.currentLap.date.millisecondsSinceEpoch) ~/
-        10 /
-        100;
+    lapTime ??= timeNow.difference(car.currentLap.date);
 
     // Create new lap
     car.currentLap.lapTime = lapTime;
@@ -62,7 +59,7 @@ class RaceReference {
 
     CarReference car = carRef(carID);
 
-    Duration relTime = DateTime.now().difference(car.currentLap.date.toDate());
+    Duration relTime = DateTime.now().difference(car.currentLap.date);
 
     car.currentLap.speedHistory.add(SpeedEntry(relTime, speed));
   }

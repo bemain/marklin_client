@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:marklin_bluetooth/firebase/lap.dart';
 import 'package:marklin_bluetooth/firebase/race.dart';
 import 'package:marklin_bluetooth/firebase/race_reference.dart';
-import 'package:marklin_bluetooth/race_browser_screen/lap_viewer_screen.dart';
 import 'package:marklin_bluetooth/utils.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 import 'package:stream_transform/stream_transform.dart';
@@ -74,8 +73,9 @@ class RaceViewerScreen extends StatelessWidget {
         title: Row(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children:
-              entry.value.values.map((lap) => Text("${lap.lapTime}")).toList(),
+          children: entry.value.values
+              .map((lap) => Text("${lap.lapTime.inMilliseconds / 1000}"))
+              .toList(),
         ),
         onTap: () {
           Navigator.of(context).pushNamed("/lap", arguments: entry);

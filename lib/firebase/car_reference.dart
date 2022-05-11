@@ -14,7 +14,11 @@ class CarReference {
         );
 
   /// The current lap for the car that [this] references.
-  Lap currentLap = Lap(date: Timestamp.now(), lapNumber: 1, lapTime: 0);
+  Lap currentLap = Lap(
+    date: DateTime.now(),
+    lapNumber: 1,
+    lapTime: const Duration(),
+  );
 
   /// The snapshots of all the laps currently on the database.
   Future<List<DocumentSnapshot<Lap>>> getLapDocs() async {
@@ -33,6 +37,10 @@ class CarReference {
       await lap.reference.delete();
     }
     // Reset current lap
-    currentLap = Lap(date: Timestamp.now(), lapNumber: 1, lapTime: 0);
+    currentLap = Lap(
+      date: DateTime.now(),
+      lapNumber: 1,
+      lapTime: const Duration(),
+    );
   }
 }

@@ -3,10 +3,10 @@ import 'package:marklin_bluetooth/firebase/speed_entry.dart';
 
 class Lap {
   /// When this lap was started.
-  Timestamp date;
+  DateTime date;
 
   /// The time this lap took to complete, in seconds.
-  double lapTime;
+  Duration lapTime;
 
   int lapNumber;
 
@@ -24,8 +24,8 @@ class Lap {
 
   Lap.fromJson(Map<String, dynamic> json)
       : this(
-          date: json["date"],
-          lapTime: json["lapTime"].toDouble(),
+          date: json["date"].toDate(),
+          lapTime: Duration(milliseconds: (json["lapTime"] * 1000).toInt()),
           lapNumber: json["lapNumber"],
           speedHistory: Map<String, dynamic>.of(json["speedHistory"] ?? {})
               .entries
@@ -34,8 +34,8 @@ class Lap {
         );
 
   Map<String, dynamic> toJson() => {
-        "date": date,
-        "lapTime": lapTime,
+        "date": Timestamp.fromDate(date),
+        "lapTime": lapTime.inMilliseconds / 1000,
         "lapNumber": lapNumber,
         "speedHistory": Map.fromEntries(
           speedHistory.map((entry) => entry.toMapEntry()),
