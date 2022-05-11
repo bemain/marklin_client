@@ -25,7 +25,7 @@ class Lap {
   Lap.fromJson(Map<String, dynamic> json)
       : this(
           date: json["date"].toDate(),
-          lapTime: Duration(milliseconds: (json["lapTime"] * 1000).toInt()),
+          lapTime: Duration(milliseconds: json["lapTime"].toInt()),
           lapNumber: json["lapNumber"],
           speedHistory: Map<String, dynamic>.of(json["speedHistory"] ?? {})
               .entries
@@ -35,7 +35,7 @@ class Lap {
 
   Map<String, dynamic> toJson() => {
         "date": Timestamp.fromDate(date),
-        "lapTime": lapTime.inMilliseconds / 1000,
+        "lapTime": lapTime.inMilliseconds,
         "lapNumber": lapNumber,
         "speedHistory": Map.fromEntries(
           speedHistory.map((entry) => entry.toMapEntry()),
