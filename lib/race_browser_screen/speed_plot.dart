@@ -70,31 +70,31 @@ class SpeedPlotState extends State<SpeedPlot> {
 
   List<LineChartBarData> getChartData() {
     return widget.laps.entries.map((car) {
-      var speedHist = car.value.speedHistory.entries.toList();
-      speedHist.sort((a, b) => a.key.compareTo(b.key)); // Sort speed entries
+      var speedHist = car.value.speedHistory;
+      speedHist.sort((a, b) => a.time.compareTo(b.time)); // Sort speed entries
 
       List<FlSpot> spots = []; // Points to plot for this car
 
-      int timeSum = 0;
+      Duration timeSum = const Duration();
       double speedSum = 0;
 
       /// How many entries have been summed for this point
       /// Can't just assume [averageN] entries have been summed, since that doesn't apply to the first point
       int entriesAdded = 0;
       speedHist.asMap().forEach((index, speedEntry) {
-        speedSum += speedEntry.value;
-        timeSum += speedEntry.key;
+        speedSum += speedEntry.speed;
+        timeSum += speedEntry.time;
         entriesAdded++;
         if (index % averageN == 0) {
           spots.add(
             FlSpot(
-              timeSum / entriesAdded / 1000,
+              timeSum.inMilliseconds / entriesAdded / 1000,
               speedSum / entriesAdded,
             ),
           );
           // Reset variables
           speedSum = 0;
-          timeSum = 0;
+          timeSum = const Duration();
           entriesAdded = 0;
         }
       });

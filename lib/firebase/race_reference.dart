@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:marklin_bluetooth/firebase/car_reference.dart';
 import 'package:marklin_bluetooth/firebase/race.dart';
+import 'package:marklin_bluetooth/firebase/speed_entry.dart';
 
 /// Helper class for interacting with a Race on the database.
 class RaceReference {
@@ -61,10 +62,9 @@ class RaceReference {
 
     CarReference car = carRef(carID);
 
-    int relTime = Timestamp.now().millisecondsSinceEpoch -
-        car.currentLap.date.millisecondsSinceEpoch;
+    Duration relTime = DateTime.now().difference(car.currentLap.date.toDate());
 
-    car.currentLap.speedHistory.addEntries([MapEntry(relTime, speed)]);
+    car.currentLap.speedHistory.add(SpeedEntry(relTime, speed));
   }
 
   /// Delete all laps on [this.race].
