@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:marklin_bluetooth/controller_screen/controller.dart';
 import 'package:marklin_bluetooth/current_race_screen/current_race_screen.dart';
+import 'package:marklin_bluetooth/portrait_mode_mixin.dart';
 import 'package:marklin_bluetooth/race_browser_screen/race_browser.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -10,7 +11,7 @@ class HomeScreen extends StatefulWidget {
   State<StatefulWidget> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with PortraitModeMixin {
   final List<Widget> _pages = [
     const ControllerScreen(),
     const CurrentRaceScreen(),
