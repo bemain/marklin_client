@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:marklin_bluetooth/firebase/car_reference.dart';
 import 'package:marklin_bluetooth/firebase/race.dart';
+import 'package:marklin_bluetooth/firebase/speed_entry.dart';
 
 /// Helper class for interacting with a Race on the database.
 class RaceReference {
@@ -29,19 +30,16 @@ class RaceReference {
 
   /// Add time since current lap to lap times of [carID] on [this.race],
   /// if current lap exists.
-  Future<void> addLap(int carID, {double? lapTime, int? lapN}) async {
+  Future<void> addLap(int carID, {Duration? lapTime, int? lapN}) async {
     Race race = await this.race;
     if (!race.running) return; // Not running
     if (carID >= race.nCars) return; // Trying to add lap to car not in race
 
     CarReference car = carRef(carID);
 
-    Timestamp timeNow = Timestamp.now();
+    DateTime timeNow = DateTime.now();
 
-    lapTime ??= (timeNow.millisecondsSinceEpoch -
-            car.currentLap.date.millisecondsSinceEpoch) ~/
-        10 /
-        100;
+    lapTime ??= timeNow.difference(car.currentLap.date);
 
     // Create new lap
     car.currentLap.lapTime = lapTime;
@@ -61,10 +59,9 @@ class RaceReference {
 
     CarReference car = carRef(carID);
 
-    int relTime = Timestamp.now().millisecondsSinceEpoch -
-        car.currentLap.date.millisecondsSinceEpoch;
+    Duration relTime = DateTime.now().difference(car.currentLap.date);
 
-    car.currentLap.speedHistory.addEntries([MapEntry(relTime, speed)]);
+    car.currentLap.speedHistory.add(SpeedEntry(relTime, speed));
   }
 
   /// Delete all laps on [this.race].
