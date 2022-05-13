@@ -25,8 +25,9 @@ class CarViewer extends StatelessWidget {
             children: docs.map((lapSnap) {
               Lap lap = lapSnap.data();
               return TextTile(
-                  title: "${lap.lapNumber} | ${lap.lapTime}s",
-                  text: dateString((lap.date).toDate()),
+                  title:
+                      "${lap.lapNumber} | ${lap.lapTime.inMilliseconds / 1000}s",
+                  text: dateString((lap.date)),
                   onTap: () => Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (c) => (LapViewerScreen(

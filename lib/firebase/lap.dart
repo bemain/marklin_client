@@ -1,40 +1,44 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:marklin_bluetooth/firebase/speed_entry.dart';
 
 class Lap {
   /// When this lap was started.
-  Timestamp date;
+  DateTime date;
 
   /// The time this lap took to complete, in seconds.
-  double lapTime;
+  Duration lapTime;
 
   int lapNumber;
 
   /// How the speed has varied during [this] lap
   /// The key is the time since [this] lap was started,
   /// and the value is the speed at that time.
-  Map<int, double> speedHistory;
+  List<SpeedEntry> speedHistory;
 
   Lap({
     required this.date,
     required this.lapTime,
     required this.lapNumber,
-    speedHistory,
-  }) : speedHistory = speedHistory ?? {};
+    List<SpeedEntry>? speedHistory,
+  }) : speedHistory = speedHistory ?? [];
 
   Lap.fromJson(Map<String, dynamic> json)
       : this(
-          date: json["date"],
-          lapTime: json["lapTime"].toDouble(),
+          date: json["date"].toDate(),
+          lapTime: Duration(milliseconds: json["lapTime"].toInt()),
           lapNumber: json["lapNumber"],
-          speedHistory: Map.from(json["speedHistory"] ?? {})
-              .map((k, v) => MapEntry<int, double>(int.parse(k), v)),
+          speedHistory: Map<String, dynamic>.of(json["speedHistory"] ?? {})
+              .entries
+              .map((e) => SpeedEntry.fromMapEntry(e))
+              .toList(),
         );
 
   Map<String, dynamic> toJson() => {
-        "date": date,
-        "lapTime": lapTime,
+        "date": Timestamp.fromDate(date),
+        "lapTime": lapTime.inMilliseconds,
         "lapNumber": lapNumber,
-        "speedHistory": Map.from(speedHistory)
-            .map((k, v) => MapEntry<String, dynamic>("$k", v)),
+        "speedHistory": Map.fromEntries(
+          speedHistory.map((entry) => entry.toMapEntry()),
+        ),
       };
 }

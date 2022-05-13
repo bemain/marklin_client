@@ -36,10 +36,10 @@ class CurrentRaceScreenState extends State<CurrentRaceScreen> {
                     // Stop race
                     showNewDialog(context);
                   } else {
-                    Timestamp timeNow = Timestamp.now();
+                    DateTime timeNow = DateTime.now();
                     // Start race
                     Races.currentRaceDoc.update({
-                      "date": timeNow,
+                      "date": Timestamp.fromDate(timeNow),
                       "running": true,
                     });
                     for (CarReference car in Races.currentRaceRef.carRefs) {
