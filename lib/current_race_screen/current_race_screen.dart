@@ -6,8 +6,8 @@ import 'package:marklin_bluetooth/firebase/races.dart';
 import 'package:marklin_bluetooth/current_race_screen/current_laps_viewer.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
-/// Screen for watching and restarting the current race.
 class CurrentRaceScreen extends StatefulWidget {
+  /// Screen for watching and restarting the current race.
   const CurrentRaceScreen({Key? key}) : super(key: key);
 
   @override

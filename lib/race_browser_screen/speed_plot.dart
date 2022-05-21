@@ -3,11 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:marklin_bluetooth/firebase/lap.dart';
 
 class SpeedPlot extends StatefulWidget {
-  const SpeedPlot({
-    Key? key,
-    required this.laps,
-  }) : super(key: key);
+  /// Displays speed history for [laps] as a [LineChart].
+  ///
+  /// Averages multiple speed entries into each point on the plot.
+  /// Features a slider to select how many entries to average into each point.
+  const SpeedPlot({Key? key, required this.laps}) : super(key: key);
 
+  /// The laps to plot speed history for,
+  /// where the value is the lap and the key is the carID.
   final Map<int, Lap> laps;
 
   @override

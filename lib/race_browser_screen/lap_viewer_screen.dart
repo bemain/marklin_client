@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:marklin_bluetooth/firebase/lap.dart';
 import 'package:marklin_bluetooth/race_browser_screen/speed_plot.dart';
 
-/// Widget for displaying speed history for laps with the same number as a chart.
 class LapViewerScreen extends StatelessWidget {
-  final int lapNumber;
-
-  /// The laps to display, where the value is the lap and the key is the carID.
-  final Map<int, Lap> laps;
-
+  /// Widget for displaying speed history for laps with the same number as a chart.
   const LapViewerScreen({
     Key? key,
     required this.lapNumber,
     required this.laps,
   }) : super(key: key);
+
+  final int lapNumber;
+
+  /// The laps to display, where the value is the lap and the key is the carID.
+  final Map<int, Lap> laps;
 
   @override
   Widget build(BuildContext context) {
