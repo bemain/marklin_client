@@ -34,11 +34,11 @@ dependencies:
 
   flutter_blue: ^0.8.0
 
-  firebase_core: ^1.14.1
-  firebase_auth: ^3.3.14
-  cloud_firestore: ^3.1.12
+  firebase_core: ^1.17.0
+  firebase_auth: ^3.3.18
+  cloud_firestore: ^3.1.15
 
-  fl_chart: ^0.50.1
+  fl_chart: ^0.50.6
 
 dev_dependencies:
   flutter_test:
