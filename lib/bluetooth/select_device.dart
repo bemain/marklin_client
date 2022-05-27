@@ -36,6 +36,12 @@ class SelectDeviceScreenState extends State<SelectDeviceScreen> {
 
   BluetoothDevice? selectedDevice;
 
+  /// If true, will try to automatically connect to device.
+  ///
+  /// Is false until scan button is pressed, to block autoconnect until there
+  /// has been user input.
+  bool tryAutoConnect = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,35 +60,12 @@ class SelectDeviceScreenState extends State<SelectDeviceScreen> {
               initialData: const [],
               builder: (c, snapshot) {
                 var results = snapshot.data!;
-                // Try using autoconnectID to get service automatically
-                results = results
-                    .where((s) => s.device.id == widget.autoconnectID)
-                    .toList();
-                if (results.isNotEmpty) {
-                  SchedulerBinding.instance.addPostFrameCallback((_) {
-                    setState(() {
-                      selectedDevice = results[0].device;
-                    });
-                  });
-                  return const InfoScreen(
-                    icon: Icon(Icons.select_all),
-                    text: "Device automatically selected",
-                  );
-                }
-
+                // Try using autoconnectID to get device automatically.
                 // Otherwise, let user select device from list
-                return ListView(
-                    children: snapshot.data!
-                        .map((result) => TextTile(
-                            title: result.device.name,
-                            text: result.device.id.toString(),
-                            onTap: () {
-                              setState(() => selectedDevice = result.device);
-                            }))
-                        .toList());
+                return tryAutoconnect(results) ?? buildDeviceList(results);
               })
           : FutureBuilder(
-              future: _connectBT(),
+              future: connectBT(),
               builder: niceAsyncBuilder(
                 loadingText: "Connecting to device...",
                 errorText: "Unable to connect to device",
@@ -96,25 +79,71 @@ class SelectDeviceScreenState extends State<SelectDeviceScreen> {
       floatingActionButton: StreamBuilder(
         stream: flutterBlue.isScanning,
         initialData: false,
-        builder: (c, AsyncSnapshot<bool> snapshot) => FloatingActionButton(
-          heroTag: "select_bt_device",
-          child:
-              Icon(snapshot.data! ? Icons.bluetooth_searching : Icons.search),
-          onPressed: () {
-            if (!snapshot.data!) {
-              flutterBlue.startScan(timeout: const Duration(seconds: 4));
-            }
-          },
-        ),
+        builder: (c, AsyncSnapshot<bool> snapshot) => buildFAB(snapshot.data!),
       ),
     );
   }
 
-  Future<void> _connectBT() async {
-    // Don't connect if already connected
-    if ((await FlutterBlue.instance.connectedDevices).isEmpty) {
+  /// If device with id [widget.autoconnectID] is in [scanResults], connects to it.
+  /// Otherwise, returns null.
+  Widget? tryAutoconnect(List<ScanResult> scanResults) {
+    scanResults =
+        scanResults.where((s) => s.device.id == widget.autoconnectID).toList();
+    if (tryAutoConnect && scanResults.isNotEmpty) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        setState(() {
+          selectedDevice = scanResults[0].device;
+        });
+      });
+      return const InfoScreen(
+        icon: Icon(Icons.select_all),
+        text: "Device automatically selected",
+      );
+    }
+    return null;
+  }
+
+  /// Displays [scanResults] as a list and allows the user to select one of them.
+  Widget buildDeviceList(List<ScanResult> scanResults) {
+    return ListView(
+      children: scanResults.map((result) {
+        return TextTile(
+          title: result.device.name,
+          text: result.device.id.toString(),
+          onTap: () {
+            setState(() => selectedDevice = result.device);
+          },
+        );
+      }).toList(),
+    );
+  }
+
+  /// FloatingActionButton that shows whether we are scanning or not.
+  /// When pressed, starts scanning and enables autoconnect.
+  Widget buildFAB(bool isScanning) {
+    return FloatingActionButton(
+      heroTag: "select_bt_device",
+      child: Icon(isScanning ? Icons.bluetooth_searching : Icons.search),
+      onPressed: () {
+        // Enable autoconnect since user input has now been given
+        tryAutoConnect = true;
+        if (!isScanning && selectedDevice == null) {
+          // Start scan
+          flutterBlue.startScan(timeout: const Duration(seconds: 4));
+        }
+      },
+    );
+  }
+
+  /// Connect to [selectedDevice], then call [widget.onDeviceConnected].
+  Future<void> connectBT() async {
+    await flutterBlue.stopScan();
+
+    if ((await flutterBlue.connectedDevices).isEmpty) {
+      // Connect to device
       await selectedDevice!.connect();
     } else {
+      // Don't connect if already connected
       debugPrint("BLUETOOTH: Already connected");
     }
 
