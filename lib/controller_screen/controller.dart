@@ -41,6 +41,15 @@ class ControllerScreenState extends State<ControllerScreen> {
       ),
       child: Scaffold(
         appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.bluetooth_disabled),
+            onPressed: () async {
+              await Bluetooth.device?.disconnect();
+              setState(() {
+                Bluetooth.device = null;
+              });
+            },
+          ),
           title: const Text("BLE Controller"),
         ),
         body: buildSlider(),
