@@ -75,6 +75,14 @@ class ControllerScreenState extends State<ControllerScreen> {
       data: generateTheme(carColors[carID]),
       child: Scaffold(
         appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: () async {
+              setState(() {
+                debugMode = false;
+              });
+            },
+          ),
           title: const Text("BLE Controller (Debug)"),
           actions: [
             IconButton(
