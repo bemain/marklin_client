@@ -3,6 +3,7 @@ import 'package:marklin_bluetooth/bluetooth/bluetooth.dart';
 import 'package:marklin_bluetooth/bluetooth/setup_bluetooth_screen.dart';
 import 'package:marklin_bluetooth/controller_screen/speed_slider.dart';
 import 'package:marklin_bluetooth/firebase/races.dart';
+import 'package:marklin_bluetooth/theme.dart';
 
 class ControllerScreen extends StatefulWidget {
   /// Screen for controlling and receiving lap times from the cars.
@@ -71,14 +72,7 @@ class ControllerScreenState extends State<ControllerScreen> {
 
   Widget buildDebug(BuildContext context) {
     return Theme(
-      data: ThemeData(
-        primarySwatch: [
-          Colors.green,
-          Colors.purple,
-          Colors.orange,
-          Colors.grey,
-        ][carID],
-      ),
+      data: generateTheme(carColors[carID]),
       child: Scaffold(
         appBar: AppBar(
           title: const Text("BLE Controller (Debug)"),

@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:marklin_bluetooth/firebase/lap.dart';
+import 'package:marklin_bluetooth/theme.dart';
 
 class SpeedPlot extends StatefulWidget {
   /// Displays speed history for [laps] as a [LineChart].
@@ -105,12 +106,7 @@ class SpeedPlotState extends State<SpeedPlot> {
       return LineChartBarData(
           isCurved: true,
           dotData: FlDotData(show: false),
-          color: [
-            Colors.green,
-            Colors.purple,
-            Colors.orange,
-            Colors.grey,
-          ][car.key],
+          color: carColors[car.key],
           spots: spots);
     }).toList();
   }
