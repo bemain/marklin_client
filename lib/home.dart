@@ -26,14 +26,14 @@ class _HomeScreenState extends State<HomeScreen> with PortraitModeMixin {
         index: _selectedIndex,
         children: _pages,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.swipe), label: "Controller"),
-          BottomNavigationBarItem(icon: Icon(Icons.schedule), label: "Race"),
-          BottomNavigationBarItem(icon: Icon(Icons.layers), label: "Browser")
+      bottomNavigationBar: NavigationBar(
+        destinations: const [
+          NavigationDestination(icon: Icon(Icons.swipe), label: "Controller"),
+          NavigationDestination(icon: Icon(Icons.schedule), label: "Race"),
+          NavigationDestination(icon: Icon(Icons.layers), label: "Browser")
         ],
-        currentIndex: _selectedIndex,
-        onTap: (int index) {
+        selectedIndex: _selectedIndex,
+        onDestinationSelected: (int index) {
           setState(() {
             _selectedIndex = index;
           });
