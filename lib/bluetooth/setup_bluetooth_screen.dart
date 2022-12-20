@@ -17,10 +17,13 @@ class SetupBTScreen extends StatefulWidget {
   /// 4) Lets user select BT Characterstic for both speed and lap
   /// Then runs [onSetupComplete].
   ///
-  /// Tries to complete steps automatically, using IDs provided by [Bluetooth]
-  /// singleton.
-  const SetupBTScreen({Key? key, required this.onSetupComplete})
-      : super(key: key);
+  /// If [tryAutoConnect] is true, tries to complete steps automatically,
+  /// using IDs provided by [Bluetooth] singleton.
+  const SetupBTScreen({
+    Key? key,
+    required this.onSetupComplete,
+    this.tryAutoConnect = true,
+  }) : super(key: key);
 
   /// Called when all steps have been completed.
   /// Unless [debugMode] (the first argument) is true, Bluetooth is then fully
@@ -30,6 +33,11 @@ class SetupBTScreen extends StatefulWidget {
   /// If [debugMode] is true, no device has been connected, and ControllerScreen
   /// should instead enter debug mode.
   final Function(bool debugMode) onSetupComplete;
+
+  /// If true, will try to automatically connect to Bluetooth device and
+  /// determine service and characteristics,
+  /// using IDs provided by [Bluetooth] singleton.
+  final bool tryAutoConnect;
 
   @override
   State<StatefulWidget> createState() => _SetupBTScreenState();
@@ -65,7 +73,7 @@ class _SetupBTScreenState extends State<SetupBTScreen> {
         );
       case 2: // Select + connect to Bluetooth Device
         return SelectDeviceScreen(
-          autoconnectID: Bluetooth.deviceID,
+          autoconnectID: widget.tryAutoConnect ? Bluetooth.deviceID : null,
           onDeviceConnected: (BluetoothDevice device) {
             Bluetooth.device = device;
             queueNextStage();
@@ -82,7 +90,7 @@ class _SetupBTScreenState extends State<SetupBTScreen> {
         );
       case 3: // Select Bluetooth Service
         return SelectServiceScreen(
-          autoconnectID: Bluetooth.serviceID,
+          autoconnectID: widget.tryAutoConnect ? Bluetooth.serviceID : null,
           onServiceSelected: (String serviceID, BluetoothService service) {
             //Bluetooth.serviceID = serviceID;
             Bluetooth.service = service;
@@ -93,7 +101,7 @@ class _SetupBTScreenState extends State<SetupBTScreen> {
       case 4: // Select speed char
         return SelectCharacteristicScreen(
           title: const Text("Select Speed Characteristic"),
-          autoconnectID: Bluetooth.speedCharID,
+          autoconnectID: widget.tryAutoConnect ? Bluetooth.speedCharID : null,
           onCharSelected: (String charID, BluetoothCharacteristic char) {
             Bluetooth.speedChar = char;
             queueNextStage();
@@ -102,7 +110,7 @@ class _SetupBTScreenState extends State<SetupBTScreen> {
       case 5: // Select lap char
         return SelectCharacteristicScreen(
           title: const Text("Select Lap Characteristic"),
-          autoconnectID: Bluetooth.lapCharID,
+          autoconnectID: widget.tryAutoConnect ? Bluetooth.lapCharID : null,
           onCharSelected: (String charID, BluetoothCharacteristic char) {
             Bluetooth.lapChar = char;
             queueNextStage();
