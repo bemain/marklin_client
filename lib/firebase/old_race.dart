@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class Race {
+class OldRace {
   /// When this race was started.
   Timestamp date;
 
@@ -10,13 +10,13 @@ class Race {
   /// The number of cars in this race.
   int nCars;
 
-  Race({
+  OldRace({
     required this.date,
     required this.running,
     required this.nCars,
   });
 
-  Race.fromJson(Map<String, dynamic> json)
+  OldRace.fromJson(Map<String, dynamic> json)
       : this(
           date: json["date"],
           running: json["running"],

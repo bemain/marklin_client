@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:marklin_bluetooth/firebase/lap.dart';
+import 'package:marklin_bluetooth/firebase/old_lap.dart';
 import 'package:marklin_bluetooth/race_browser_screen/speed_plot.dart';
 
 class LapViewerScreen extends StatelessWidget {
@@ -13,7 +13,7 @@ class LapViewerScreen extends StatelessWidget {
   final int lapNumber;
 
   /// The laps to display, where the value is the lap and the key is the carID.
-  final Map<int, Lap> laps;
+  final Map<int, OldLap> laps;
 
   @override
   Widget build(BuildContext context) {

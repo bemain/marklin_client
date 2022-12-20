@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:marklin_bluetooth/firebase/race.dart';
+import 'package:marklin_bluetooth/firebase/old_race.dart';
 import 'package:marklin_bluetooth/firebase/races.dart';
 import 'package:marklin_bluetooth/utils.dart';
 import 'package:marklin_bluetooth/widgets.dart';
@@ -25,12 +25,12 @@ class RacesListState extends State<RacesList> {
       appBar: AppBar(
         title: const Text("Race Browser"),
       ),
-      body: StreamBuilder<QuerySnapshot<Race>>(
+      body: StreamBuilder<QuerySnapshot<OldRace>>(
         stream: Races.races.orderBy("date", descending: true).snapshots(),
         builder: niceAsyncBuilder(
           loadingText: "Getting races...",
           activeBuilder: (BuildContext c, snapshot) {
-            List<DocumentSnapshot<Race>> races = snapshot.data!.docs;
+            List<DocumentSnapshot<OldRace>> races = snapshot.data!.docs;
 
             if (!widget.includeCurrentRace) {
               // Remove current race
@@ -48,7 +48,7 @@ class RacesListState extends State<RacesList> {
   }
 
   /// Widget for displaying basic information about a race as a Card.
-  Widget _raceCard(BuildContext context, DocumentSnapshot<Race> raceSnap) {
+  Widget _raceCard(BuildContext context, DocumentSnapshot<OldRace> raceSnap) {
     return Card(
       child: ListTile(
           title: Text(raceString(raceSnap)),

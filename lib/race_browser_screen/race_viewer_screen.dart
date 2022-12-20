@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:marklin_bluetooth/firebase/lap.dart';
-import 'package:marklin_bluetooth/firebase/race.dart';
-import 'package:marklin_bluetooth/firebase/race_reference.dart';
+import 'package:marklin_bluetooth/firebase/old_lap.dart';
+import 'package:marklin_bluetooth/firebase/old_race.dart';
+import 'package:marklin_bluetooth/firebase/old_race_reference.dart';
 import 'package:marklin_bluetooth/utils.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 import 'package:stream_transform/stream_transform.dart';
@@ -16,7 +16,7 @@ class RaceViewerScreen extends StatelessWidget {
   }) : super(key: key);
 
   /// The race to display information about.
-  final DocumentSnapshot<Race> raceSnap;
+  final DocumentSnapshot<OldRace> raceSnap;
 
   /// If true, will sort laps in descending order.
   final bool sortDescending;
@@ -52,7 +52,7 @@ class RaceViewerScreen extends StatelessWidget {
   }
 
   Widget _lapsList(BuildContext context) {
-    return StreamBuilder<Map<int, Map<int, Lap>>>(
+    return StreamBuilder<Map<int, Map<int, OldLap>>>(
       stream: lapsStream(),
       builder: niceAsyncBuilder(
         loadingText: "Getting laps...",
@@ -70,7 +70,7 @@ class RaceViewerScreen extends StatelessWidget {
     );
   }
 
-  Widget _lapTile(BuildContext context, MapEntry<int, Map<int, Lap>> entry) {
+  Widget _lapTile(BuildContext context, MapEntry<int, Map<int, OldLap>> entry) {
     return ListTile(
         leading: Text("${entry.key}."),
         title: Row(
@@ -85,24 +85,26 @@ class RaceViewerScreen extends StatelessWidget {
         });
   }
 
-  Stream<Map<int, Map<int, Lap>>> lapsStream() {
-    RaceReference raceRef = RaceReference(docRef: raceSnap.reference);
+  Stream<Map<int, Map<int, OldLap>>> lapsStream() {
+    OldRaceReference raceRef = OldRaceReference(docRef: raceSnap.reference);
     int nCars = raceSnap.data()!.nCars;
 
-    final Stream<QuerySnapshot<Lap>> first =
+    final Stream<QuerySnapshot<OldLap>> first =
         raceRef.carRef(0).lapsRef.snapshots();
-    final List<Stream<QuerySnapshot<Lap>>> others = List.generate(
+    final List<Stream<QuerySnapshot<OldLap>>> others = List.generate(
         nCars - 1, (carID) => raceRef.carRef(carID + 1).lapsRef.snapshots());
 
     return first.combineLatestAll(others).map(_getLapsFromQuery);
   }
 
-  Map<int, Map<int, Lap>> _getLapsFromQuery(List<QuerySnapshot<Lap>> cars) {
-    Map<int, Map<int, Lap>> lapsByLap = {};
+  Map<int, Map<int, OldLap>> _getLapsFromQuery(
+      List<QuerySnapshot<OldLap>> cars) {
+    Map<int, Map<int, OldLap>> lapsByLap = {};
 
-    cars.asMap().forEach((int carID, QuerySnapshot<Lap> lapsQuery) {
-      List<Lap> laps = lapsQuery.docs.map((lapSnap) => lapSnap.data()).toList();
-      for (Lap lap in laps) {
+    cars.asMap().forEach((int carID, QuerySnapshot<OldLap> lapsQuery) {
+      List<OldLap> laps =
+          lapsQuery.docs.map((lapSnap) => lapSnap.data()).toList();
+      for (OldLap lap in laps) {
         lapsByLap.putIfAbsent(lap.lapNumber, () => {});
         lapsByLap[lap.lapNumber]![carID] = lap;
       }

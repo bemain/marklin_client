@@ -1,6 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:marklin_bluetooth/firebase/lap.dart';
+import 'package:marklin_bluetooth/firebase/old_lap.dart';
 import 'package:marklin_bluetooth/theme.dart';
 
 class SpeedPlot extends StatefulWidget {
@@ -12,7 +12,7 @@ class SpeedPlot extends StatefulWidget {
 
   /// The laps to plot speed history for,
   /// where the value is the lap and the key is the carID.
-  final Map<int, Lap> laps;
+  final Map<int, OldLap> laps;
 
   @override
   State<StatefulWidget> createState() => SpeedPlotState();

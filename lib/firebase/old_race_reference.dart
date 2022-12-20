@@ -1,21 +1,21 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:marklin_bluetooth/firebase/car_reference.dart';
-import 'package:marklin_bluetooth/firebase/race.dart';
-import 'package:marklin_bluetooth/firebase/speed_entry.dart';
+import 'package:marklin_bluetooth/firebase/old_race.dart';
+import 'package:marklin_bluetooth/firebase/old_speed_entry.dart';
 
 /// Helper class for interacting with a Race on the database.
-class RaceReference {
+class OldRaceReference {
   /// The Race Document on firebase that [this] references.
-  final DocumentReference<Race> docRef;
+  final DocumentReference<OldRace> docRef;
 
   /// The Race that [this] references.
-  Future<Race> get race async => (await docRef.get()).data()!;
+  Future<OldRace> get race async => (await docRef.get()).data()!;
 
   /// Whether [this.race] is running or not.
   Stream<bool> get runningStream =>
       docRef.snapshots().map((doc) => doc.get("running"));
 
-  RaceReference({required this.docRef})
+  OldRaceReference({required this.docRef})
       : carRefs = List.generate(
             4,
             (carID) => CarReference(
@@ -31,7 +31,7 @@ class RaceReference {
   /// Add time since current lap to lap times of [carID] on [this.race],
   /// if current lap exists.
   Future<void> addLap(int carID, {Duration? lapTime, int? lapN}) async {
-    Race race = await this.race;
+    OldRace race = await this.race;
     if (!race.running) return; // Not running
     if (carID >= race.nCars) return; // Trying to add lap to car not in race
 
@@ -53,7 +53,7 @@ class RaceReference {
   /// Add [speed] to speed history of the current lap of car with id [carID]
   /// on [this.race].
   Future<void> addSpeedEntry(int carID, double speed) async {
-    Race race = (await this.race);
+    OldRace race = (await this.race);
     if (!race.running) return; // Not running
     if (carID >= race.nCars) return; // Trying to add lap to car not in race
 
@@ -61,7 +61,7 @@ class RaceReference {
 
     Duration relTime = DateTime.now().difference(car.currentLap.date);
 
-    car.currentLap.speedHistory.add(SpeedEntry(relTime, speed));
+    car.currentLap.speedHistory.add(OldSpeedEntry(relTime, speed));
   }
 
   /// Delete all laps on [this.race].

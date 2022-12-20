@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:marklin_bluetooth/firebase/car_reference.dart';
-import 'package:marklin_bluetooth/firebase/lap.dart';
+import 'package:marklin_bluetooth/firebase/old_lap.dart';
 import 'package:marklin_bluetooth/race_browser_screen/lap_viewer_screen.dart';
 import 'package:marklin_bluetooth/utils.dart';
 import 'package:marklin_bluetooth/widgets.dart';
@@ -15,15 +15,15 @@ class CarViewer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot<Lap>>(
+    return StreamBuilder<QuerySnapshot<OldLap>>(
       stream: carRef.lapsRef.orderBy("date", descending: true).snapshots(),
       builder: niceAsyncBuilder(
         loadingText: "Getting lap times...",
         activeBuilder: (BuildContext c, snapshot) {
-          List<QueryDocumentSnapshot<Lap>> docs = snapshot.data!.docs;
+          List<QueryDocumentSnapshot<OldLap>> docs = snapshot.data!.docs;
           return ListView(
             children: docs.map((lapSnap) {
-              Lap lap = lapSnap.data();
+              OldLap lap = lapSnap.data();
               return TextTile(
                   title:
                       "${lap.lapNumber} | ${lap.lapTime.inMilliseconds / 1000}s",

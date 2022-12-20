@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:marklin_bluetooth/firebase/speed_entry.dart';
+import 'package:marklin_bluetooth/firebase/old_speed_entry.dart';
 
-class Lap {
+class OldLap {
   /// When this lap was started.
   DateTime date;
 
@@ -13,23 +13,23 @@ class Lap {
   /// How the speed has varied during [this] lap
   /// The key is the time since [this] lap was started,
   /// and the value is the speed at that time.
-  List<SpeedEntry> speedHistory;
+  List<OldSpeedEntry> speedHistory;
 
-  Lap({
+  OldLap({
     required this.date,
     required this.lapTime,
     required this.lapNumber,
-    List<SpeedEntry>? speedHistory,
+    List<OldSpeedEntry>? speedHistory,
   }) : speedHistory = speedHistory ?? [];
 
-  Lap.fromJson(Map<String, dynamic> json)
+  OldLap.fromJson(Map<String, dynamic> json)
       : this(
           date: json["date"].toDate(),
           lapTime: Duration(milliseconds: json["lapTime"].toInt()),
           lapNumber: json["lapNumber"],
           speedHistory: Map<String, dynamic>.of(json["speedHistory"] ?? {})
               .entries
-              .map((e) => SpeedEntry.fromMapEntry(e))
+              .map((e) => OldSpeedEntry.fromMapEntry(e))
               .toList(),
         );
 

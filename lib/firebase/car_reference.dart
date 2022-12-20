@@ -1,32 +1,32 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:marklin_bluetooth/firebase/lap.dart';
+import 'package:marklin_bluetooth/firebase/old_lap.dart';
 
 class CarReference {
   final int carID;
 
   final CollectionReference<Map<String, dynamic>> collRef;
-  final CollectionReference<Lap> lapsRef;
+  final CollectionReference<OldLap> lapsRef;
 
   CarReference({required this.carID, required this.collRef})
-      : lapsRef = collRef.withConverter<Lap>(
-          fromFirestore: (snapshot, _) => Lap.fromJson(snapshot.data()!),
+      : lapsRef = collRef.withConverter<OldLap>(
+          fromFirestore: (snapshot, _) => OldLap.fromJson(snapshot.data()!),
           toFirestore: (lap, _) => lap.toJson(),
         );
 
   /// The current lap for the car that [this] references.
-  Lap currentLap = Lap(
+  OldLap currentLap = OldLap(
     date: DateTime.now(),
     lapNumber: 1,
     lapTime: const Duration(),
   );
 
   /// The snapshots of all the laps currently on the database.
-  Future<List<DocumentSnapshot<Lap>>> getLapDocs() async {
+  Future<List<DocumentSnapshot<OldLap>>> getLapDocs() async {
     return (await lapsRef.orderBy("lapNumber", descending: true).get()).docs;
   }
 
   /// Get all the laps currently on the database.
-  Future<List<Lap>> getLaps() async {
+  Future<List<OldLap>> getLaps() async {
     var docSnaps = await getLapDocs();
     return docSnaps.map((doc) => doc.data()!).toList();
   }
@@ -37,7 +37,7 @@ class CarReference {
       await lap.reference.delete();
     }
     // Reset current lap
-    currentLap = Lap(
+    currentLap = OldLap(
       date: DateTime.now(),
       lapNumber: 1,
       lapTime: const Duration(),

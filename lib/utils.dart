@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:marklin_bluetooth/firebase/race.dart';
+import 'package:marklin_bluetooth/firebase/old_race.dart';
 
 String dateString(
   DateTime date, {
@@ -17,8 +17,8 @@ String dateString(
   return "$time $separator $day";
 }
 
-String raceString(DocumentSnapshot<Race> raceSnap) {
-  Race race = raceSnap.data()!;
+String raceString(DocumentSnapshot<OldRace> raceSnap) {
+  OldRace race = raceSnap.data()!;
   DateTime date = race.date.toDate();
   return (raceSnap.id == "current") ? "Current" : dateString(date);
 }
