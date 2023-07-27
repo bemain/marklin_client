@@ -32,14 +32,7 @@ class ControllerScreenState extends State<ControllerScreen> {
     }
 
     return Theme(
-      data: ThemeData(
-        primarySwatch: [
-          Colors.green,
-          Colors.purple,
-          Colors.orange,
-          Colors.grey,
-        ][carID],
-      ),
+      data: generateTheme(carColors[carID]),
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(
