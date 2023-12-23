@@ -8,7 +8,7 @@ class SpeedPlot extends StatefulWidget {
   ///
   /// Averages multiple speed entries into each point on the plot.
   /// Features a slider to select how many entries to average into each point.
-  const SpeedPlot({Key? key, required this.laps}) : super(key: key);
+  const SpeedPlot({super.key, required this.laps});
 
   /// The laps to plot speed history for,
   /// where the value is the lap and the key is the carID.
@@ -34,7 +34,7 @@ class SpeedPlotState extends State<SpeedPlot> {
               minY: 0,
               maxY: 100,
               borderData: FlBorderData(show: false),
-              titlesData: FlTitlesData(show: false),
+              titlesData: const FlTitlesData(show: false),
             ),
           ),
         ),
@@ -105,7 +105,7 @@ class SpeedPlotState extends State<SpeedPlot> {
 
       return LineChartBarData(
           isCurved: true,
-          dotData: FlDotData(show: false),
+          dotData: const FlDotData(show: false),
           color: carColors[car.key],
           spots: spots);
     }).toList();

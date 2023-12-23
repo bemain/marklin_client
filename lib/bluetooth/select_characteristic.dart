@@ -9,11 +9,11 @@ class SelectCharacteristicScreen extends StatelessWidget {
   /// Tries to get characteristic automatically using [autoconnectID], if given.
   /// Otherwise, lets user select characteristic from list.
   const SelectCharacteristicScreen({
-    Key? key,
+    super.key,
     this.title = const Text("Select Bluetooth Characteristic"),
     this.autoconnectID,
     this.onCharSelected,
-  }) : super(key: key);
+  });
 
   /// The title to use in the AppBar.
   final Widget title;

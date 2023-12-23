@@ -8,8 +8,7 @@ import 'package:marklin_bluetooth/widgets.dart';
 class RacesList extends StatefulWidget {
   /// Displays the races on Firebase as a list.
   /// Includes button to remove races.
-  const RacesList({Key? key, this.includeCurrentRace = false})
-      : super(key: key);
+  const RacesList({super.key, this.includeCurrentRace = false});
 
   /// If true, will include "current" race in the list.
   final bool includeCurrentRace;

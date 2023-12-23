@@ -11,11 +11,11 @@ class SelectDeviceScreen extends StatefulWidget {
   ///
   /// Also features button for entering debug mode.
   const SelectDeviceScreen({
-    Key? key,
+    super.key,
     this.onDeviceConnected,
     this.onDebugModeSelected,
     this.autoconnectID,
-  }) : super(key: key);
+  });
 
   /// Default callback, called when a device has been selected and connected to.
   final Function(BluetoothDevice device)? onDeviceConnected;

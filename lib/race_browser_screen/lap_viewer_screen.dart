@@ -5,10 +5,10 @@ import 'package:marklin_bluetooth/race_browser_screen/speed_plot.dart';
 class LapViewerScreen extends StatelessWidget {
   /// Widget for displaying speed history for laps with the same number as a chart.
   const LapViewerScreen({
-    Key? key,
+    super.key,
     required this.lapNumber,
     required this.laps,
-  }) : super(key: key);
+  });
 
   final int lapNumber;
 

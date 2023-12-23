@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 class NewRaceDialog extends StatefulWidget {
   /// Popup dialog for selecting whether to save or discard the current race.
   /// Also allows you to select the number of cars racing.
-  const NewRaceDialog({Key? key, this.onCancel, this.onDiscard, this.onSave})
-      : super(key: key);
+  const NewRaceDialog({super.key, this.onCancel, this.onDiscard, this.onSave});
 
   final Function()? onCancel;
   final Function(int nCars)? onDiscard;

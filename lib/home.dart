@@ -5,7 +5,7 @@ import 'package:marklin_bluetooth/portrait_mode_mixin.dart';
 import 'package:marklin_bluetooth/race_browser_screen/race_browser.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   State<StatefulWidget> createState() => _HomeScreenState();

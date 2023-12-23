@@ -9,10 +9,10 @@ class SelectServiceScreen extends StatelessWidget {
   /// Tries to get service automatically using [autoconnectID], if given.
   /// Otherwise, lets user select service from list.
   const SelectServiceScreen({
-    Key? key,
+    super.key,
     this.onServiceSelected,
     this.autoconnectID,
-  }) : super(key: key);
+  });
 
   /// Called when a service has been selected.
   final Function(String serviceID, BluetoothService service)? onServiceSelected;

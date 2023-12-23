@@ -20,10 +20,10 @@ class SetupBTScreen extends StatefulWidget {
   /// If [tryAutoConnect] is true, tries to complete steps automatically,
   /// using IDs provided by [Bluetooth] singleton.
   const SetupBTScreen({
-    Key? key,
+    super.key,
     required this.onSetupComplete,
     this.tryAutoConnect = true,
-  }) : super(key: key);
+  });
 
   /// Called when all steps have been completed.
   /// Unless [debugMode] (the first argument) is true, Bluetooth is then fully

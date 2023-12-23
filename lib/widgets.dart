@@ -4,8 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 class InfoScreen extends StatelessWidget {
-  const InfoScreen({Key? key, required this.icon, required this.text})
-      : super(key: key);
+  const InfoScreen({super.key, required this.icon, required this.text});
 
   final Widget icon;
   final String text;
@@ -20,7 +19,7 @@ class InfoScreen extends StatelessWidget {
 }
 
 class ErrorScreen extends StatelessWidget {
-  const ErrorScreen({Key? key, required this.text}) : super(key: key);
+  const ErrorScreen({super.key, required this.text});
 
   final String text;
 
@@ -34,7 +33,7 @@ class ErrorScreen extends StatelessWidget {
 }
 
 class LoadingScreen extends StatelessWidget {
-  const LoadingScreen({Key? key, required this.text}) : super(key: key);
+  const LoadingScreen({super.key, required this.text});
 
   final String text;
 
@@ -49,10 +48,10 @@ class LoadingScreen extends StatelessWidget {
 
 class ConfirmationDialog extends StatelessWidget {
   const ConfirmationDialog({
-    Key? key,
+    super.key,
     required this.text,
     this.onConfirm,
-  }) : super(key: key);
+  });
 
   final String text;
   final Function? onConfirm;
@@ -82,8 +81,7 @@ class ConfirmationDialog extends StatelessWidget {
 }
 
 class TextTile extends StatelessWidget {
-  const TextTile({Key? key, required this.title, this.text, this.onTap})
-      : super(key: key);
+  const TextTile({super.key, required this.title, this.text, this.onTap});
 
   final String title;
   final String? text;
@@ -111,7 +109,7 @@ class TextTile extends StatelessWidget {
           ),
           Text(
             text!,
-            style: Theme.of(context).textTheme.caption,
+            style: Theme.of(context).textTheme.bodySmall,
           )
         ],
       );
@@ -128,8 +126,7 @@ class TimerText extends StatefulWidget {
   final Stopwatch stopwatch;
   final int decimalPlaces;
 
-  const TimerText({Key? key, required this.stopwatch, this.decimalPlaces = 1})
-      : super(key: key);
+  const TimerText({super.key, required this.stopwatch, this.decimalPlaces = 1});
 
   @override
   State<TimerText> createState() => TimerTextState();

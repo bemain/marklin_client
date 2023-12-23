@@ -8,7 +8,7 @@ import 'package:marklin_bluetooth/widgets.dart';
 
 class CurrentRaceScreen extends StatefulWidget {
   /// Screen for watching and restarting the current race.
-  const CurrentRaceScreen({Key? key}) : super(key: key);
+  const CurrentRaceScreen({super.key});
 
   @override
   State<StatefulWidget> createState() => CurrentRaceScreenState();

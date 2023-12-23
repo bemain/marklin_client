@@ -9,11 +9,10 @@ class SpeedSlider extends StatefulWidget {
   /// Slider for controlling the speed of a car.
   /// Also receives lap times from the server for the currently selected car.
   const SpeedSlider(
-      {Key? key,
+      {super.key,
       this.enableSlowDown = false,
       this.onCarIDChange,
-      this.debugMode = false})
-      : super(key: key);
+      this.debugMode = false});
 
   /// If true, will automatically decrease speed if slider is let go of.
   final bool enableSlowDown;

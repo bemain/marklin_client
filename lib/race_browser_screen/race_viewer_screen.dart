@@ -10,10 +10,10 @@ import 'package:stream_transform/stream_transform.dart';
 class RaceViewerScreen extends StatelessWidget {
   /// Widget for displaying lap times and other information about [raceSnap].
   const RaceViewerScreen({
-    Key? key,
+    super.key,
     required this.raceSnap,
     this.sortDescending = false,
-  }) : super(key: key);
+  });
 
   /// The race to display information about.
   final DocumentSnapshot<Race> raceSnap;

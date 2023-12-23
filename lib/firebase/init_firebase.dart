@@ -5,7 +5,7 @@ import 'package:marklin_bluetooth/widgets.dart';
 
 class InitFirebase extends StatelessWidget {
   /// Makes sure Firebase is initialized before [child] enters the tree.
-  const InitFirebase({Key? key, required this.child}) : super(key: key);
+  const InitFirebase({super.key, required this.child});
 
   /// Widget to display when Firebase is initalized.
   final Widget child;

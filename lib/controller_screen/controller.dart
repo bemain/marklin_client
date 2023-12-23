@@ -7,7 +7,7 @@ import 'package:marklin_bluetooth/theme.dart';
 
 class ControllerScreen extends StatefulWidget {
   /// Screen for controlling and receiving lap times from the cars.
-  const ControllerScreen({Key? key}) : super(key: key);
+  const ControllerScreen({super.key});
 
   @override
   ControllerScreenState createState() => ControllerScreenState();

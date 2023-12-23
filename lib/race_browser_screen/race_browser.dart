@@ -8,7 +8,7 @@ import 'package:marklin_bluetooth/race_browser_screen/races_list.dart';
 
 class RaceBrowserScreen extends StatefulWidget {
   /// Widget for viewing the races currently on the database.
-  const RaceBrowserScreen({Key? key}) : super(key: key);
+  const RaceBrowserScreen({super.key});
 
   @override
   State<StatefulWidget> createState() => RaceBrowserScreenState();
