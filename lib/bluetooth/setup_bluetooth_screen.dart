@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter_blue/flutter_blue.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:marklin_bluetooth/bluetooth/bluetooth.dart';
 import 'package:marklin_bluetooth/bluetooth/select_characteristic.dart';
 import 'package:marklin_bluetooth/bluetooth/select_device.dart';
@@ -44,8 +44,6 @@ class SetupBTScreen extends StatefulWidget {
 }
 
 class _SetupBTScreenState extends State<SetupBTScreen> {
-  final FlutterBlue flutterBlue = FlutterBlue.instance;
-
   int setupStage = 1;
   bool debugMode = false;
 
@@ -54,7 +52,7 @@ class _SetupBTScreenState extends State<SetupBTScreen> {
     switch (setupStage) {
       case 1: // Check if Bluetooth is available
         return FutureBuilder(
-          future: flutterBlue.isAvailable,
+          future: FlutterBluePlus.isSupported,
           builder: niceAsyncBuilder<bool>(
             loadingText: "Waiting for Bluetooth...",
             errorText: "Bluetooth unavailable",

@@ -32,7 +32,7 @@ dependencies:
 
   stream_transform: ^2.1.0
 
-  flutter_blue: ^0.8.0
+  flutter_blue_plus: ^1.31.2
 
   firebase_core: ^2.24.2
   firebase_auth: ^4.15.3

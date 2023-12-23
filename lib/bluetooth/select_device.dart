@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter_blue/flutter_blue.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:marklin_bluetooth/widgets.dart';
 
 class SelectDeviceScreen extends StatefulWidget {
@@ -32,8 +32,6 @@ class SelectDeviceScreen extends StatefulWidget {
 }
 
 class SelectDeviceScreenState extends State<SelectDeviceScreen> {
-  final FlutterBlue flutterBlue = FlutterBlue.instance;
-
   BluetoothDevice? selectedDevice;
 
   /// If true, will try to automatically connect to device.
@@ -56,7 +54,7 @@ class SelectDeviceScreenState extends State<SelectDeviceScreen> {
       ),
       body: (selectedDevice == null)
           ? StreamBuilder<List<ScanResult>>(
-              stream: flutterBlue.scanResults,
+              stream: FlutterBluePlus.scanResults,
               initialData: const [],
               builder: (c, snapshot) {
                 var results = snapshot.data!;
@@ -77,7 +75,7 @@ class SelectDeviceScreenState extends State<SelectDeviceScreen> {
               ),
             ),
       floatingActionButton: StreamBuilder(
-        stream: flutterBlue.isScanning,
+        stream: FlutterBluePlus.isScanning,
         initialData: false,
         builder: (c, AsyncSnapshot<bool> snapshot) => buildFAB(snapshot.data!),
       ),
@@ -129,7 +127,7 @@ class SelectDeviceScreenState extends State<SelectDeviceScreen> {
         tryAutoConnect = true;
         if (!isScanning && selectedDevice == null) {
           // Start scan
-          flutterBlue.startScan(timeout: const Duration(seconds: 4));
+          FlutterBluePlus.startScan(timeout: const Duration(seconds: 4));
         }
       },
     );
@@ -137,9 +135,9 @@ class SelectDeviceScreenState extends State<SelectDeviceScreen> {
 
   /// Connect to [selectedDevice], then call [widget.onDeviceConnected].
   Future<void> connectBT() async {
-    await flutterBlue.stopScan();
+    await FlutterBluePlus.stopScan();
 
-    if ((await flutterBlue.connectedDevices).isEmpty) {
+    if ((FlutterBluePlus.connectedDevices).isEmpty) {
       // Connect to device
       await selectedDevice!.connect();
     } else {
