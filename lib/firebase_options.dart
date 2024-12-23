@@ -23,10 +23,7 @@ class DefaultFirebaseOptions {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for ios - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return ios;
       case TargetPlatform.macOS:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for macos - '
@@ -52,10 +49,21 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCi0a0wfSRJph76mWOU4WW8YnU4AYcnYz8',
-    appId: '1:686308175049:android:84e398383de5c27ac5b118',
+    appId: '1:686308175049:android:e8adba2ad8f3c28cc5b118',
     messagingSenderId: '686308175049',
     projectId: 'marklin-bluetooth',
     databaseURL: 'https://marklin-bluetooth-default-rtdb.firebaseio.com',
-    storageBucket: 'marklin-bluetooth.appspot.com',
+    storageBucket: 'marklin-bluetooth.firebasestorage.app',
   );
+
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyAY5zimAZsm-VyjbBw7O9yaqCdiPF7sp7Y',
+    appId: '1:686308175049:ios:82442a3cd788c5a8c5b118',
+    messagingSenderId: '686308175049',
+    projectId: 'marklin-bluetooth',
+    databaseURL: 'https://marklin-bluetooth-default-rtdb.firebaseio.com',
+    storageBucket: 'marklin-bluetooth.firebasestorage.app',
+    iosBundleId: 'com.agardh.marklinBluetooth',
+  );
+
 }

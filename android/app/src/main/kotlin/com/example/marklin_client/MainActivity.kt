@@ -1,4 +1,4 @@
-package com.agardh.marklin_bluetooth
+package se.agardh.marklin_client
 
 import io.flutter.embedding.android.FlutterActivity
 

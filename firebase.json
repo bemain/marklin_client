@@ -1,0 +1,22 @@
+{
+    "flutter": {
+        "platforms": {
+            "android": {
+                "default": {
+                    "projectId": "marklin-bluetooth",
+                    "appId": "1:686308175049:android:e8adba2ad8f3c28cc5b118",
+                    "fileOutput": "android/app/google-services.json"
+                }
+            },
+            "dart": {
+                "lib/firebase_options.dart": {
+                    "projectId": "marklin-bluetooth",
+                    "configurations": {
+                        "android": "1:686308175049:android:e8adba2ad8f3c28cc5b118",
+                        "ios": "1:686308175049:ios:82442a3cd788c5a8c5b118"
+                    }
+                }
+            }
+        }
+    }
+}
