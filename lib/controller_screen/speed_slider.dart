@@ -24,7 +24,6 @@ class SpeedSlider extends StatefulWidget {
   /// Will still log speed history.
   final bool debugMode;
 
-  
   @override
   State<StatefulWidget> createState() => SpeedSliderState();
 }
@@ -52,7 +51,7 @@ class SpeedSliderState extends State<SpeedSlider> {
         "No BT Lap Characteristic has been selected",
       );
       Bluetooth.lapChar?.setNotifyValue(true).then((value) {
-        Bluetooth.lapChar?.value.listen(valueReceived);
+        Bluetooth.lapChar?.lastValueStream.listen(valueReceived);
       });
     }
 

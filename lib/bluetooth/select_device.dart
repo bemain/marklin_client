@@ -85,8 +85,9 @@ class SelectDeviceScreenState extends State<SelectDeviceScreen> {
   /// If device with id [widget.autoconnectID] is in [scanResults], connects to it.
   /// Otherwise, returns null.
   Widget? tryAutoconnect(List<ScanResult> scanResults) {
-    scanResults =
-        scanResults.where((s) => s.device.id == widget.autoconnectID).toList();
+    scanResults = scanResults
+        .where((s) => s.device.remoteId == widget.autoconnectID)
+        .toList();
     if (tryAutoConnect && scanResults.isNotEmpty) {
       SchedulerBinding.instance.addPostFrameCallback((_) {
         setState(() {
@@ -106,8 +107,8 @@ class SelectDeviceScreenState extends State<SelectDeviceScreen> {
     return ListView(
       children: scanResults.map((result) {
         return TextTile(
-          title: result.device.name,
-          text: result.device.id.toString(),
+          title: result.device.platformName,
+          text: result.device.remoteId.toString(),
           onTap: () {
             setState(() => selectedDevice = result.device);
           },
